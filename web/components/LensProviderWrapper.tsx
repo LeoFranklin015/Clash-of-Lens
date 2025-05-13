@@ -1,7 +1,7 @@
 "use client";
 
 import { LensProvider } from "@lens-protocol/react";
-import { client } from "./client";
+import { client } from "../lib/client";
 
 export function LensProviderWrapper({
   children,
