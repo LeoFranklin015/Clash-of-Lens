@@ -1,27 +1,24 @@
-"use client"
+"use client";
 
-import { useState, } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Label } from "@/components/ui/label"
-import { Zap, Calendar, ArrowRight, ArrowLeft } from "lucide-react"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Zap, Calendar, ArrowRight, ArrowLeft } from "lucide-react";
 
 export default function CreateWar() {
-
-  const [step, setStep] = useState(1)
-  const [selectedClan, setSelectedClan] = useState<string | null>(null)
-  const [duration, setDuration] = useState("7")
+  const [step, setStep] = useState(1);
+  const [selectedClan, setSelectedClan] = useState<string | null>(null);
+  const [duration, setDuration] = useState("7");
   const [metrics, setMetrics] = useState({
     tips: true,
     followers: true,
     nftSales: true,
     posts: true,
-  })
-
-
+  });
 
   // Mock data for clans
   const clans = [
@@ -74,7 +71,7 @@ export default function CreateWar() {
       members: 22,
       wins: 11,
     },
-  ]
+  ];
 
   // Mock data for user's clan
   const userClan = {
@@ -83,39 +80,45 @@ export default function CreateWar() {
     logo: "/placeholder.svg?height=100&width=100",
     members: 24,
     wins: 18,
-  }
+  };
 
   const handleNextStep = () => {
-    setStep(step + 1)
-  }
+    setStep(step + 1);
+  };
 
   const handlePrevStep = () => {
-    setStep(step - 1)
-  }
+    setStep(step - 1);
+  };
 
   const handleMetricChange = (metric: keyof typeof metrics) => {
     setMetrics({
       ...metrics,
       [metric]: !metrics[metric],
-    })
-  }
+    });
+  };
 
   const renderStepContent = () => {
     switch (step) {
       case 1:
         return (
           <div className="space-y-6">
-            <h2 className="text-white font-bold text-2xl">Step 1: Select Opposing Clan</h2>
+            <h2 className="text-white font-bold text-2xl">
+              Step 1: Select Opposing Clan
+            </h2>
             <p className="text-gray-400">
-              Choose which clan you want to challenge to a war. Your clan, {userClan.name}, will be the challenger.
+              Choose which clan you want to challenge to a war. Your clan,{" "}
+              {userClan.name}, will be the challenger.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               {clans.map((clan) => (
                 <div
                   key={clan.id}
-                  className={`border ${selectedClan === clan.id ? "border-[#a3ff12]" : "border-gray-800"
-                    } rounded-lg p-4 cursor-pointer hover:border-[#a3ff12] transition-all`}
+                  className={`border ${
+                    selectedClan === clan.id
+                      ? "border-[#a3ff12]"
+                      : "border-gray-800"
+                  } rounded-lg p-4 cursor-pointer hover:border-[#a3ff12] transition-all`}
                   onClick={() => setSelectedClan(clan.id)}
                 >
                   <div className="flex items-center">
@@ -149,32 +152,51 @@ export default function CreateWar() {
               </Button>
             </div>
           </div>
-        )
+        );
 
       case 2:
         return (
           <div className="space-y-6">
-            <h2 className="text-white font-bold text-2xl">Step 2: Set War Duration</h2>
+            <h2 className="text-white font-bold text-2xl">
+              Step 2: Set War Duration
+            </h2>
             <p className="text-gray-400">
-              Choose how long the war will last. This determines how much time each clan has to accumulate points.
+              Choose how long the war will last. This determines how much time
+              each clan has to accumulate points.
             </p>
 
             <div className="mt-6">
-              <RadioGroup value={duration} onValueChange={setDuration} className="space-y-4">
+              <RadioGroup
+                value={duration}
+                onValueChange={setDuration}
+                className="space-y-4"
+              >
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="3" id="duration-3" className="border-[#a3ff12] text-[#a3ff12]" />
+                  <RadioGroupItem
+                    value="3"
+                    id="duration-3"
+                    className="border-[#a3ff12] text-[#a3ff12]"
+                  />
                   <Label htmlFor="duration-3" className="text-white">
                     3 Days (Quick Battle)
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="7" id="duration-7" className="border-[#a3ff12] text-[#a3ff12]" />
+                  <RadioGroupItem
+                    value="7"
+                    id="duration-7"
+                    className="border-[#a3ff12] text-[#a3ff12]"
+                  />
                   <Label htmlFor="duration-7" className="text-white">
                     7 Days (Standard War)
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="14" id="duration-14" className="border-[#a3ff12] text-[#a3ff12]" />
+                  <RadioGroupItem
+                    value="14"
+                    id="duration-14"
+                    className="border-[#a3ff12] text-[#a3ff12]"
+                  />
                   <Label htmlFor="duration-14" className="text-white">
                     14 Days (Extended Campaign)
                   </Label>
@@ -187,7 +209,10 @@ export default function CreateWar() {
                   <Calendar className="h-4 w-4 mr-2" />
                   <span>
                     Start: {new Date().toLocaleDateString()} • End:{" "}
-                    {new Date(Date.now() + Number.parseInt(duration) * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                    {new Date(
+                      Date.now() +
+                        Number.parseInt(duration) * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString()}
                   </span>
                 </div>
               </div>
@@ -202,20 +227,26 @@ export default function CreateWar() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 PREVIOUS
               </Button>
-              <Button onClick={handleNextStep} className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
+              <Button
+                onClick={handleNextStep}
+                className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+              >
                 NEXT STEP
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
-        )
+        );
 
       case 3:
         return (
           <div className="space-y-6">
-            <h2 className="text-white font-bold text-2xl">Step 3: Choose Metrics</h2>
+            <h2 className="text-white font-bold text-2xl">
+              Step 3: Choose Metrics
+            </h2>
             <p className="text-gray-400">
-              Select which on-chain social metrics will be used to determine the winner of the war.
+              Select which on-chain social metrics will be used to determine the
+              winner of the war.
             </p>
 
             <div className="mt-6 space-y-4">
@@ -268,7 +299,8 @@ export default function CreateWar() {
             <div className="mt-6 border border-gray-800 rounded-lg p-4">
               <h3 className="text-white font-bold mb-2">Metric Weights</h3>
               <p className="text-gray-400 text-sm">
-                All selected metrics will be weighted equally in determining the final score.
+                All selected metrics will be weighted equally in determining the
+                final score.
               </p>
             </div>
 
@@ -291,18 +323,24 @@ export default function CreateWar() {
               </Button>
             </div>
           </div>
-        )
+        );
 
       case 4:
-        const selectedClanData = clans.find((clan) => clan.id === selectedClan)
+        const selectedClanData = clans.find((clan) => clan.id === selectedClan);
 
         return (
           <div className="space-y-6">
-            <h2 className="text-white font-bold text-2xl">Step 4: Confirm & Publish</h2>
-            <p className="text-gray-400">Review the war details and confirm to publish the war declaration.</p>
+            <h2 className="text-white font-bold text-2xl">
+              Step 4: Confirm & Publish
+            </h2>
+            <p className="text-gray-400">
+              Review the war details and confirm to publish the war declaration.
+            </p>
 
             <div className="mt-6 border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-              <h3 className="text-[#a3ff12] font-bold text-xl mb-4">WAR DECLARATION</h3>
+              <h3 className="text-[#a3ff12] font-bold text-xl mb-4">
+                WAR DECLARATION
+              </h3>
 
               <div className="flex items-center justify-between mb-6">
                 <div className="flex flex-col items-center">
@@ -313,12 +351,16 @@ export default function CreateWar() {
                     height={60}
                     className="rounded-full border-2 border-[#a3ff12]"
                   />
-                  <span className="text-white text-sm mt-2">{userClan.name}</span>
+                  <span className="text-white text-sm mt-2">
+                    {userClan.name}
+                  </span>
                 </div>
 
                 <div className="text-center">
                   <div className="text-gray-500 text-lg font-bold">VS</div>
-                  <div className="text-white text-xs mt-1">{duration} DAYS WAR</div>
+                  <div className="text-white text-xs mt-1">
+                    {duration} DAYS WAR
+                  </div>
                 </div>
 
                 <div className="flex flex-col items-center">
@@ -329,7 +371,9 @@ export default function CreateWar() {
                     height={60}
                     className="rounded-full border-2 border-gray-700"
                   />
-                  <span className="text-white text-sm mt-2">{selectedClanData?.name}</span>
+                  <span className="text-white text-sm mt-2">
+                    {selectedClanData?.name}
+                  </span>
                 </div>
               </div>
 
@@ -340,7 +384,10 @@ export default function CreateWar() {
                     <Calendar className="h-4 w-4 mr-2" />
                     <span>
                       {new Date().toLocaleDateString()} to{" "}
-                      {new Date(Date.now() + Number.parseInt(duration) * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                      {new Date(
+                        Date.now() +
+                          Number.parseInt(duration) * 24 * 60 * 60 * 1000
+                      ).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -382,7 +429,10 @@ export default function CreateWar() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 PREVIOUS
               </Button>
-              <Button asChild className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
+              <Button
+                asChild
+                className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+              >
                 <Link href="/wars">
                   <Zap className="mr-2 h-4 w-4" />
                   DECLARE WAR
@@ -390,49 +440,61 @@ export default function CreateWar() {
               </Button>
             </div>
           </div>
-        )
+        );
 
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-
       {/* Page header */}
       <div className="mt-12 mb-8">
-        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter">CREATE WAR</h1>
-        <p className="text-gray-400 mt-2">Challenge another clan to a war and set the terms of battle</p>
+        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter">
+          CREATE WAR
+        </h1>
+        <p className="text-gray-400 mt-2">
+          Challenge another clan to a war and set the terms of battle
+        </p>
       </div>
 
       {/* Progress Steps */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           {[1, 2, 3, 4].map((stepNumber) => (
-            <div key={stepNumber} className="flex flex-col items-center" style={{ width: `${100 / 4}%` }}>
+            <div
+              key={stepNumber}
+              className="flex flex-col items-center"
+              style={{ width: `${100 / 4}%` }}
+            >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${stepNumber === step
-                  ? "bg-[#a3ff12] text-black"
-                  : stepNumber < step
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                  stepNumber === step
+                    ? "bg-[#a3ff12] text-black"
+                    : stepNumber < step
                     ? "bg-[#a3ff12] bg-opacity-20 text-[#a3ff12]"
                     : "bg-gray-800 text-white"
-                  }`}
+                }`}
               >
                 {stepNumber}
               </div>
               <div
-                className={`text-xs mt-2 ${stepNumber === step ? "text-[#a3ff12]" : stepNumber < step ? "text-gray-400" : "text-gray-600"
-                  }`}
+                className={`text-xs mt-2 ${
+                  stepNumber === step
+                    ? "text-[#a3ff12]"
+                    : stepNumber < step
+                    ? "text-gray-400"
+                    : "text-gray-600"
+                }`}
               >
                 {stepNumber === 1
                   ? "SELECT CLAN"
                   : stepNumber === 2
-                    ? "SET DURATION"
-                    : stepNumber === 3
-                      ? "CHOOSE METRICS"
-                      : "CONFIRM"}
+                  ? "SET DURATION"
+                  : stepNumber === 3
+                  ? "CHOOSE METRICS"
+                  : "CONFIRM"}
               </div>
             </div>
           ))}
@@ -447,7 +509,9 @@ export default function CreateWar() {
       </div>
 
       {/* Step Content */}
-      <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">{renderStepContent()}</div>
+      <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
+        {renderStepContent()}
+      </div>
     </div>
-  )
+  );
 }
