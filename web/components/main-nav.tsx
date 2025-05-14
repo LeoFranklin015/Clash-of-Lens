@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-
+import { ConnectButton } from "@/components/connectButton";
 interface MainNavProps {
   isLoaded: boolean;
 }
@@ -102,13 +102,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
             className="transition-all duration-500"
             style={{ transitionDelay: `${navItems.length * 100}ms` }}
           >
-            <Link
-              href="/connect"
-              className="px-3 py-1 text-xs border border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:bg-opacity-10 transition-all relative overflow-hidden group rounded"
-            >
-              <span className="relative z-10">CONNECT WALLET</span>
-              <span className="absolute inset-0 bg-[#00FFF7] opacity-0 group-hover:opacity-10 transition-opacity"></span>
-            </Link>
+            <ConnectButton />
           </li>
         </ul>
       </nav>
