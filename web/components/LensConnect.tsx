@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { client } from "@/lib/client";
 import { useEthersSigner } from "@/lib/walletClientToSigner";
 import { signMessageWith } from "@lens-protocol/client/ethers";
@@ -65,14 +65,20 @@ export const LensConnect = () => {
         }
     };
 
+    // Automatically authenticate when signer is available and not already authenticated
+    useEffect(() => {
+        if (signer && !authenticated && !loading) {
+            handleAuthenticate();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [signer]);
+
     if (!signer) return <div>Connect your wallet to continue.</div>;
 
     return (
         <div>
             {!authenticated ? (
-                <button onClick={handleAuthenticate} disabled={loading}>
-                    {loading ? "Authenticating…" : "Authenticate with Lens"}
-                </button>
+                <div>{loading ? "Authenticating…" : "Waiting for authentication…"}</div>
             ) : (
                 <div>
                     <div>Authenticated!</div>

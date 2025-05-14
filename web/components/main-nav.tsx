@@ -4,13 +4,81 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
+import { LensConnect } from "./LensConnect";
+import { ConnectKitButton } from "connectkit";
+import { useEffect, } from "react";
+import { useAccount } from "wagmi";
+import { evmAddress } from "@lens-protocol/client";
+import { fetchAccountsBulk } from "@lens-protocol/client/actions";
+import { client } from "@/lib/client";
 
 interface MainNavProps {
   isLoaded: boolean;
 }
 
+function Profile({ profile }: { profile: any }) {
+  return (
+    <div>
+      {profile && (
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-full bg-gray-700 overflow-hidden">
+            {profile.metadata?.picture ? (
+              <img
+                src={profile.metadata.picture}
+                alt={profile.metadata?.name || "Profile"}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-2xl">
+                👤
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="font-bold">
+              {profile.metadata?.name || "Anonymous"}
+            </h3>
+            <p className="text-sm text-gray-400">
+              @{profile.username?.localName || "user"}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function MainNav({ isLoaded }: MainNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const { address } = useAccount();
+  const [profile, setProfile] = useState(null);
+
+  console.log(address);
+
+  const fetchAccountDetails = async () => {
+    const result = await fetchAccountsBulk(client, {
+      ownedBy: [evmAddress(address!)],
+    });
+
+    if (result.isErr()) {
+      return console.error(result.error);
+    }
+
+    return result.value;
+  };
+
+  useEffect(() => {
+    if (address) {
+      const getAccount = async () => {
+        const account = await fetchAccountDetails();
+        if (account && account.length > 0) {
+          setProfile(account[0] as any);
+        }
+      };
+      getAccount();
+    }
+  }, [address]);
 
   const navItems = [
     { name: "HOME", href: "/" },
@@ -22,10 +90,10 @@ export function MainNav({ isLoaded }: MainNavProps) {
 
   return (
     <header className="flex justify-between items-center bg-[#0B0B0F] py-4 px-10">
-      <div
-        className={`flex items-center transform transition-all duration-1000 ${
-          isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
-        }`}
+      <Link
+        href="/"
+        className={`flex items-center transform transition-all duration-1000 ${isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
+          }`}
       >
         <div className="w-6 h-6 rounded-full bg-[#39FF14] flex items-center justify-center mr-2 animate-pulse shadow-[0_0_10px_rgba(57,255,20,0.7)]">
           <div className="w-4 h-4 rounded-full border-2 border-[#0B0B0F]"></div>
@@ -34,7 +102,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
           CLASH OF LENS
           <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#39FF14] grow-underline"></span>
         </span>
-      </div>
+      </Link>
 
       {/* Mobile menu button */}
       <div className="md:hidden">
@@ -78,9 +146,8 @@ export function MainNav({ isLoaded }: MainNavProps) {
 
       {/* Desktop navigation */}
       <nav
-        className={`hidden md:flex transform transition-all duration-1000 ${
-          isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
-        }`}
+        className={`hidden md:flex transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
+          }`}
       >
         <ul className="flex space-x-1">
           {navItems.map((item, index) => (
@@ -102,13 +169,19 @@ export function MainNav({ isLoaded }: MainNavProps) {
             className="transition-all duration-500"
             style={{ transitionDelay: `${navItems.length * 100}ms` }}
           >
-            <Link
-              href="/connect"
-              className="px-3 py-1 text-xs border border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:bg-opacity-10 transition-all relative overflow-hidden group rounded"
-            >
-              <span className="relative z-10">CONNECT WALLET</span>
-              <span className="absolute inset-0 bg-[#00FFF7] opacity-0 group-hover:opacity-10 transition-opacity"></span>
-            </Link>
+            <LensConnect />
+          </li>
+          <li
+            className="transition-all duration-500"
+            style={{ transitionDelay: `${navItems.length * 100}ms` }}
+          >
+            <ConnectKitButton />
+          </li>
+          <li
+            className="transition-all duration-500"
+            style={{ transitionDelay: `${navItems.length * 100}ms` }}
+          >
+            <Profile profile={profile} />
           </li>
         </ul>
       </nav>
