@@ -13,6 +13,10 @@ import { uri as URI } from "@lens-protocol/client";
 import { useSession } from "@/components/SessionContext";
 import { handleOperationWith } from "@lens-protocol/client/ethers";
 import { useEthersSigner } from "@/lib/walletClientToSigner";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
 const steps = [
   {
     title: "Basic Info",
@@ -122,31 +126,27 @@ export default function CreateClan() {
     switch (currentStep) {
       case 0:
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-bold text-[#a3ff12] mb-2">
                 Clan Name
               </label>
-              <input
+              <Input
                 type="text"
                 value={clanData.name}
-                onChange={(e) =>
-                  setClanData({ ...clanData, name: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                onChange={(e) => setClanData({ ...clanData, name: e.target.value })}
+                className="bg-black border-[#a3ff12] text-white placeholder:text-gray-500 focus:ring-[#a3ff12] focus:border-[#a3ff12]"
                 placeholder="Enter clan name"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-bold text-[#a3ff12] mb-2">
                 Description
               </label>
               <textarea
                 value={clanData.description}
-                onChange={(e) =>
-                  setClanData({ ...clanData, description: e.target.value })
-                }
-                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                onChange={(e) => setClanData({ ...clanData, description: e.target.value })}
+                className="w-full px-4 py-2 bg-black border border-[#a3ff12] text-white rounded-lg focus:ring-2 focus:ring-[#a3ff12] focus:border-[#a3ff12] placeholder:text-gray-500 min-h-[120px]"
                 rows={4}
                 placeholder="Enter clan description"
               />
@@ -155,16 +155,16 @@ export default function CreateClan() {
         );
       case 1:
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
+              <label className="block text-sm font-bold text-[#a3ff12] mb-2">
                 Clan Icon
               </label>
               <div className="flex items-center justify-center w-full">
-                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700">
+                <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-[#a3ff12] border-dashed rounded-lg cursor-pointer bg-black hover:bg-[#a3ff12]/10 transition-all">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
                     <svg
-                      className="w-8 h-8 mb-4 text-gray-400"
+                      className="w-8 h-8 mb-4 text-[#a3ff12]"
                       aria-hidden="true"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
@@ -178,9 +178,8 @@ export default function CreateClan() {
                         d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
                       />
                     </svg>
-                    <p className="mb-2 text-sm text-gray-400">
-                      <span className="font-semibold">Click to upload</span> or
-                      drag and drop
+                    <p className="mb-2 text-sm text-[#a3ff12]">
+                      <span className="font-semibold">Click to upload</span> or drag and drop
                     </p>
                     <p className="text-xs text-gray-500">
                       PNG, JPG or GIF (MAX. 800x400px)
@@ -195,7 +194,7 @@ export default function CreateClan() {
                 </label>
               </div>
               {imageFile && (
-                <div className="mt-4 text-sm text-lime-400">
+                <div className="mt-4 text-sm text-[#a3ff12]">
                   Selected: {imageFile.name}
                 </div>
               )}
@@ -204,27 +203,27 @@ export default function CreateClan() {
         );
       case 2:
         return (
-          <div className="space-y-4">
-            <div className="bg-gray-800 p-6 rounded-lg">
-              <h3 className="text-lg font-medium text-white mb-4">
+          <div className="space-y-6">
+            <div className="bg-black bg-opacity-80 border border-[#a3ff12] p-6 rounded-lg">
+              <h3 className="text-lg font-bold text-[#a3ff12] mb-4">
                 Review Clan Details
               </h3>
               <div className="space-y-3">
                 <div>
-                  <span className="text-gray-400">Clan Name:</span>
+                  <span className="text-[#a3ff12] font-bold">Clan Name:</span>
                   <p className="text-white">{clanData.name}</p>
                 </div>
                 <div>
-                  <span className="text-gray-400">Description:</span>
+                  <span className="text-[#a3ff12] font-bold">Description:</span>
                   <p className="text-white">{clanData.description}</p>
                 </div>
                 <div>
-                  <span className="text-gray-400">Icon:</span>
+                  <span className="text-[#a3ff12] font-bold">Icon:</span>
                   {clanData.icon && (
                     <img
                       src={clanData.icon}
                       alt="Clan icon"
-                      className="w-16 h-16 rounded-full mt-2"
+                      className="w-16 h-16 rounded-full mt-2 border-2 border-[#a3ff12]"
                     />
                   )}
                 </div>
@@ -238,66 +237,71 @@ export default function CreateClan() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-black text-white">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-center mb-8">
-          Create Your Clan
-        </h1>
-        <div className="max-w-3xl mx-auto">
-          {!processing ? (
-            <>
-              <Stepper
-                steps={steps}
-                currentStep={currentStep}
-                onStepClick={(step) => setCurrentStep(step)}
-              />
-              <div className="mt-8 bg-gray-800 p-6 rounded-lg">
-                {renderStepContent()}
-              </div>
-              <div className="mt-8 flex justify-between">
-                <button
-                  onClick={handleBack}
-                  className={`px-6 py-2 rounded-lg ${
-                    currentStep === 0
-                      ? "bg-gray-700 cursor-not-allowed"
-                      : "bg-gray-700 hover:bg-gray-600"
-                  }`}
-                  disabled={currentStep === 0}
+    <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Page header */}
+      <div className="mt-12 mb-8 flex flex-col items-center">
+        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter mb-2">CREATE CLAN</h1>
+        <p className="text-gray-400">Create your own clan and start battling for supremacy</p>
+        <Button asChild className="mt-6 bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden" style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)" }} variant="default">
+          <Link href="/clans">
+            <span className="relative z-10">BACK TO DIRECTORY</span>
+            <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
+          </Link>
+        </Button>
+      </div>
+      <div className="bg-black bg-opacity-60 border border-gray-800 rounded-lg p-8">
+        {!processing ? (
+          <>
+            <Stepper
+              steps={steps}
+              currentStep={currentStep}
+              onStepClick={(step) => setCurrentStep(step)}
+            />
+            <div className="mt-8">
+              {renderStepContent()}
+            </div>
+            <div className="mt-8 flex justify-between gap-4">
+              <Button
+                onClick={handleBack}
+                className="min-w-[120px] border border-[#a3ff12] text-[#a3ff12] bg-transparent hover:bg-[#a3ff12] hover:text-black font-bold"
+                variant="outline"
+                disabled={currentStep === 0}
+              >
+                Back
+              </Button>
+              {currentStep === steps.length - 1 ? (
+                <Button
+                  onClick={handleCreateClan}
+                  className="min-w-[120px] bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                  variant="default"
                 >
-                  Back
-                </button>
-                {currentStep === steps.length - 1 ? (
-                  <button
-                    onClick={handleCreateClan}
-                    className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg"
-                  >
-                    Create Clan
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleNext}
-                    className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg"
-                  >
-                    Next
-                  </button>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="mt-8 bg-gray-900 p-8 rounded-xl flex flex-col items-center">
-              <VerticalStepper
-                steps={processSteps}
-                currentStep={processStep}
-                completedSteps={completedSteps}
-              />
-              {completedSteps.length === processSteps.length && (
-                <div className="mt-8 text-lime-400 text-xl font-bold">
-                  Clan Created Successfully!
-                </div>
+                  Create Clan
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleNext}
+                  className="min-w-[120px] bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                  variant="default"
+                >
+                  Next
+                </Button>
               )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="mt-8 bg-black bg-opacity-80 border border-gray-800 p-8 rounded-xl flex flex-col items-center">
+            <VerticalStepper
+              steps={processSteps}
+              currentStep={processStep}
+              completedSteps={completedSteps}
+            />
+            {completedSteps.length === processSteps.length && (
+              <div className="mt-8 text-[#a3ff12] text-xl font-bold">
+                Clan Created Successfully!
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
