@@ -5,8 +5,8 @@ import { useAccount } from "wagmi";
 import { evmAddress } from "@lens-protocol/client";
 import { fetchAccount } from "@lens-protocol/client/actions";
 import { fetchAccountsBulk } from "@lens-protocol/client/actions";
-import { client } from "@/components/client";
-
+import { client } from "@/lib/client";
+import { LensConnect } from "@/components/LensConnect";
 export default function Home() {
   const { address } = useAccount();
   const [profile, setProfile] = useState<any>(null);
@@ -67,6 +67,7 @@ export default function Home() {
           </div>
         )}
         <ConnectKitButton />
+        <LensConnect />
       </div>
       <div className="container mx-auto px-4 py-20">
         <div className="text-center space-y-8">
