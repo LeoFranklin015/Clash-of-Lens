@@ -10,8 +10,9 @@ import { lensAccountOnly } from "@lens-chain/storage-client";
 import { group } from "@lens-protocol/metadata";
 import { createGroup } from "@lens-protocol/client/actions";
 import { uri as URI } from "@lens-protocol/client";
-import { client } from "@/lib/client";
-
+import { useSession } from "@/components/SessionContext";
+import { handleOperationWith } from "@lens-protocol/client/ethers";
+import { useEthersSigner } from "@/lib/walletClientToSigner";
 const steps = [
   {
     title: "Basic Info",
@@ -46,6 +47,8 @@ export default function CreateClan() {
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const storageClient = StorageClient.create();
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const { sessionClient } = useSession();
+  const signer = useEthersSigner();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -74,6 +77,9 @@ export default function CreateClan() {
   };
 
   const handleCreateClan = async () => {
+    if (!signer) {
+      return;
+    }
     console.log("Creating clan with data:", clanData);
 
     const metadata = group({
@@ -86,9 +92,13 @@ export default function CreateClan() {
 
     console.log(uri); // e.g., lens://4f91ca…
 
-    // const result = await createGroup(sessionClient, {
-    //   metadataUri: URI(uri),
-    // });
+    const result = await createGroup(sessionClient, {
+      metadataUri: URI(uri),
+    })
+      .andThen(handleOperationWith(signer!))
+      .andThen(sessionClient.waitForTransaction);
+
+    console.log(result);
 
     // Simulate: Uploading image
     await new Promise((res) => setTimeout(res, 1000));
