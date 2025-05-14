@@ -4,12 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { LensConnect } from "./LensConnect";
-import { useEffect, } from "react";
+
+import { useEffect } from "react";
 import { useAccount } from "wagmi";
 import { evmAddress } from "@lens-protocol/client";
 import { fetchAccountsBulk } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
+import { useSession } from "@/components/SessionContext";
+import { useEthersSigner } from "@/lib/walletClientToSigner";
+import { signMessageWith } from "@lens-protocol/client/ethers";
 
 import { ConnectButton } from "@/components/connectButton";
 interface MainNavProps {
@@ -45,16 +48,16 @@ function Profile({ profile }: { profile: any }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function MainNav({ isLoaded }: MainNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { address } = useAccount();
-  const [profile, setProfile] = useState(null);
-
-  console.log(address);
+  const [profile, setProfile] = useState<any>(null);
+  const { setSessionClient, sessionClient } = useSession();
+  const signer = useEthersSigner();
 
   const fetchAccountDetails = async () => {
     const result = await fetchAccountsBulk(client, {
@@ -73,12 +76,39 @@ export function MainNav({ isLoaded }: MainNavProps) {
       const getAccount = async () => {
         const account = await fetchAccountDetails();
         if (account && account.length > 0) {
+          console.log(account[0]);
           setProfile(account[0] as any);
         }
       };
       getAccount();
     }
   }, [address]);
+
+  useEffect(() => {
+    if (address && signer && profile) {
+      const authenticate = async () => {
+        const authenticated = await client.login({
+          accountOwner: {
+            app: "0xC75A89145d765c396fd75CbD16380Eb184Bd2ca7",
+            owner: signer.address,
+            account: profile.address,
+          },
+          signMessage: signMessageWith(signer),
+        });
+
+        if (authenticated.isErr()) {
+          return console.error(authenticated.error);
+        }
+
+        // SessionClient: { ... }
+        const sessionClient = authenticated.value;
+        setSessionClient(sessionClient);
+      };
+      if (address && signer && sessionClient === null) {
+        authenticate();
+      }
+    }
+  }, [address, signer, setSessionClient]);
 
   const navItems = [
     { name: "HOME", href: "/" },
@@ -92,8 +122,9 @@ export function MainNav({ isLoaded }: MainNavProps) {
     <header className="flex justify-between items-center bg-[#0B0B0F] py-4 px-10">
       <Link
         href="/"
-        className={`flex items-center transform transition-all duration-1000 ${isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
-          }`}
+        className={`flex items-center transform transition-all duration-1000 ${
+          isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
+        }`}
       >
         <div className="w-6 h-6 rounded-full bg-[#39FF14] flex items-center justify-center mr-2 animate-pulse shadow-[0_0_10px_rgba(57,255,20,0.7)]">
           <div className="w-4 h-4 rounded-full border-2 border-[#0B0B0F]"></div>
@@ -146,8 +177,9 @@ export function MainNav({ isLoaded }: MainNavProps) {
 
       {/* Desktop navigation */}
       <nav
-        className={`hidden md:flex transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
-          }`}
+        className={`hidden md:flex transform transition-all duration-1000 ${
+          isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
+        }`}
       >
         <ul className="flex space-x-1">
           {navItems.map((item, index) => (
@@ -165,12 +197,6 @@ export function MainNav({ isLoaded }: MainNavProps) {
               </Link>
             </li>
           ))}
-          <li
-            className="transition-all duration-500"
-            style={{ transitionDelay: `${navItems.length * 100}ms` }}
-          >
-            <LensConnect />
-          </li>
           <li
             className="transition-all duration-500"
             style={{ transitionDelay: `${navItems.length * 100}ms` }}
