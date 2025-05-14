@@ -10,7 +10,7 @@ import { lensAccountOnly } from "@lens-chain/storage-client";
 import { group } from "@lens-protocol/metadata";
 import { createGroup } from "@lens-protocol/client/actions";
 import { uri as URI } from "@lens-protocol/client";
-import { client } from "@/components/client";
+import { client } from "@/lib/client";
 
 const steps = [
   {
