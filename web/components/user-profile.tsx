@@ -1,12 +1,99 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Shield, Trophy, Coins, Zap, Calendar, ExternalLink } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Shield,
+  Trophy,
+  Coins,
+  Zap,
+  Calendar,
+  ExternalLink,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { fetchAccountsBulk } from "@lens-protocol/client/actions";
+import { useEthersSigner } from "@/lib/walletClientToSigner";
+import { evmAddress } from "@lens-protocol/react";
+import { client } from "@/lib/client";
+import { useAccount } from "wagmi";
+
+interface LensUsername {
+  __typename: "Username";
+  id: string;
+  value: string;
+  localName: string;
+  linkedTo: string;
+  ownedBy: string;
+  timestamp: string;
+  namespace: string;
+  operations: null | any; // Adjust 'any' if a more specific type is known
+}
+
+interface MetadataAttribute {
+  __typename: "MetadataAttribute";
+  type: string;
+  key: string;
+  value: string;
+}
+
+interface AccountMetadata {
+  __typename: "AccountMetadata";
+  attributes: MetadataAttribute[];
+  bio: string | null;
+  coverPicture: string | null;
+  id: string;
+  name: string | null;
+  picture: string | null;
+}
+
+interface AccountFollowRules {
+  __typename: "AccountFollowRules";
+  required: any[]; // Adjust 'any' if a more specific type is known
+  anyOf: any[]; // Adjust 'any' if a more specific type is known
+}
+
+interface LensAccount {
+  __typename: "Account";
+  address: string;
+  owner: string;
+  score: number;
+  createdAt: string;
+  username: LensUsername | null;
+  metadata: AccountMetadata | null;
+  operations: null | any; // Adjust 'any' if a more specific type is known
+  rules: AccountFollowRules | null;
+  actions: any[]; // Adjust 'any' if a more specific type is known
+}
 
 export default function UserProfile() {
+  const [profile, setProfile] = useState<LensAccount | null>(null);
+  const signer = useEthersSigner();
+  const { address } = useAccount();
+  const fetchAccountDetails = async () => {
+    const result = await fetchAccountsBulk(client, {
+      ownedBy: [evmAddress(address!)],
+    });
 
+    if (result.isErr()) {
+      return console.error(result.error);
+    }
+
+    return result.value;
+  };
+
+  useEffect(() => {
+    if (address) {
+      const getAccount = async () => {
+        const account = await fetchAccountDetails();
+        if (account && account.length > 0) {
+          console.log(account[0]);
+          setProfile(account[0] as any);
+        }
+      };
+      getAccount();
+    }
+  }, [address]);
 
   // Mock data for the user
   const user = {
@@ -34,7 +121,7 @@ export default function UserProfile() {
       farcaster: "@CyberWolf",
       twitter: "@0xCyb3r_eth",
     },
-  }
+  };
 
   // Mock data for contributions
   const contributions = [
@@ -86,7 +173,7 @@ export default function UserProfile() {
       date: "April 25, 2023",
       war: "vs PIXEL PUNKS",
     },
-  ]
+  ];
 
   // Mock data for achievements
   const achievements = [
@@ -132,7 +219,7 @@ export default function UserProfile() {
       icon: "/placeholder.svg?height=50&width=50",
       date: "March 22, 2023",
     },
-  ]
+  ];
 
   // Mock data for NFTs
   const nfts = [
@@ -178,34 +265,50 @@ export default function UserProfile() {
       creator: "Clash of Lens",
       collected: "March 15, 2023",
     },
-  ]
+  ];
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-
       {/* User Banner */}
       <div className="mt-12 relative rounded-lg overflow-hidden h-48 md:h-64">
-        <Image src={user.banner || "/placeholder.svg"} alt={`${user.name} Banner`} fill className="object-cover" />
+        <Image
+          src={
+            profile?.metadata?.coverPicture || user.banner || "/placeholder.svg"
+          }
+          alt={`${profile?.metadata?.name || user.name} Banner`}
+          fill
+          className="object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
         <div className="absolute bottom-0 left-0 p-6 flex items-center">
           <Image
-            src={user.avatar || "/placeholder.svg"}
-            alt={user.name}
+            src={
+              profile?.metadata?.picture || user.avatar || "/placeholder.svg"
+            }
+            alt={profile?.metadata?.name || user.name}
             width={80}
             height={80}
             className="rounded-full border-4 border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
           />
           <div className="ml-4">
             <div className="flex items-center">
-              <h1 className="text-white font-extrabold text-3xl md:text-4xl">{user.name}</h1>
+              <h1 className="text-white font-extrabold text-3xl md:text-4xl">
+                {profile?.metadata?.name ||
+                  profile?.username?.localName ||
+                  user.name}
+              </h1>
               <div className="ml-3 px-2 py-1 bg-[#a3ff12] text-black text-xs font-bold rounded-full">
                 LVL {user.xpLevel}
               </div>
             </div>
             <div className="flex items-center mt-1">
-              <span className="text-gray-300 mr-4">{user.wallet}</span>
-              <Link href={`/clans/${user.clan.id}`} className="flex items-center text-[#a3ff12] hover:underline">
+              <span className="text-gray-300 mr-4">
+                {profile?.address || user.wallet}
+              </span>
+              <Link
+                href={`/clans/${user.clan.id}`}
+                className="flex items-center text-[#a3ff12] hover:underline"
+              >
                 <Image
                   src={user.clan.logo || "/placeholder.svg"}
                   alt={user.clan.name}
@@ -235,7 +338,9 @@ export default function UserProfile() {
             <Zap className="h-5 w-5 text-[#a3ff12] mr-2" />
             <h3 className="text-gray-400 text-xs font-medium">CONTRIBUTIONS</h3>
           </div>
-          <p className="text-white text-2xl font-bold">{user.stats.contributions}</p>
+          <p className="text-white text-2xl font-bold">
+            {user.stats.contributions}
+          </p>
         </div>
 
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 p-4 rounded-lg">
@@ -249,9 +354,13 @@ export default function UserProfile() {
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 p-4 rounded-lg">
           <div className="flex items-center mb-2">
             <Coins className="h-5 w-5 text-[#a3ff12] mr-2" />
-            <h3 className="text-gray-400 text-xs font-medium">NFTS COLLECTED</h3>
+            <h3 className="text-gray-400 text-xs font-medium">
+              NFTS COLLECTED
+            </h3>
           </div>
-          <p className="text-white text-2xl font-bold">{user.stats.nftsCollected}</p>
+          <p className="text-white text-2xl font-bold">
+            {user.stats.nftsCollected}
+          </p>
         </div>
       </div>
 
@@ -260,7 +369,9 @@ export default function UserProfile() {
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-[#a3ff12] font-bold text-xl mb-4">ABOUT</h2>
-            <p className="text-gray-300">{user.bio}</p>
+            <p className="text-gray-300">
+              {profile?.metadata?.bio || user.bio}
+            </p>
           </div>
           <div className="flex flex-col space-y-2">
             {Object.entries(user.socialLinks).map(([platform, handle]) => (
@@ -278,7 +389,14 @@ export default function UserProfile() {
         <div className="mt-4 text-gray-400 text-sm">
           <span className="flex items-center">
             <Calendar className="h-4 w-4 mr-1" />
-            Joined {user.joinDate}
+            Joined{" "}
+            {profile?.createdAt
+              ? new Date(profile.createdAt).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : user.joinDate}
           </span>
         </div>
       </div>
@@ -299,7 +417,10 @@ export default function UserProfile() {
             >
               ACHIEVEMENTS
             </TabsTrigger>
-            <TabsTrigger value="nfts" className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black">
+            <TabsTrigger
+              value="nfts"
+              className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
+            >
               NFTS
             </TabsTrigger>
           </TabsList>
@@ -315,9 +436,13 @@ export default function UserProfile() {
                   <div className="flex justify-between items-start">
                     <div>
                       <div className="flex items-center">
-                        <span className="text-white font-bold">{contribution.details}</span>
+                        <span className="text-white font-bold">
+                          {contribution.details}
+                        </span>
                         {contribution.amount && (
-                          <span className="ml-2 text-[#a3ff12] font-bold">{contribution.amount}</span>
+                          <span className="ml-2 text-[#a3ff12] font-bold">
+                            {contribution.amount}
+                          </span>
                         )}
                       </div>
                       <div className="flex items-center mt-2 text-sm text-gray-400">
@@ -354,11 +479,17 @@ export default function UserProfile() {
                       />
                     </div>
                     <div className="ml-4">
-                      <h3 className="text-white font-bold">{achievement.name}</h3>
-                      <p className="text-gray-400 text-sm">{achievement.description}</p>
+                      <h3 className="text-white font-bold">
+                        {achievement.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {achievement.description}
+                      </p>
                     </div>
                   </div>
-                  <div className="mt-2 text-right text-gray-400 text-xs">Earned on {achievement.date}</div>
+                  <div className="mt-2 text-right text-gray-400 text-xs">
+                    Earned on {achievement.date}
+                  </div>
                 </div>
               ))}
             </div>
@@ -384,7 +515,9 @@ export default function UserProfile() {
                     <h3 className="text-white font-bold">{nft.name}</h3>
                     <div className="flex justify-between items-center mt-2 text-sm">
                       <span className="text-gray-400">By {nft.creator}</span>
-                      <span className="text-gray-400">Collected {nft.collected}</span>
+                      <span className="text-gray-400">
+                        Collected {nft.collected}
+                      </span>
                     </div>
                   </div>
                   <div className="h-1 w-full bg-[#a3ff12] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
@@ -395,5 +528,5 @@ export default function UserProfile() {
         </Tabs>
       </div>
     </div>
-  )
+  );
 }
