@@ -5,13 +5,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { LensConnect } from "./LensConnect";
-import { ConnectKitButton } from "connectkit";
 import { useEffect, } from "react";
 import { useAccount } from "wagmi";
 import { evmAddress } from "@lens-protocol/client";
 import { fetchAccountsBulk } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 
+import { ConnectButton } from "@/components/connectButton";
 interface MainNavProps {
   isLoaded: boolean;
 }
@@ -175,7 +175,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
             className="transition-all duration-500"
             style={{ transitionDelay: `${navItems.length * 100}ms` }}
           >
-            <ConnectKitButton />
+            <ConnectButton />
           </li>
           <li
             className="transition-all duration-500"
