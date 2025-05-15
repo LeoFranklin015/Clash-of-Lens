@@ -1,6 +1,7 @@
 ## ClashOfLens Dapp User Flow & Contract Integration
 
 ### 1. **Register a Clan**
+
 - **UI Step:** User clicks “Register Clan”.
 - **Contract Call:** `registerClan()`
 - **Sample Code:**
@@ -12,17 +13,21 @@
 ---
 
 ### 2. **Deposit Balance (Optional)**
+
 - **UI Step:** User can deposit extra funds to their clan.
 - **Contract Call:** `depositBalance(clanAddress)` (payable)
 - **Sample Code:**
   ```js
-  await contract.depositBalance(userAddress, { value: ethers.parseEther("0.5") });
+  await contract.depositBalance(userAddress, {
+    value: ethers.parseEther("0.5"),
+  });
   ```
 - **Notes:** This is optional and separate from the “ready” stake.
 
 ---
 
 ### 3. **Set Clan Ready (Stake)**
+
 - **UI Step:** User enters a stake amount and clicks “Set Ready”.
 - **Contract Call:** `setReady()` (payable)
 - **Sample Code:**
@@ -34,6 +39,7 @@
 ---
 
 ### 4. **Wage War**
+
 - **UI Step:** User selects an opponent from the list of “ready” clans and clicks “Wage War”.
 - **Contract Call:** `wageWar(opponentAddress)` (payable, must match your stake)
 - **Sample Code:**
@@ -45,6 +51,7 @@
 ---
 
 ### 5. **Spectator Bets**
+
 - **UI Step:** Any user can bet on an unresolved war by selecting a war and outcome (clan1 or clan2).
 - **Contract Call:** `betOnWar(warId, outcome)` (payable)
 - **Sample Code:**
@@ -56,6 +63,7 @@
 ---
 
 ### 6. **Declare Victory (Admin/Owner Only)**
+
 - **UI Step:** Admin selects a war and declares the winner.
 - **Contract Call:** `declareVictory(warId, result)`
 - **Sample Code:**
@@ -67,6 +75,7 @@
 ---
 
 ### 7. **Claim Win**
+
 - **UI Step:** Winning clan owner clicks “Claim Prize” for a resolved war.
 - **Contract Call:** `claimWin(warId)`
 - **Sample Code:**
@@ -78,34 +87,39 @@
 ---
 
 ## **Sample Data for UI**
-- **Clans:**  
+
+- **Clans:**
+
   - `clans(uint)` returns a Clan struct: `{ clanAddress, owner, status }`
   - `clanIndex(address)` returns index+1 if registered, 0 otherwise
   - `clanBalances(address)` returns balance in wei
 
-- **Wars:**  
+- **Wars:**
+
   - `wars(uint)` returns a War struct: `{ id, clan1, clan2, timestamp, result }`
   - `warCount` returns total number of wars
 
-- **Bets:**  
+- **Bets:**
   - `warBets(uint)` returns a WarBet struct: `{ id, warId, bettor, outcome }`
   - `betCount` returns total number of bets
 
 ---
 
 ## **Frontend Integration Tips**
+
 - Use `ethers.js` or `viem` to connect to the contract.
 - Use `contract.filters` to listen for events: `ClanRegistered`, `ClanReady`, `WarDeclared`, `WarResult`.
 - Use `await contract.clans(i)` in a loop to fetch all clans, and similarly for wars and bets.
-- Use `status` fields to filter clans:  
+- Use `status` fields to filter clans:
   - `0 = ready`, `1 = at war`, `2 = not-ready`
-- Use `result` in wars:  
+- Use `result` in wars:
   - `0 = unresolved`, `1 = clan1 wins`, `2 = clan2 wins`
 - Show error messages from failed transactions for better UX.
 
 ---
 
 ## **Example: Fetching All Ready Clans**
+
 ```js
 const readyClans = [];
 const clanCount = await contract.clans.length;
@@ -114,3 +128,5 @@ for (let i = 0; i < clanCount; i++) {
   if (clan.status === 0) readyClans.push(clan);
 }
 ```
+
+## Contract Address : 0x3DcfB26bfd5E2B55325Ae6Dc6dD193973B691bd7

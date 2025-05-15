@@ -26,6 +26,7 @@ const config: HardhatUserConfig = {
     lensTestnet: {
       url: "https://rpc.testnet.lens.xyz",
       chainId: 37111,
+      ethNetwork: "sepolia",
       accounts: [PRIVATE_KEY],
       verifyURL:
         "https://block-explorer-verify.testnet.lens.dev/contract_verification",
