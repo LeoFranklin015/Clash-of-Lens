@@ -1,45 +1,25 @@
-type ClanReady @entity(immutable: true) {
-  id: Bytes!
-  clanAddress: Bytes! # address
-  stake: BigInt! # uint256
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Clan @entity(immutable: true) {
+  id: ID! # clanAddress (as ID)
+  owner: Bytes! # wallet address of the clan owner
+  status: Int! # 0 = ready, 1 = at war, 2 = not-ready
+  balance: BigInt! # current balance held in contract
+  warsAsClan1: [War!]! @derivedFrom(field: "clan1")
+  warsAsClan2: [War!]! @derivedFrom(field: "clan2")
 }
 
-type ClanRegistered @entity(immutable: true) {
-  id: Bytes!
-  clanAddress: Bytes! # address
-  owner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type War @entity(immutable: true) {
+  id: ID! # warId
+  clan1: Clan!
+  clan2: Clan!
+  timestamp: BigInt!
+  result: Int! # 0 = unresolved, 1 = clan1 wins, 2 = clan2 wins
+  bets: [Bet!]! @derivedFrom(field: "war")
 }
 
-type OwnershipTransferred @entity(immutable: true) {
-  id: Bytes!
-  previousOwner: Bytes! # address
-  newOwner: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type WarDeclared @entity(immutable: true) {
-  id: Bytes!
-  warId: BigInt! # uint256
-  clan1: Bytes! # address
-  clan2: Bytes! # address
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type WarResult @entity(immutable: true) {
-  id: Bytes!
-  warId: BigInt! # uint256
-  result: Int! # uint16
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
+type Bet @entity(immutable: true) {
+  id: ID! # betCount
+  war: War!
+  bettor: Bytes!
+  outcome: Int! # 1 = clan1-win, 2 = clan2-win
+  claimed: Boolean! # whether the bet has been claimed
 }

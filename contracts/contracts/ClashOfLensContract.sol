@@ -13,6 +13,8 @@ contract ClashOfLensContract is Ownable {
         address indexed clan2
     );
     event WarResult(uint256 indexed warId, uint16 result);
+    event WarBetted(uint256 indexed warId, uint16 outcome, address indexed bettor);
+    event ClanBalanceUpdated(address indexed clan, uint256 balance);
 
     // —— STRUCTS
     struct Clan {
@@ -78,6 +80,7 @@ contract ClashOfLensContract is Ownable {
     function depositBalance(address _clan) external payable {
         require(msg.value > 0, "Must deposit more than 0");
         clanBalances[_clan] += msg.value;
+        emit ClanBalanceUpdated(_clan, clanBalances[_clan]);
     }
 
     /// @notice Deposit stake and mark clan as ready
@@ -154,6 +157,8 @@ contract ClashOfLensContract is Ownable {
                 outcome: _outcome
             })
         );
+
+        emit WarBetted(_warId, _outcome, msg.sender);
         // (payout logic for bettors can be added in a future version)
     }
 

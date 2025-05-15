@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/untitled_folder/blockchian/clashoflens/contracts/contracts/ClashOfLensContract.sol": {
-      "lastModificationDate": 1747328662774,
-      "contentHash": "78ab91efea05ad8eeb181bd0eebfdae1",
+      "lastModificationDate": 1747330948922,
+      "contentHash": "3a040bd7910d28c5ff8cfc0ecfea3e2e",
       "sourceName": "contracts/ClashOfLensContract.sol",
       "solcConfig": {
         "version": "0.8.28",
