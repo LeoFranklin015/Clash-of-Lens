@@ -13,7 +13,11 @@ contract ClashOfLensContract is Ownable {
         address indexed clan2
     );
     event WarResult(uint256 indexed warId, uint16 result);
-    event WarBetted(uint256 indexed warId, uint16 outcome, address indexed bettor);
+    event WarBetted(
+        uint256 indexed warId,
+        uint16 outcome,
+        address indexed bettor
+    );
     event ClanBalanceUpdated(address indexed clan, uint256 balance);
 
     // —— STRUCTS
@@ -66,14 +70,14 @@ contract ClashOfLensContract is Ownable {
     // —— CORE FUNCTIONS
 
     /// @notice Register yourself as a new clan
-    function registerClan() external {
-        require(clans[msg.sender].owner == address(0), "Already registered");
-        clans[msg.sender] = Clan({
-            clanAddress: msg.sender,
+    function registerClan(address _clan) external {
+        require(clans[_clan].owner == address(0), "Already registered");
+        clans[_clan] = Clan({
+            clanAddress: _clan,
             owner: msg.sender,
             status: 2 // not-ready
         });
-        emit ClanRegistered(msg.sender, msg.sender);
+        emit ClanRegistered(_clan, msg.sender);
     }
 
     /// @notice Deposit funds to increase clan balance
@@ -84,25 +88,26 @@ contract ClashOfLensContract is Ownable {
     }
 
     /// @notice Deposit stake and mark clan as ready
-    function setReady() external payable onlyClanOwner(msg.sender) {
-        Clan storage clan = clans[msg.sender];
+    function setReady(address _clan) external payable onlyClanOwner(_clan) {
+        Clan storage clan = clans[_clan];
         require(clan.status == 2, "Already ready or at war");
         require(msg.value > 0, "Stake required");
 
         clan.status = 0; // ready
-        clanBalances[msg.sender] = msg.value;
-        emit ClanReady(msg.sender, msg.value);
+        clanBalances[_clan] = msg.value;
+        emit ClanReady(_clan, msg.value);
     }
 
     /// @notice Challenge another ready clan to war (must match your stake)
     function wageWar(
+        address _clan,
         address _opponent
-    ) external payable onlyClanOwner(msg.sender) {
-        Clan storage me = clans[msg.sender];
+    ) external payable onlyClanOwner(_clan) {
+        Clan storage me = clans[_clan];
         Clan storage op = clans[_opponent];
 
         require(me.status == 0 && op.status == 0, "Both clans must be ready");
-        require(msg.value == clanBalances[msg.sender], "Must match your stake");
+        require(msg.value == clanBalances[_clan], "Must match your stake");
 
         // Update statuses
         me.status = 1;
