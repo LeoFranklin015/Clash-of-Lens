@@ -1,0 +1,45 @@
+type ClanReady @entity(immutable: true) {
+  id: Bytes!
+  clanAddress: Bytes! # address
+  stake: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ClanRegistered @entity(immutable: true) {
+  id: Bytes!
+  clanAddress: Bytes! # address
+  owner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WarDeclared @entity(immutable: true) {
+  id: Bytes!
+  warId: BigInt! # uint256
+  clan1: Bytes! # address
+  clan2: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WarResult @entity(immutable: true) {
+  id: Bytes!
+  warId: BigInt! # uint256
+  result: Int! # uint16
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
