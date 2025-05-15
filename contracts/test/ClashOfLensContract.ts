@@ -31,8 +31,8 @@ describe("ClashOfLensContract", function () {
     await expect(contract.connect(addr1).registerClan())
       .to.emit(contract, "ClanRegistered")
       .withArgs(addr1.address, addr1.address);
-    const clanIndex = await contract.clanIndex(addr1.address);
-    expect(clanIndex).to.equal(1);
+    const clan = await contract.clans(addr1.address);
+    expect(clan.owner).to.equal(addr1.address);
   });
 
   it("should allow a clan to set ready with a stake", async function () {

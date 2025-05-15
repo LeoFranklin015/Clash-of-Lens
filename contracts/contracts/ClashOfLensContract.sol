@@ -37,20 +37,18 @@ contract ClashOfLensContract is Ownable {
     }
 
     // —— STATE
-    Clan[] public clans;
+    mapping(address => Clan) public clans; // maps clanAddress → Clan
     War[] public wars;
     WarBet[] public warBets;
 
-    mapping(address => uint256) public clanIndex; // maps clanAddress → (index+1)
     mapping(address => uint256) public clanBalances; // maps clanAddress → balance
     uint256 public warCount;
     uint256 public betCount;
 
     // —— MODIFIERS
     modifier onlyClanOwner(address _clan) {
-        require(clanIndex[_clan] != 0, "Clan not registered");
-        uint256 idx = clanIndex[_clan] - 1;
-        require(msg.sender == clans[idx].owner, "Not clan owner");
+        require(clans[_clan].owner != address(0), "Clan not registered");
+        require(msg.sender == clans[_clan].owner, "Not clan owner");
         _;
     }
 
@@ -67,15 +65,12 @@ contract ClashOfLensContract is Ownable {
 
     /// @notice Register yourself as a new clan
     function registerClan() external {
-        require(clanIndex[msg.sender] == 0, "Already registered");
-        clans.push(
-            Clan({
-                clanAddress: msg.sender,
-                owner: msg.sender,
-                status: 2 // not-ready
-            })
-        );
-        clanIndex[msg.sender] = clans.length; // store index+1
+        require(clans[msg.sender].owner == address(0), "Already registered");
+        clans[msg.sender] = Clan({
+            clanAddress: msg.sender,
+            owner: msg.sender,
+            status: 2 // not-ready
+        });
         emit ClanRegistered(msg.sender, msg.sender);
     }
 
@@ -87,8 +82,7 @@ contract ClashOfLensContract is Ownable {
 
     /// @notice Deposit stake and mark clan as ready
     function setReady() external payable onlyClanOwner(msg.sender) {
-        uint256 idx = clanIndex[msg.sender] - 1;
-        Clan storage clan = clans[idx];
+        Clan storage clan = clans[msg.sender];
         require(clan.status == 2, "Already ready or at war");
         require(msg.value > 0, "Stake required");
 
@@ -101,10 +95,8 @@ contract ClashOfLensContract is Ownable {
     function wageWar(
         address _opponent
     ) external payable onlyClanOwner(msg.sender) {
-        uint256 meIdx = clanIndex[msg.sender] - 1;
-        uint256 opIdx = clanIndex[_opponent] - 1;
-        Clan storage me = clans[meIdx];
-        Clan storage op = clans[opIdx];
+        Clan storage me = clans[msg.sender];
+        Clan storage op = clans[_opponent];
 
         require(me.status == 0 && op.status == 0, "Both clans must be ready");
         require(msg.value == clanBalances[msg.sender], "Must match your stake");
@@ -184,8 +176,7 @@ contract ClashOfLensContract is Ownable {
 
     // —— INTERNAL HELPERS
     function _resetClan(address _c) internal {
-        uint256 idx = clanIndex[_c] - 1;
-        clans[idx].status = 2; // back to not-ready
+        clans[_c].status = 2; // back to not-ready
         // balance is held until claimed
     }
 
