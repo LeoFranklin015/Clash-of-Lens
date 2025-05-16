@@ -8,7 +8,7 @@ import { StorageClient } from "@lens-chain/storage-client";
 import { chains } from "@lens-chain/sdk/viem";
 import { lensAccountOnly } from "@lens-chain/storage-client";
 import { group } from "@lens-protocol/metadata";
-import { createGroup } from "@lens-protocol/client/actions";
+import { createGroup, fetchGroup } from "@lens-protocol/client/actions";
 import { uri as URI } from "@lens-protocol/client";
 import { useSession } from "@/components/SessionContext";
 import { handleOperationWith } from "@lens-protocol/client/ethers";
@@ -16,6 +16,9 @@ import { useEthersSigner } from "@/lib/walletClientToSigner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { publicClient, walletClient } from "@/lib/client";
+import { ClashOfLensABI } from "@/lib/abis/ClashOfLens";
+import { CLASH_OF_LENS_ADDRESS } from "@/lib/const";
 
 const steps = [
   {
@@ -34,8 +37,8 @@ const steps = [
 
 const processSteps = [
   { label: "Uploading image" },
-  { label: "Saving metadata" },
-  { label: "Registering on chain" },
+  { label: "Creating Lens group" },
+  { label: "Registering clan" },
 ];
 
 export default function CreateClan() {
@@ -81,45 +84,65 @@ export default function CreateClan() {
   };
 
   const handleCreateClan = async () => {
-    if (!signer) {
+    if (!signer || !address) {
       return;
     }
-    console.log("Creating clan with data:", clanData);
+    setProcessing(true);
+    setProcessStep(0);
+    setCompletedSteps([]);
 
-    const metadata = group({
-      name: clanData.name,
-      description: clanData.description,
-      icon: clanData.icon,
-    });
+    try {
+      // Step 1: Upload image
+      if (imageFile) {
+        const acl = lensAccountOnly(address, chains.testnet.id);
+        const response = await storageClient.uploadFile(imageFile, { acl });
+        setClanData((prev) => ({ ...prev, icon: response.uri }));
+        setCompletedSteps([0]);
+        setProcessStep(1);
+      }
 
-    const { uri } = await storageClient.uploadAsJson(metadata);
+      // Step 2: Create Lens group
+      const metadata = group({
+        name: clanData.name,
+        description: clanData.description,
+        icon: clanData.icon,
+      });
 
-    console.log(uri); // e.g., lens://4f91ca…
+      const { uri } = await storageClient.uploadAsJson(metadata);
+      console.log("Metadata URI:", uri);
 
-    const result = await createGroup(sessionClient, {
-      metadataUri: URI(uri),
-    })
-      .andThen(handleOperationWith(signer!))
-      .andThen(sessionClient.waitForTransaction);
+      const result: any = await createGroup(sessionClient, {
+        metadataUri: URI(uri),
+      })
+        .andThen(handleOperationWith(signer!))
+        .andThen(sessionClient.waitForTransaction)
+        .andThen((txHash) => fetchGroup(sessionClient, { txHash }));
 
-    console.log(result);
+      console.log("Group created:", result);
+      setCompletedSteps([0, 1]);
+      setProcessStep(2);
 
-    // Simulate: Uploading image
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 0]);
-    setProcessStep(1);
+      // Step 3: Register clan
+      const tx = await walletClient?.writeContract({
+        address: CLASH_OF_LENS_ADDRESS,
+        abi: ClashOfLensABI,
+        functionName: "registerClan",
+        args: [result.value.address],
+        account: address!,
+      });
 
-    // Simulate: Saving metadata
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 1]);
-    setProcessStep(2);
+      console.log("Registration transaction:", tx);
 
-    // Simulate: Registering on chain
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 2]);
-    setProcessStep(2);
+      const txReceipt = await publicClient.waitForTransactionReceipt({
+        hash: tx!,
+      });
 
-    // Optionally: Show success message or redirect
+      console.log("Transaction receipt:", txReceipt);
+      setCompletedSteps([0, 1, 2]);
+    } catch (error) {
+      console.error("Error creating clan:", error);
+      setProcessing(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -134,7 +157,9 @@ export default function CreateClan() {
               <Input
                 type="text"
                 value={clanData.name}
-                onChange={(e) => setClanData({ ...clanData, name: e.target.value })}
+                onChange={(e) =>
+                  setClanData({ ...clanData, name: e.target.value })
+                }
                 className="bg-black border-[#a3ff12] text-white placeholder:text-gray-500 focus:ring-[#a3ff12] focus:border-[#a3ff12]"
                 placeholder="Enter clan name"
               />
@@ -145,7 +170,9 @@ export default function CreateClan() {
               </label>
               <textarea
                 value={clanData.description}
-                onChange={(e) => setClanData({ ...clanData, description: e.target.value })}
+                onChange={(e) =>
+                  setClanData({ ...clanData, description: e.target.value })
+                }
                 className="w-full px-4 py-2 bg-black border border-[#a3ff12] text-white rounded-lg focus:ring-2 focus:ring-[#a3ff12] focus:border-[#a3ff12] placeholder:text-gray-500 min-h-[120px]"
                 rows={4}
                 placeholder="Enter clan description"
@@ -179,7 +206,8 @@ export default function CreateClan() {
                       />
                     </svg>
                     <p className="mb-2 text-sm text-[#a3ff12]">
-                      <span className="font-semibold">Click to upload</span> or drag and drop
+                      <span className="font-semibold">Click to upload</span> or
+                      drag and drop
                     </p>
                     <p className="text-xs text-gray-500">
                       PNG, JPG or GIF (MAX. 800x400px)
@@ -240,9 +268,18 @@ export default function CreateClan() {
     <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Page header */}
       <div className="mt-12 mb-8 flex flex-col items-center">
-        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter mb-2">CREATE CLAN</h1>
-        <p className="text-gray-400">Create your own clan and start battling for supremacy</p>
-        <Button asChild className="mt-6 bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden" style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)" }} variant="default">
+        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter mb-2">
+          CREATE CLAN
+        </h1>
+        <p className="text-gray-400">
+          Create your own clan and start battling for supremacy
+        </p>
+        <Button
+          asChild
+          className="mt-6 bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden"
+          style={{ clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)" }}
+          variant="default"
+        >
           <Link href="/clans">
             <span className="relative z-10">BACK TO DIRECTORY</span>
             <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
@@ -257,9 +294,7 @@ export default function CreateClan() {
               currentStep={currentStep}
               onStepClick={(step) => setCurrentStep(step)}
             />
-            <div className="mt-8">
-              {renderStepContent()}
-            </div>
+            <div className="mt-8">{renderStepContent()}</div>
             <div className="mt-8 flex justify-between gap-4">
               <Button
                 onClick={handleBack}

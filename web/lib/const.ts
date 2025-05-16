@@ -1,0 +1,2 @@
+export const CLASH_OF_LENS_ADDRESS =
+  "0x1C416C02bb304c8ae0EBefAbF0a3B74c0F3b5Cb7";
