@@ -54,12 +54,11 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
 
   return (
     <div
-      className={`transform transition-all duration-1000 ${
-        isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
-      }`}
+      className={`transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
+        }`}
       style={{ transitionDelay: "1000ms" }}
     >
-      <div className="bg-[#15151B] rounded-lg p-6 h-full border border-[#1F1F2A]">
+      <div className="bg-[#15151B]  p-6 h-full border border-[#1F1F2A]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[#FAFAFA] text-xl font-bold">ONGOING WARS</h2>
           <Button
@@ -82,50 +81,46 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
               className="block bg-[#1F1F2A] rounded-lg p-4 hover:border-[#39FF14] transition-all group relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#39FF14] to-[#00FFF7] opacity-0 group-hover:opacity-5 transition-opacity"></div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  <div className="flex flex-col items-center">
-                    <Image
-                      src={war.clan1.logo || "/placeholder.svg"}
-                      alt={war.clan1.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full border-2 border-[#39FF14]"
-                    />
-                    <span className="text-[#B1B1B1] text-xs mt-1">
-                      {war.clan1.name}
-                    </span>
-                    <span className="text-[#39FF14] font-bold">
-                      {war.score.clan1}
-                    </span>
-                  </div>
-
-                  <div className="text-center">
-                    <div className="text-[#666666] text-xs">VS</div>
-                    <div className="text-[#FAFAFA] text-xs mt-1">
-                      {war.timeRemaining}
-                    </div>
-                    <div className="text-[#666666] text-xs">REMAINING</div>
-                  </div>
-
-                  <div className="flex flex-col items-center">
-                    <Image
-                      src={war.clan2.logo || "/placeholder.svg"}
-                      alt={war.clan2.name}
-                      width={40}
-                      height={40}
-                      className="rounded-full border-2 border-[#39FF14]"
-                    />
-                    <span className="text-[#B1B1B1] text-xs mt-1">
-                      {war.clan2.name}
-                    </span>
-                    <span className="text-[#39FF14] font-bold">
-                      {war.score.clan2}
-                    </span>
-                  </div>
+              <div className="flex items-center justify-between space-x-6">
+                <div className="flex justify-center flex-col items-center">
+                  <Image
+                    src={war.clan1.logo || "/placeholder.svg"}
+                    alt={war.clan1.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-[#39FF14]"
+                  />
+                  <span className="text-[#B1B1B1] text-xs mt-1">
+                    {war.clan1.name}
+                  </span>
+                  <span className="text-[#39FF14] font-bold">
+                    {war.score.clan1}
+                  </span>
                 </div>
 
-                <ArrowRight className="h-4 w-4 text-[#666666] group-hover:text-[#39FF14] transition-colors" />
+                <div className="text-center">
+                  <div className="text-[#666666] text-xs">VS</div>
+                  <div className="text-[#FAFAFA] text-xs mt-1">
+                    {war.timeRemaining}
+                  </div>
+                  <div className="text-[#666666] text-xs">REMAINING</div>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <Image
+                    src={war.clan2.logo || "/placeholder.svg"}
+                    alt={war.clan2.name}
+                    width={40}
+                    height={40}
+                    className="rounded-full border-2 border-[#39FF14]"
+                  />
+                  <span className="text-[#B1B1B1] text-xs mt-1">
+                    {war.clan2.name}
+                  </span>
+                  <span className="text-[#39FF14] font-bold">
+                    {war.score.clan2}
+                  </span>
+                </div>
               </div>
             </Link>
           ))}

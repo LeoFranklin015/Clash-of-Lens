@@ -237,25 +237,33 @@ export default function LandingPage() {
         </div>
       </section>
       {/* CTA Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col items-center border-b-2 border-[#00FFF7]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
-        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#00FFF7] text-3xl font-bold mb-8 uppercase tracking-widest">Ready to Join the War?</motion.h3>
-        <div className="flex flex-wrap gap-6 mb-8">
-          <Button className="bg-[#39FF14] text-[#0B0B0F] font-bold border-2 border-[#39FF14] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
-            Sign In with Lens
-          </Button>
-          <Button asChild className="bg-[#15151B] border-2 border-[#39FF14] text-[#39FF14] font-bold hover:bg-[#39FF14] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
-            <Link href="/clans/create">Create Clan</Link>
-          </Button>
-          <Button asChild className="bg-[#15151B] border-2 border-[#00FFF7] text-[#00FFF7] font-bold hover:bg-[#00FFF7] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
-            <Link href="/clans">Explore Clans</Link>
-          </Button>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#00FFF7]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
+        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#00FFF7] text-3xl font-bold mb-8 uppercase tracking-widest text-center md:text-left">Ready to Join the War?</motion.h3>
+        <div className="flex flex-col md:flex-row items-center md:items-start justify-between w-full gap-8 mb-8">
+          <div className="flex-1 text-[#B1B1B1] text-sm md:text-base md:text-left text-center md:max-w-lg">
+            1. Sign in with your Lens account<br />
+            2. Create or join a clan & register it on ClashOfLens<br />
+            3. Recruit your frens and prepare for battle<br />
+            4. Challenge rival clans and engage in social wars<br />
+            5. Dominate leaderboards and claim rewards
+          </div>
+          <div className="flex flex-col md:flex-row flex-wrap gap-6 md:justify-end md:items-center w-full md:w-auto mt-8 md:mt-0">
+            <Button className="bg-[#39FF14] text-[#0B0B0F] font-bold border-2 border-[#39FF14] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+              Sign In with Lens
+            </Button>
+            <Button asChild className="bg-[#15151B] border-2 border-[#39FF14] text-[#39FF14] font-bold hover:bg-[#39FF14] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+              <Link href="/clans/create">Create Clan</Link>
+            </Button>
+            <Button asChild className="bg-[#15151B] border-2 border-[#00FFF7] text-[#00FFF7] font-bold hover:bg-[#00FFF7] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+              <Link href="/clans">Explore Clans</Link>
+            </Button>
+          </div>
         </div>
-        <div className="text-[#B1B1B1] text-sm">1. Sign in with your Lens account<br />2. Create or join a clan & register it on ClashOfLens<br />3. Recruit your frens and prepare for battle<br />4. Challenge rival clans and engage in social wars<br />5. Dominate leaderboards and claim rewards</div>
       </section>
       {/* Game Stats */}
       <GameStats isLoaded={isLoaded} />
       {/* Highlights Section */}
-      <div className="mt-16 grid md:grid-cols-2 gap-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 grid md:grid-cols-2 gap-8">
         <ActiveWars isLoaded={isLoaded} />
         <TopClans isLoaded={isLoaded} />
       </div>

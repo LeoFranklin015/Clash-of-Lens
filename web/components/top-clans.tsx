@@ -39,12 +39,11 @@ export function TopClans({ isLoaded }: TopClansProps) {
 
   return (
     <div
-      className={`transform transition-all duration-1000 ${
-        isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
-      }`}
+      className={`transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
+        }`}
       style={{ transitionDelay: "1100ms" }}
     >
-      <div className="bg-[#15151B] rounded-lg p-6 h-full border border-[#1F1F2A]">
+      <div className="bg-[#15151B]  p-6 h-full border border-[#1F1F2A]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[#FAFAFA] text-xl font-bold">TOP CLANS</h2>
           <Button

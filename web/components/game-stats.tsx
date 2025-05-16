@@ -16,16 +16,15 @@ export function GameStats({ isLoaded }: GameStatsProps) {
 
   return (
     <div
-      className={`mt-16 transform transition-all duration-1000 ${
-        isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
-      }`}
+      className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8  mt-16 transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"
+        }`}
       style={{ transitionDelay: "800ms" }}
     >
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <div
             key={stat.name}
-            className="bg-[#1F1F2A] p-4 rounded-lg relative overflow-hidden group transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.2)]"
+            className="bg-zinc-900 p-4 relative overflow-hidden group transition-all hover:shadow-[0_0_15px_rgba(57,255,20,0.2)]"
             style={{ transitionDelay: `${800 + index * 100}ms` }}
           >
             <div
