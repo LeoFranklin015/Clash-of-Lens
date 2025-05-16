@@ -88,33 +88,31 @@ contract ClashOfLensContract is Ownable {
     }
 
     /// @notice Deposit stake and mark clan as ready
-    function setReady(address _clan) external payable onlyClanOwner(_clan) {
+    function setReady(address _clan) external onlyClanOwner(_clan) {
         Clan storage clan = clans[_clan];
         require(clan.status == 2, "Already ready or at war");
-        require(msg.value > 0, "Stake required");
+        require (clanBalances[_clan] >= 10000000000000000 , "Not Enough to stake for war");
 
         clan.status = 0; // ready
-        clanBalances[_clan] = msg.value;
-        emit ClanReady(_clan, msg.value);
+        clanBalances[_clan] -= 10000000000000000;
+        emit ClanReady(_clan,10000000000000000);
     }
 
     /// @notice Challenge another ready clan to war (must match your stake)
     function wageWar(
         address _clan,
         address _opponent
-    ) external payable onlyClanOwner(_clan) {
+    ) external onlyClanOwner(_clan) {
         Clan storage me = clans[_clan];
         Clan storage op = clans[_opponent];
 
-        require(me.status == 0 && op.status == 0, "Both clans must be ready");
-        require(msg.value == clanBalances[_clan], "Must match your stake");
+        require(op.status == 0, "Opponent clans must be ready");
+        require (clanBalances[_clan] >= 10000000000000000 , "Not Enough to stake for war");
+        clanBalances[_clan] -= 10000000000000000;
 
         // Update statuses
         me.status = 1;
         op.status = 1;
-
-        // Add opponent's stake to their balance
-        clanBalances[_opponent] += msg.value;
 
         // Record war
         warCount += 1;
