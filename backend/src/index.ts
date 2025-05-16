@@ -2,6 +2,7 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import { getPostDetails } from "./handlers/getPostDetails";
 
 // Load environment variables
 dotenv.config();
@@ -27,8 +28,14 @@ mongoose
   });
 
 // Basic route
-app.get("/", (req: Request, res: Response) => {
-  res.json({ message: "Welcome to Clash of Lens API" });
+app.get("/", async (req: Request, res: Response) => {
+  const details = await getPostDetails(
+    "0x446e9e88Dc725f236527535a44Ae1fdEfbC47B55"
+  );
+  res.json({
+    message: "Welcome to Clash of Lens API",
+    details,
+  });
 });
 
 // Start server
