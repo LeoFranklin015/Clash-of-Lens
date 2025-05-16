@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
 import { getPostDetails } from "./handlers/getPostDetails";
+import { getGroupMembers } from "./handlers/getGroupMembers";
 
 // Load environment variables
 dotenv.config();
@@ -32,9 +33,11 @@ app.get("/", async (req: Request, res: Response) => {
   const details = await getPostDetails(
     "0x446e9e88Dc725f236527535a44Ae1fdEfbC47B55"
   );
+  // const members = await getGroupMembers(
+  //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
+  // );
   res.json({
     message: "Welcome to Clash of Lens API",
-    details,
   });
 });
 
