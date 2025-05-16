@@ -37,8 +37,8 @@ const steps = [
 
 const processSteps = [
   { label: "Uploading image" },
-  { label: "Saving metadata" },
-  { label: "Registering on chain" },
+  { label: "Creating Lens group" },
+  { label: "Registering clan" },
 ];
 
 export default function CreateClan() {
@@ -84,64 +84,65 @@ export default function CreateClan() {
   };
 
   const handleCreateClan = async () => {
-    if (!signer) {
+    if (!signer || !address) {
       return;
     }
-    console.log("Creating clan with data:", clanData);
+    setProcessing(true);
+    setProcessStep(0);
+    setCompletedSteps([]);
 
-    const metadata = group({
-      name: clanData.name,
-      description: clanData.description,
-      icon: clanData.icon,
-    });
+    try {
+      // Step 1: Upload image
+      if (imageFile) {
+        const acl = lensAccountOnly(address, chains.testnet.id);
+        const response = await storageClient.uploadFile(imageFile, { acl });
+        setClanData((prev) => ({ ...prev, icon: response.uri }));
+        setCompletedSteps([0]);
+        setProcessStep(1);
+      }
 
-    const { uri } = await storageClient.uploadAsJson(metadata);
+      // Step 2: Create Lens group
+      const metadata = group({
+        name: clanData.name,
+        description: clanData.description,
+        icon: clanData.icon,
+      });
 
-    console.log(uri); // e.g., lens://4f91ca…
+      const { uri } = await storageClient.uploadAsJson(metadata);
+      console.log("Metadata URI:", uri);
 
-    const result: any = await createGroup(sessionClient, {
-      metadataUri: URI(uri),
-    })
-      .andThen(handleOperationWith(signer!))
-      .andThen(sessionClient.waitForTransaction)
-      .andThen((txHash) => fetchGroup(sessionClient, { txHash }));
+      const result: any = await createGroup(sessionClient, {
+        metadataUri: URI(uri),
+      })
+        .andThen(handleOperationWith(signer!))
+        .andThen(sessionClient.waitForTransaction)
+        .andThen((txHash) => fetchGroup(sessionClient, { txHash }));
 
-    console.log(result);
-    console.log(result.value.address);
+      console.log("Group created:", result);
+      setCompletedSteps([0, 1]);
+      setProcessStep(2);
 
-    // Store the group in the Clan Registry
-    const tx = await walletClient?.writeContract({
-      address: CLASH_OF_LENS_ADDRESS,
-      abi: ClashOfLensABI,
-      functionName: "registerClan",
-      args: [result.value.address],
-      account: address!,
-    });
+      // Step 3: Register clan
+      const tx = await walletClient?.writeContract({
+        address: CLASH_OF_LENS_ADDRESS,
+        abi: ClashOfLensABI,
+        functionName: "registerClan",
+        args: [result.value.address],
+        account: address!,
+      });
 
-    console.log(tx);
+      console.log("Registration transaction:", tx);
 
-    const txReceipt = await publicClient.waitForTransactionReceipt({
-      hash: tx!,
-    });
+      const txReceipt = await publicClient.waitForTransactionReceipt({
+        hash: tx!,
+      });
 
-    console.log(txReceipt);
-
-    // Simulate: Uploading image
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 0]);
-    setProcessStep(1);
-
-    // Simulate: Saving metadata
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 1]);
-    setProcessStep(2);
-
-    // Simulate: Registering on chain
-    await new Promise((res) => setTimeout(res, 1000));
-    setCompletedSteps((prev) => [...prev, 2]);
-    setProcessStep(2);
-
-    // Optionally: Show success message or redirect
+      console.log("Transaction receipt:", txReceipt);
+      setCompletedSteps([0, 1, 2]);
+    } catch (error) {
+      console.error("Error creating clan:", error);
+      setProcessing(false);
+    }
   };
 
   const renderStepContent = () => {
