@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { getPostDetails } from "./handlers/getPostDetails";
 import { getGroupMembers } from "./handlers/getGroupMembers";
+import { ContractListener } from "./utils/ContractListner";
+import { ClashOfLensAddress } from "./utils/abi";
 
 // Load environment variables
 dotenv.config();
@@ -39,6 +41,14 @@ app.get("/", async (req: Request, res: Response) => {
   res.json({
     message: "Welcome to Clash of Lens API",
   });
+});
+
+const contractListener = new ContractListener(
+  ClashOfLensAddress,
+  "WarDeclared"
+);
+contractListener.startListening((logs) => {
+  console.log(logs);
 });
 
 // Start server
