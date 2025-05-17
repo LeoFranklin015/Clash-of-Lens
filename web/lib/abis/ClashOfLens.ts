@@ -343,7 +343,7 @@ export const ClashOfLensABI = [
     ],
     name: "setReady",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -374,7 +374,7 @@ export const ClashOfLensABI = [
     ],
     name: "wageWar",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

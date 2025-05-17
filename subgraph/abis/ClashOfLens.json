@@ -1,4 +1,4 @@
- [
+[
     {
       "inputs": [
         {
@@ -314,7 +314,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_clan",
+          "type": "address"
+        }
+      ],
       "name": "registerClan",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -328,10 +334,16 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_clan",
+          "type": "address"
+        }
+      ],
       "name": "setReady",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -351,13 +363,18 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_clan",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "_opponent",
           "type": "address"
         }
       ],
       "name": "wageWar",
       "outputs": [],
-      "stateMutability": "payable",
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {

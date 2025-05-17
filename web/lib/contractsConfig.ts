@@ -6,7 +6,7 @@ export const contractsConfig = {
     contractABI: ClashOfLensABI,
   },
   lensTestnet: {
-    contractAddress: "0xb9fC506955C7b55c40Bed8554a6def33C305078E",
+    contractAddress: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
     contractABI: ClashOfLensABI,
   },
 };

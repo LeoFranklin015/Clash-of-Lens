@@ -43,7 +43,7 @@ export function handleClanBalanceUpdated(event: ClanBalanceUpdated): void {
     return;
   }
 
-  clan.balance = clan.balance.plus(event.params.balance);
+  clan.balance = event.params.balance;
   clan.save();
 }
 
