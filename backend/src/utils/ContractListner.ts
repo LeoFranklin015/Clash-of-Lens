@@ -1,6 +1,8 @@
 import { publicClient } from "./client";
 import { ClashOfLensABI } from "./abi";
 import { Log } from "viem";
+import dotenv from "dotenv";
+dotenv.config();
 
 export class ContractListener {
   private unwatch: (() => void) | null = null;
