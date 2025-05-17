@@ -10,7 +10,7 @@ dataSources:
     source:
       address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248"
       abi: ClashOfLens
-      startBlock: 3607589
+      startBlock: 3619893
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

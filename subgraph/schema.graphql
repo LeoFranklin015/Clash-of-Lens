@@ -1,4 +1,4 @@
-type Clan @entity(immutable: true) {
+type Clan @entity(immutable: false) {
   id: ID! # clanAddress (as ID)
   owner: Bytes! # wallet address of the clan owner
   status: Int! # 0 = ready, 1 = at war, 2 = not-ready
@@ -7,7 +7,7 @@ type Clan @entity(immutable: true) {
   warsAsClan2: [War!]! @derivedFrom(field: "clan2")
 }
 
-type War @entity(immutable: true) {
+type War @entity(immutable: false) {
   id: ID! # warId
   clan1: Clan!
   clan2: Clan!
@@ -16,7 +16,7 @@ type War @entity(immutable: true) {
   bets: [Bet!]! @derivedFrom(field: "war")
 }
 
-type Bet @entity(immutable: true) {
+type Bet @entity(immutable: false) {
   id: ID! # betCount
   war: War!
   bettor: Bytes!

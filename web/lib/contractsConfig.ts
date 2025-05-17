@@ -9,7 +9,6 @@ export const contractsConfig = {
     contractAddress: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
     contractABI: ClashOfLensABI,
     subgraphUrl:
-      "https://api.studio.thegraph.com/query/111645/clashoflens/v0.0.4",
-    // https://api.studio.thegraph.com/query/111645/clashoflens/version/latest
+      "https://api.studio.thegraph.com/query/111645/clashoflens/version/latest",
   },
 };
