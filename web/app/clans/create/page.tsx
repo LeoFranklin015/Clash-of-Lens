@@ -64,14 +64,6 @@ export default function CreateClan() {
   };
 
   const handleNext = async () => {
-    // If on the image step, upload the image before proceeding
-    if (currentStep === 1 && imageFile && address) {
-      const acl = lensAccountOnly(address, chains.testnet.id);
-      const response = await storageClient.uploadFile(imageFile, { acl });
-
-      console.log("Image upload response:", response);
-      setClanData((prev) => ({ ...prev, icon: response.uri }));
-    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
