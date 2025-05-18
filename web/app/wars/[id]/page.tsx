@@ -7,9 +7,5 @@ export default function WarPage() {
   // In a real app, you would fetch the war data based on the ID
   // For now, we'll just check if the ID follows our pattern
 
-  if (!warId?.toString().startsWith("war-") || !warId) {
-    notFound();
-  }
-
   return <WarDetail warId={warId as string} />;
 }
