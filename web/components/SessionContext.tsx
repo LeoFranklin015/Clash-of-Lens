@@ -68,15 +68,21 @@ export const SessionProvider = ({
 
   // Load session from localStorage on mount
   useEffect(() => {
-    const resume = async () => {
-      const resumed = await client.resumeSession();
-      if (resumed.isErr()) {
-        return console.error(resumed.error);
-      }
-      const sessionClient = resumed.value;
-      setSessionClientState(sessionClient);
-    };
-    resume();
+    if (sessionClient) return;
+    try {
+      const resume = async () => {
+        const resumed = await client.resumeSession();
+        if (resumed.isErr()) {
+          return console.error(resumed.error);
+        }
+        const sessionClient = resumed.value;
+        setSessionClientState(sessionClient);
+      };
+      resume();
+    } catch (error) {
+      console.error(error);
+      clearSession();
+    }
   }, []);
 
   // Fetch Lens profile when address changes
@@ -125,7 +131,14 @@ export const SessionProvider = ({
 
   return (
     <SessionContext.Provider
-      value={{ sessionClient, setSessionClient: setSessionClientState, getCurrentSession, clearSession, profile, setProfile }}
+      value={{
+        sessionClient,
+        setSessionClient: setSessionClientState,
+        getCurrentSession,
+        clearSession,
+        profile,
+        setProfile,
+      }}
     >
       {children}
     </SessionContext.Provider>
