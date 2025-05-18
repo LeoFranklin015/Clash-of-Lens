@@ -14,13 +14,8 @@ interface WarDetailProps {
 }
 
 export default function WarDetail({ warId }: WarDetailProps) {
-  const [isLoaded, setIsLoaded] = useState(false)
   const [message, setMessage] = useState("")
   const contributionFeedRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
