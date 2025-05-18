@@ -1,32 +1,24 @@
 import { contractsConfig } from "../contractsConfig";
 
-export const fetchWarLogs = async (
+export const fetchClans = async (
   chainId: number,
   clanAddress: `0x${string}`
 ) => {
   const subgraphUrl =
     contractsConfig[chainId as keyof typeof contractsConfig]?.subgraphUrl ||
     contractsConfig[37111].subgraphUrl;
-  // 1. Fetch wars from subgraph
+  // 1. Fetch clans from subgraph
   const res = await fetch(subgraphUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       query: ` {
-  wars(where: {or: {clan1: "${clanAddress}", clan2: "${clanAddress}"}}) {
-    clan1 {
-      id
-    }
-    result
-    clan2 {
-      id
-    }
-    timestamp
-    id
+  clan(id: "${clanAddress}") {
+    balance
   }
 }`,
     }),
   });
   const json = await res.json();
-  return json.data.wars || [];
+  return json.data.clan.balance || 0;
 };
