@@ -8,8 +8,6 @@ import Image from "next/image";
 
 import { useEffect } from "react";
 import { useAccount } from "wagmi";
-import { evmAddress } from "@lens-protocol/client";
-import { fetchAccountsBulk } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { useSession } from "@/components/SessionContext";
 import { useEthersSigner } from "@/lib/walletClientToSigner";
@@ -30,74 +28,12 @@ interface MainNavProps {
   isLoaded: boolean;
 }
 
-interface LensUsername {
-  __typename: "Username";
-  id: string;
-  value: string;
-  localName: string;
-  linkedTo: string;
-  ownedBy: string;
-  timestamp: string;
-  namespace: string;
-  operations: null | unknown;
-}
-
-interface AccountMetadata {
-  __typename: "AccountMetadata";
-  attributes: unknown[];
-  bio: string | null;
-  coverPicture: string | null;
-  id: string;
-  name: string | null;
-  picture: string | null;
-}
-
-interface LensAccount {
-  __typename: "Account";
-  address: string;
-  owner: string;
-  score: number;
-  createdAt: string;
-  username: LensUsername | null;
-  metadata: AccountMetadata | null;
-  operations: null | unknown;
-  rules: unknown;
-  actions: unknown[];
-}
-
 export function MainNav({ isLoaded }: MainNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { address } = useAccount();
-  const [profile, setProfile] = useState<LensAccount | null>(null);
-  const { setSessionClient, sessionClient, clearSession } = useSession();
+  const { setSessionClient, sessionClient, clearSession, profile } = useSession();
   const signer = useEthersSigner();
-
-  const fetchAccountDetails = async () => {
-    const result = await fetchAccountsBulk(client, {
-      ownedBy: [evmAddress(address!)],
-    });
-
-    if (result.isErr()) {
-      return console.error(result.error);
-    }
-
-    return result.value;
-  };
-
-  useEffect(() => {
-
-    if (address) {
-      const getAccount = async () => {
-        const account = await fetchAccountDetails();
-        if (account && account.length > 0) {
-          console.log(account[0]);
-          setProfile(account[0] as LensAccount);
-        }
-      };
-      getAccount();
-    }
-  }, [address]);
 
   useEffect(() => {
     if (address && signer && profile) {

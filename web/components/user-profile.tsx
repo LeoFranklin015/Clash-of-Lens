@@ -11,274 +11,223 @@ import {
   Calendar,
   ExternalLink,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { fetchAccountsBulk } from "@lens-protocol/client/actions";
-import { evmAddress } from "@lens-protocol/react";
-import { client } from "@/lib/client";
-import { useAccount } from "wagmi";
+import { useSession } from "@/components/SessionContext";
+import { evmAddress } from "@lens-protocol/client";
 import { fetchGroups } from "@lens-protocol/client/actions";
+import { client } from "@/lib/client";
+import { useEffect } from "react";
+import { contractsConfig } from "@/lib/contractsConfig";
+import { Group, Clan, ClanWithGroup } from "@/lib/types";
+// Mock data for the user
+const user = {
+  id: "user-1",
+  name: "Loading...",
+  avatar: "/placeholder.svg?height=200&width=200",
+  banner: "/placeholder.svg?height=400&width=1200",
+  wallet: "0x1a2b...3c4d",
+  xpLevel: 42,
+  clan: {
+    id: "clan-1",
+    name: "Loading...",
+    logo: "/placeholder.svg?height=100&width=100",
+  },
+  joinDate: "Loading...",
+  bio: "Loading...",
+  stats: {
+    warsWon: 12,
+    warsLost: 3,
+    contributions: 450,
+    nftsCollected: 24,
+  },
+  socialLinks: {
+    lens: "@0xCyb3r",
+    farcaster: "@CyberWolf",
+    twitter: "@0xCyb3r_eth",
+  },
+};
 
-interface LensUsername {
-  __typename: "Username";
-  id: string;
-  value: string;
-  localName: string;
-  linkedTo: string;
-  ownedBy: string;
-  timestamp: string;
-  namespace: string;
-  operations: null | unknown; // Adjusted from 'any' to 'unknown'
-}
+// Mock data for contributions
+const contributions = [
+  {
+    id: "contrib-1",
+    type: "tip",
+    details: "Tipped WolfByte's post",
+    amount: "0.2 ETH",
+    date: "May 12, 2023",
+    war: "vs NEON KNIGHTS",
+  },
+  {
+    id: "contrib-2",
+    type: "collect",
+    details: "Collected Alpha Pack #007 NFT",
+    amount: "0.15 ETH",
+    date: "May 10, 2023",
+    war: "vs NEON KNIGHTS",
+  },
+  {
+    id: "contrib-3",
+    type: "post",
+    details: "Created post 'Strategy for the Final Day'",
+    amount: "",
+    date: "May 8, 2023",
+    war: "vs NEON KNIGHTS",
+  },
+  {
+    id: "contrib-4",
+    type: "followers",
+    details: "Gained 12 new followers",
+    amount: "",
+    date: "May 5, 2023",
+    war: "vs NEON KNIGHTS",
+  },
+  {
+    id: "contrib-5",
+    type: "tip",
+    details: "Tipped CryptoHowler's post",
+    amount: "0.1 ETH",
+    date: "April 28, 2023",
+    war: "vs PIXEL PUNKS",
+  },
+  {
+    id: "contrib-6",
+    type: "collect",
+    details: "Collected Digital Howl #018 NFT",
+    amount: "0.08 ETH",
+    date: "April 25, 2023",
+    war: "vs PIXEL PUNKS",
+  },
+];
 
-interface MetadataAttribute {
-  __typename: "MetadataAttribute";
-  type: string;
-  key: string;
-  value: string;
-}
+// Mock data for achievements
+const achievements = [
+  {
+    id: "achievement-1",
+    name: "War Champion",
+    description: "Won 10+ clan wars",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "May 1, 2023",
+  },
+  {
+    id: "achievement-2",
+    name: "Generous Tipper",
+    description: "Tipped over 1 ETH total",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "April 20, 2023",
+  },
+  {
+    id: "achievement-3",
+    name: "NFT Collector",
+    description: "Collected 20+ NFTs",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "April 15, 2023",
+  },
+  {
+    id: "achievement-4",
+    name: "Social Influencer",
+    description: "Gained 100+ followers",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "April 10, 2023",
+  },
+  {
+    id: "achievement-5",
+    name: "Content Creator",
+    description: "Created 50+ posts",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "April 5, 2023",
+  },
+  {
+    id: "achievement-6",
+    name: "First Victory",
+    description: "Won first clan war",
+    icon: "/placeholder.svg?height=50&width=50",
+    date: "March 22, 2023",
+  },
+];
 
-interface AccountMetadata {
-  __typename: "AccountMetadata";
-  attributes: MetadataAttribute[];
-  bio: string | null;
-  coverPicture: string | null;
-  id: string;
-  name: string | null;
-  picture: string | null;
-}
+// Mock data for NFTs
+const nfts = [
+  {
+    id: "nft-1",
+    name: "Cyber Wolf #042",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "0xCyb3r",
+    collected: "May 10, 2023",
+  },
+  {
+    id: "nft-2",
+    name: "Digital Howl #018",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "WolfByte",
+    collected: "April 25, 2023",
+  },
+  {
+    id: "nft-3",
+    name: "Alpha Pack #007",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "CryptoHowler",
+    collected: "April 15, 2023",
+  },
+  {
+    id: "nft-4",
+    name: "Night Hunter #029",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "AlphaWolf",
+    collected: "April 5, 2023",
+  },
+  {
+    id: "nft-5",
+    name: "War Medal #003",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "Clash of Lens",
+    collected: "March 22, 2023",
+  },
+  {
+    id: "nft-6",
+    name: "Founder Badge",
+    image: "/placeholder.svg?height=300&width=300",
+    creator: "Clash of Lens",
+    collected: "March 15, 2023",
+  },
+];
 
-interface AccountFollowRules {
-  __typename: "AccountFollowRules";
-  required: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
-  anyOf: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
-}
 
-interface LensAccount {
-  __typename: "Account";
-  address: string;
-  owner: string;
-  score: number;
-  createdAt: string;
-  username: LensUsername | null;
-  metadata: AccountMetadata | null;
-  operations: null | unknown; // Adjusted from 'any' to 'unknown'
-  rules: AccountFollowRules | null;
-  actions: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
+const fetchClansFromContract = async () => {
+  const subgraph = contractsConfig.lensTestnet.subgraphUrl;
+  const query = 
 }
 
 export default function UserProfile() {
-  const [profile, setProfile] = useState<LensAccount | null>(null);
-  const { address } = useAccount();
-  const fetchAccountDetails = async () => {
-    const result = await fetchAccountsBulk(client, {
-      ownedBy: [evmAddress(address!)],
-    });
-
-    if (result.isErr()) {
-      return console.error(result.error);
-    }
-
-    return result.value;
-  };
+  const { profile } = useSession();
 
   const fetchClans = async () => {
-    const result = await fetchGroups(client, {
-      filter: {
-        member: evmAddress(address!),
-      },
-    });
+    if (profile?.address) {
+      await fetchGroups(client, {
+        filter: {
+          member: evmAddress(profile.address),
+        },
+      }).then((result) => {
+        if (result.isErr()) {
+          return console.error(result.error);
+        }
 
-    if (result.isErr()) {
-      return console.error(result.error);
+
+
+        console.log("Groups", result.value);
+
+        const { items, pageInfo } = result.value;
+
+        const clans: Clan[] = items;
+      });
     }
-
-    return result.value;
   };
+
+
 
   useEffect(() => {
-    if (address) {
-      const getAccount = async () => {
-        const account = await fetchAccountDetails();
-        if (account && account.length > 0) {
-          console.log(account[0]);
-          setProfile(account[0]); // Removed 'as any', type is LensAccount
-        }
-      };
-      getAccount();
-    }
-  }, [address]);
+    fetchClans();
+  }, [profile]);
 
-  // Mock data for the user
-  const user = {
-    id: "user-1",
-    name: "0xCyb3r",
-    avatar: "/placeholder.svg?height=200&width=200",
-    banner: "/placeholder.svg?height=400&width=1200",
-    wallet: "0x1a2b...3c4d",
-    xpLevel: 42,
-    clan: {
-      id: "clan-1",
-      name: "CYBER WOLVES",
-      logo: "/placeholder.svg?height=100&width=100",
-    },
-    joinDate: "March 15, 2023",
-    bio: "Blockchain strategist and social warfare expert. Leading the CYBER WOLVES to victory one war at a time. Always hunting for the next big opportunity in the digital realm.",
-    stats: {
-      warsWon: 12,
-      warsLost: 3,
-      contributions: 450,
-      nftsCollected: 24,
-    },
-    socialLinks: {
-      lens: "@0xCyb3r",
-      farcaster: "@CyberWolf",
-      twitter: "@0xCyb3r_eth",
-    },
-  };
 
-  // Mock data for contributions
-  const contributions = [
-    {
-      id: "contrib-1",
-      type: "tip",
-      details: "Tipped WolfByte's post",
-      amount: "0.2 ETH",
-      date: "May 12, 2023",
-      war: "vs NEON KNIGHTS",
-    },
-    {
-      id: "contrib-2",
-      type: "collect",
-      details: "Collected Alpha Pack #007 NFT",
-      amount: "0.15 ETH",
-      date: "May 10, 2023",
-      war: "vs NEON KNIGHTS",
-    },
-    {
-      id: "contrib-3",
-      type: "post",
-      details: "Created post 'Strategy for the Final Day'",
-      amount: "",
-      date: "May 8, 2023",
-      war: "vs NEON KNIGHTS",
-    },
-    {
-      id: "contrib-4",
-      type: "followers",
-      details: "Gained 12 new followers",
-      amount: "",
-      date: "May 5, 2023",
-      war: "vs NEON KNIGHTS",
-    },
-    {
-      id: "contrib-5",
-      type: "tip",
-      details: "Tipped CryptoHowler's post",
-      amount: "0.1 ETH",
-      date: "April 28, 2023",
-      war: "vs PIXEL PUNKS",
-    },
-    {
-      id: "contrib-6",
-      type: "collect",
-      details: "Collected Digital Howl #018 NFT",
-      amount: "0.08 ETH",
-      date: "April 25, 2023",
-      war: "vs PIXEL PUNKS",
-    },
-  ];
-
-  // Mock data for achievements
-  const achievements = [
-    {
-      id: "achievement-1",
-      name: "War Champion",
-      description: "Won 10+ clan wars",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "May 1, 2023",
-    },
-    {
-      id: "achievement-2",
-      name: "Generous Tipper",
-      description: "Tipped over 1 ETH total",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "April 20, 2023",
-    },
-    {
-      id: "achievement-3",
-      name: "NFT Collector",
-      description: "Collected 20+ NFTs",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "April 15, 2023",
-    },
-    {
-      id: "achievement-4",
-      name: "Social Influencer",
-      description: "Gained 100+ followers",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "April 10, 2023",
-    },
-    {
-      id: "achievement-5",
-      name: "Content Creator",
-      description: "Created 50+ posts",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "April 5, 2023",
-    },
-    {
-      id: "achievement-6",
-      name: "First Victory",
-      description: "Won first clan war",
-      icon: "/placeholder.svg?height=50&width=50",
-      date: "March 22, 2023",
-    },
-  ];
-
-  // Mock data for NFTs
-  const nfts = [
-    {
-      id: "nft-1",
-      name: "Cyber Wolf #042",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "0xCyb3r",
-      collected: "May 10, 2023",
-    },
-    {
-      id: "nft-2",
-      name: "Digital Howl #018",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "WolfByte",
-      collected: "April 25, 2023",
-    },
-    {
-      id: "nft-3",
-      name: "Alpha Pack #007",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "CryptoHowler",
-      collected: "April 15, 2023",
-    },
-    {
-      id: "nft-4",
-      name: "Night Hunter #029",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "AlphaWolf",
-      collected: "April 5, 2023",
-    },
-    {
-      id: "nft-5",
-      name: "War Medal #003",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "Clash of Lens",
-      collected: "March 22, 2023",
-    },
-    {
-      id: "nft-6",
-      name: "Founder Badge",
-      image: "/placeholder.svg?height=300&width=300",
-      creator: "Clash of Lens",
-      collected: "March 15, 2023",
-    },
-  ];
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -405,10 +354,10 @@ export default function UserProfile() {
             Joined{" "}
             {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
               : user.joinDate}
           </span>
         </div>

@@ -1,6 +1,7 @@
 import { fetchGroupMembers } from "@lens-protocol/client/actions";
 import { client } from "../utils/client";
 import { evmAddress } from "@lens-protocol/client";
+
 export const getGroupMembers = async (groupAddress: string) => {
   let members: any[] = [];
   const result = await fetchGroupMembers(client, {
