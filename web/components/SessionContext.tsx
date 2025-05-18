@@ -53,8 +53,8 @@ interface SessionContextType {
   clearSession: () => Promise<void>;
   profile: LensAccount | null;
   setProfile: (profile: LensAccount | null) => void;
-  userClan: { id: string; name: string; logo: string } | null;
-  setUserClan: (clan: { id: string; name: string; logo: string } | null) => void;
+  userClan: { id: string; name: string; logo: string; feedAddress: string } | null;
+  setUserClan: (clan: { id: string; name: string; logo: string; feedAddress: string } | null) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -68,7 +68,7 @@ export const SessionProvider = ({
     null
   );
   const [profile, setProfile] = useState<LensAccount | null>(null);
-  const [userClan, setUserClan] = useState<{ id: string; name: string; logo: string } | null>(null);
+  const [userClan, setUserClan] = useState<{ id: string; name: string; logo: string; feedAddress: string } | null>(null);
   const { address } = useAccount();
   const chainId = useChainId();
 
@@ -160,6 +160,7 @@ export const SessionProvider = ({
         setUserClan({
           id: userClan.address,
           name: userClan.metadata?.name || "Unnamed Clan",
+          feedAddress: userClan.feed?.address,
           logo: userClan.metadata?.icon || "/placeholder.svg",
         });
       }

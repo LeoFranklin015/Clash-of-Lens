@@ -12,8 +12,134 @@ import { fetchWarStats } from "@/lib/subgraphHandlers/fetchWarStats";
 import { fetchWarClans } from "@/lib/subgraphHandlers/fetchWarClans";
 import { fetchGroup } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
-import { evmAddress } from "@lens-protocol/client";
 import { storageClient } from "@/lib/storage-client";
+import { useSession } from "./SessionContext";
+import { textOnly } from "@lens-protocol/metadata";
+import { evmAddress, } from "@lens-protocol/client";
+import { post, fetchPosts } from "@lens-protocol/client/actions";
+
+
+// Mock data for contribution feed
+const contributionFeed = [
+  {
+    id: "contrib-1",
+    user: {
+      name: "0xCyb3r",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan1",
+    },
+    action: "tipped",
+    target: "WolfByte's post",
+    amount: "0.05 ETH",
+    time: "2 hours ago",
+  },
+  {
+    id: "contrib-2",
+    user: {
+      name: "NeonRider",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan2",
+    },
+    action: "collected",
+    target: "Digital Warrior NFT",
+    amount: "",
+    time: "3 hours ago",
+  },
+  {
+    id: "contrib-3",
+    user: {
+      name: "CryptoHowler",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan1",
+    },
+    action: "posted",
+    target: "Strategy Update",
+    amount: "",
+    time: "4 hours ago",
+  },
+  {
+    id: "contrib-4",
+    user: {
+      name: "LightKnight",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan2",
+    },
+    action: "gained",
+    target: "5 new followers",
+    amount: "",
+    time: "5 hours ago",
+  },
+  {
+    id: "contrib-5",
+    user: {
+      name: "AlphaWolf",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan1",
+    },
+    action: "tipped",
+    target: "0xCyb3r's post",
+    amount: "0.1 ETH",
+    time: "6 hours ago",
+  },
+  {
+    id: "contrib-6",
+    user: {
+      name: "NeonQueen",
+      avatar: "/placeholder.svg?height=50&width=50",
+      clan: "clan2",
+    },
+    action: "posted",
+    target: "Rally Call",
+    amount: "",
+    time: "7 hours ago",
+  },
+];
+
+// // Mock data for posts
+// const posts = [
+//   {
+//     id: "post-1",
+//     user: {
+//       name: "0xCyb3r",
+//       avatar: "/placeholder.svg?height=50&width=50",
+//       clan: "clan1",
+//     },
+//     content:
+//       "Just dropped our new clan NFT collection! Collect them to support us in the war against NEON KNIGHTS. Every collection counts towards our victory!",
+//     image: "/placeholder.svg?height=300&width=500",
+//     likes: 24,
+//     comments: 8,
+//     time: "5 hours ago",
+//   },
+//   {
+//     id: "post-2",
+//     user: {
+//       name: "WolfByte",
+//       avatar: "/placeholder.svg?height=50&width=50",
+//       clan: "clan1",
+//     },
+//     content:
+//       "Strategy update: Focus on tipping and collecting today. We're leading in posts but falling behind in followers. Let's coordinate our efforts!",
+//     image: "",
+//     likes: 18,
+//     comments: 12,
+//     time: "8 hours ago",
+//   },
+//   {
+//     id: "post-3",
+//     user: {
+//       name: "CryptoHowler",
+//       avatar: "/placeholder.svg?height=50&width=50",
+//       clan: "clan1",
+//     },
+//     content:
+//       "Just created a new post about blockchain gaming. Check it out and give it some love to help us win this war!",
+//     image: "/placeholder.svg?height=300&width=500",
+//     likes: 32,
+//     comments: 5,
+//     time: "12 hours ago",
+//   },
+// ];
 
 interface WarDetailProps {
   warId: string;
@@ -21,6 +147,7 @@ interface WarDetailProps {
 
 export default function WarDetail({ warId }: WarDetailProps) {
   const [message, setMessage] = useState("");
+  const { userClan, sessionClient } = useSession();
   const contributionFeedRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warStats, setWarStats] = useState<any>(null);
@@ -28,6 +155,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
   const [warData, setWarData] = useState<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
+  const [posts, setPosts] = useState<any>([]);
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
@@ -36,6 +164,37 @@ export default function WarDetail({ warId }: WarDetailProps) {
         contributionFeedRef.current.scrollHeight;
     }
   }, []);
+
+  useEffect(() => {
+    const handleFetchPosts = async () => {
+      const result = await fetchPosts(client, {
+        filter: {
+          feeds: [
+            {
+              globalFeed: true,
+            },
+            // // filter by a specific feed address
+            // {
+            //   feed: evmAddress(userClan?.feedAddress || ""),
+            // },
+          ],
+        },
+      });
+
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+
+      // items: Array<AnyPost>
+      const { items } = result.value;
+      console.log("Posts", items);
+      setPosts(items);
+    };
+
+    if (userClan?.feedAddress) {
+      handleFetchPosts();
+    }
+  }, [userClan?.feedAddress]);
 
   const fetchClanDetails = async (clanAddress: string) => {
     try {
@@ -76,19 +235,19 @@ export default function WarDetail({ warId }: WarDetailProps) {
   // Calculate total scores
   const clan1Score = warStats
     ? warStats.clan1.tips +
-      warStats.clan1.collects +
-      warStats.clan1.comments +
-      warStats.clan1.quotes +
-      warStats.clan1.upvotes +
-      warStats.clan1.bookmarks
+    warStats.clan1.collects +
+    warStats.clan1.comments +
+    warStats.clan1.quotes +
+    warStats.clan1.upvotes +
+    warStats.clan1.bookmarks
     : 0;
   const clan2Score = warStats
     ? warStats.clan2.tips +
-      warStats.clan2.collects +
-      warStats.clan2.comments +
-      warStats.clan2.quotes +
-      warStats.clan2.upvotes +
-      warStats.clan2.bookmarks
+    warStats.clan2.collects +
+    warStats.clan2.comments +
+    warStats.clan2.quotes +
+    warStats.clan2.upvotes +
+    warStats.clan2.bookmarks
     : 0;
 
   // Get clan details
@@ -157,127 +316,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
     ],
   };
 
-  // Mock data for contribution feed
-  const contributionFeed = [
-    {
-      id: "contrib-1",
-      user: {
-        name: "0xCyb3r",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      action: "tipped",
-      target: "WolfByte's post",
-      amount: "0.05 ETH",
-      time: "2 hours ago",
-    },
-    {
-      id: "contrib-2",
-      user: {
-        name: "NeonRider",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan2",
-      },
-      action: "collected",
-      target: "Digital Warrior NFT",
-      amount: "",
-      time: "3 hours ago",
-    },
-    {
-      id: "contrib-3",
-      user: {
-        name: "CryptoHowler",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      action: "posted",
-      target: "Strategy Update",
-      amount: "",
-      time: "4 hours ago",
-    },
-    {
-      id: "contrib-4",
-      user: {
-        name: "LightKnight",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan2",
-      },
-      action: "gained",
-      target: "5 new followers",
-      amount: "",
-      time: "5 hours ago",
-    },
-    {
-      id: "contrib-5",
-      user: {
-        name: "AlphaWolf",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      action: "tipped",
-      target: "0xCyb3r's post",
-      amount: "0.1 ETH",
-      time: "6 hours ago",
-    },
-    {
-      id: "contrib-6",
-      user: {
-        name: "NeonQueen",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan2",
-      },
-      action: "posted",
-      target: "Rally Call",
-      amount: "",
-      time: "7 hours ago",
-    },
-  ];
 
-  // Mock data for posts
-  const posts = [
-    {
-      id: "post-1",
-      user: {
-        name: "0xCyb3r",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      content:
-        "Just dropped our new clan NFT collection! Collect them to support us in the war against NEON KNIGHTS. Every collection counts towards our victory!",
-      image: "/placeholder.svg?height=300&width=500",
-      likes: 24,
-      comments: 8,
-      time: "5 hours ago",
-    },
-    {
-      id: "post-2",
-      user: {
-        name: "WolfByte",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      content:
-        "Strategy update: Focus on tipping and collecting today. We're leading in posts but falling behind in followers. Let's coordinate our efforts!",
-      image: "",
-      likes: 18,
-      comments: 12,
-      time: "8 hours ago",
-    },
-    {
-      id: "post-3",
-      user: {
-        name: "CryptoHowler",
-        avatar: "/placeholder.svg?height=50&width=50",
-        clan: "clan1",
-      },
-      content:
-        "Just created a new post about blockchain gaming. Check it out and give it some love to help us win this war!",
-      image: "/placeholder.svg?height=300&width=500",
-      likes: 32,
-      comments: 5,
-      time: "12 hours ago",
-    },
-  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -296,11 +335,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan1.name}
                   width={80}
                   height={80}
-                  className={`rounded-full w-20 h-20 object-cover bg-white border-4 ${
-                    clan1Score >= clan2Score
-                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
-                      : "border-gray-700"
-                  }`}
+                  className={`rounded-full w-20 h-20 object-cover bg-white border-4 ${clan1Score >= clan2Score
+                    ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                    : "border-gray-700"
+                    }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan1.name}</h3>
@@ -334,11 +372,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan2.name}
                   width={80}
                   height={80}
-                  className={`rounded-full border-4 ${
-                    clan2Score >= clan1Score
-                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
-                      : "border-gray-700"
-                  }`}
+                  className={`rounded-full border-4 ${clan2Score >= clan1Score
+                    ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                    : "border-gray-700"
+                    }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan2.name}</h3>
@@ -398,11 +435,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
             {contributionFeed.map((contribution) => (
               <div
                 key={contribution.id}
-                className={`border ${
-                  contribution.user.clan === "clan1"
-                    ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
-                    : "border-gray-700 bg-gray-800 bg-opacity-20"
-                } rounded-lg p-3 flex items-start`}
+                className={`border ${contribution.user.clan === "clan1"
+                  ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
+                  : "border-gray-700 bg-gray-800 bg-opacity-20"
+                  } rounded-lg p-3 flex items-start`}
               >
                 <Image
                   src={contribution.user.avatar || "/placeholder.svg"}
@@ -414,11 +450,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 <div className="ml-3">
                   <div className="flex items-center">
                     <span
-                      className={`font-bold ${
-                        contribution.user.clan === "clan1"
-                          ? "text-[#a3ff12]"
-                          : "text-white"
-                      }`}
+                      className={`font-bold ${contribution.user.clan === "clan1"
+                        ? "text-[#a3ff12]"
+                        : "text-white"
+                        }`}
                     >
                       {contribution.user.name}
                     </span>
@@ -444,7 +479,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
       {/* Right Column - Action Panel & Posts */}
       <div className="lg:col-span-2">
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-          <h2 className="text-white font-bold text-xl mb-4">ACTION PANEL</h2>
+          <h2 className="text-white font-bold text-xl mb-4">
+            ACTION PANEL {JSON.stringify(posts)}
+          </h2>
 
           <Tabs defaultValue="post" className="w-full">
             <TabsList className="bg-black border border-[#a3ff12] p-1 w-full grid grid-cols-3">
@@ -472,7 +509,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
               <div className="space-y-4">
                 <Textarea
                   placeholder="What's on your mind? Create a post to help your clan..."
-                  className="bg-black border-gray-700 focus:border-[#a3ff12] min-h-[120px]"
+                  className="bg-black text-white border-gray-700 focus:border-[#a3ff12] min-h-[120px]"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
@@ -515,7 +552,25 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     </Button>
                   </div>
                   <Button
-                    className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                    onClick={async () => {
+                      if (sessionClient) {
+                        const metadata = textOnly({
+                          content: message,
+                        });
+
+                        const { uri } = await storageClient.uploadAsJson(metadata);
+
+                        console.log(uri); // e.g., lens://4f91ca…
+
+                        const result = await post(sessionClient, {
+                          contentUri: uri,
+                          feed: evmAddress(userClan?.feedAddress || ""), // the custom feed address
+                        });
+
+                        console.log("Posted", result);
+                      }
+                    }}
+                    className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
                     disabled={!message.trim()}
                   >
                     POST
@@ -532,7 +587,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     Select Post to Tip
                   </h3>
                   <div className="space-y-2">
-                    {posts.map((post, index) => (
+                    {posts.map((post: any, index: number) => (
                       <div
                         key={index}
                         className="flex items-center justify-between border border-gray-800 rounded-lg p-3 hover:border-[#a3ff12] cursor-pointer"
@@ -682,7 +737,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
           <h2 className="text-white font-bold text-xl mb-4">CLAN POSTS</h2>
 
           <div className="space-y-6">
-            {posts.map((post) => (
+            {posts.map((post: any) => (
               <div
                 key={post.id}
                 className="border border-gray-800 rounded-lg overflow-hidden"
