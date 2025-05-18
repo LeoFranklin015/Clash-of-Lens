@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Trophy, Search, Filter } from "lucide-react";
+import { Search, } from "lucide-react";
 import { useAccount, useChainId } from "wagmi";
 import {
   fetchAccountsBulk,
@@ -18,6 +17,8 @@ import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
 import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
 import { contractsConfig } from "@/lib/contractsConfig";
+import { ClanCard } from "@/components/ClanCard";
+
 
 interface ClanSubgraph {
   id: string;
@@ -26,7 +27,7 @@ interface ClanSubgraph {
   status: number;
 }
 
-interface ClanCardData {
+export interface ClanCardData {
   id: string;
   balance: string;
   owner: string;
@@ -40,6 +41,7 @@ interface ClanCardData {
   members: number;
   wins: number;
 }
+
 
 
 
@@ -253,14 +255,6 @@ export default function ClansPage() {
               <span className="relative z-10">CREATE CLAN</span>
             )}
           </Button>
-
-          <Button
-            variant="outline"
-            className="border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10 flex-1 md:flex-none"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            FILTER
-          </Button>
         </div>
       </div>
       {/* Tabs */}
@@ -315,68 +309,6 @@ export default function ClansPage() {
   );
 }
 
-
-
-interface ClanCardProps {
-  clan: ClanCardData;
-}
-
-function ClanCard({ clan }: ClanCardProps) {
-  const statusLabel =
-    clan.status === 0
-      ? "Ready for War"
-      : clan.status === 1
-        ? "At War"
-        : "Not Ready";
-  return (
-    <div className="border border-gray-800 bg-black bg-opacity-60 rounded-lg overflow-hidden hover:border-[#a3ff12] transition-all group">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center">
-            <Image
-              src={clan.logo || "/placeholder.svg"}
-              alt={clan.name}
-              width={80}
-              height={80}
-              className="w-20 bg-white h-20 border-2 border-[#a3ff12] rounded-none"
-            />
-            <div className="ml-4">
-              <h3 className="text-white font-bold text-lg">{clan.name}</h3>
-              <p className="text-gray-400 text-sm">Led by {clan.leader.slice(0, 6)}...{clan.leader.slice(-4)}</p>
-              <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${clan.status === 0
-                  ? "bg-[#a3ff12] text-black"
-                  : clan.status === 1
-                    ? "bg-[#FF0000] text-black"
-                    : "bg-[#FF0000] text-black"
-                  }`}
-              >
-                {statusLabel}
-              </span>
-            </div>
-          </div>
-        </div>
-        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-          {clan.description}
-        </p>
-        <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
-          <div className="flex items-center">
-            <Users className="h-4 w-4 mr-1 text-[#a3ff12]" />
-            <span>{clan.members} Members</span>
-          </div>
-          <div className="flex items-center">
-            <Trophy className="h-4 w-4 mr-1 text-[#a3ff12]" />
-            <span>{clan.wins} Wins</span>
-          </div>
-        </div>
-        <Button
-          asChild
-          className="w-full bg-transparent border border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:text-black transition-all"
-        >
-          <Link href={`/clans/${clan.id}`}>VIEW CLAN</Link>
-        </Button>
-      </div>
-      <div className="h-1 w-full bg-[#a3ff12] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
-    </div>
-  );
+export function statusToLabel(status: number) {
+  return status === 0 ? "Ready for War" : status === 1 ? "At War" : "Not Ready";
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Stepper } from "@/components/Stepper";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { VerticalStepper } from "@/components/VerticalStepper";
 import { StorageClient } from "@lens-chain/storage-client";
 import { chains } from "@lens-chain/sdk/viem";
@@ -16,9 +16,8 @@ import { useEthersSigner } from "@/lib/walletClientToSigner";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { publicClient, walletClient } from "@/lib/client";
-import { ClashOfLensABI } from "@/lib/abis/ClashOfLens";
-import { CLASH_OF_LENS_ADDRESS } from "@/lib/const";
+import { contractsConfig } from "@/lib/contractsConfig";
+import { useWriteContract } from "wagmi";
 
 const steps = [
   {
@@ -56,6 +55,8 @@ export default function CreateClan() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { sessionClient } = useSession();
   const signer = useEthersSigner();
+  const chainId = useChainId();
+  const { writeContract, isPending: isRegistering, isError: isRegisterError, error: registerError } = useWriteContract();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -127,22 +128,14 @@ export default function CreateClan() {
         setCompletedSteps([0, 1]);
         setProcessStep(2);
 
-        // Step 3: Register clan
-        const tx = await walletClient?.writeContract({
-          address: CLASH_OF_LENS_ADDRESS,
-          abi: ClashOfLensABI,
+        // Step 3: Register clan using wagmi useWriteContract
+        await writeContract({
+          address: contractsConfig[chainId as keyof typeof contractsConfig]?.contractAddress as `0x${string}` || contractsConfig[37111].contractAddress,
+          abi: contractsConfig[chainId as keyof typeof contractsConfig]?.contractABI || contractsConfig[37111].contractABI,
           functionName: "registerClan",
           args: [result.address],
-          account: address!,
         });
 
-        console.log("Registration transaction:", tx);
-
-        const txReceipt = await publicClient.waitForTransactionReceipt({
-          hash: tx!,
-        });
-
-        console.log("Transaction receipt:", txReceipt);
         setCompletedSteps([0, 1, 2]);
       }
     } catch (error) {
@@ -336,6 +329,17 @@ export default function CreateClan() {
               currentStep={processStep}
               completedSteps={completedSteps}
             />
+            {processStep === 2 && isRegistering && (
+              <div className="mt-8 flex flex-col items-center">
+                <div className="w-6 h-6 border-4 border-[#a3ff12] border-t-transparent rounded-full animate-spin mb-2" />
+                <span className="text-[#a3ff12] font-bold">Registering clan on-chain...</span>
+              </div>
+            )}
+            {processStep === 2 && isRegisterError && (
+              <div className="mt-8 text-red-500 font-bold">
+                Error registering clan: {registerError?.message || 'Unknown error'}
+              </div>
+            )}
             {completedSteps.length === processSteps.length && (
               <div className="mt-8 text-[#a3ff12] text-xl font-bold">
                 Clan Created Successfully!

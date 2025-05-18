@@ -8,7 +8,6 @@ import {
   Shield,
   Users,
   Trophy,
-  Coins,
   Zap,
   Calendar,
   ArrowRight,
@@ -18,7 +17,6 @@ import {
   fetchGroup,
   fetchGroupMembers,
   joinGroup,
-  fetchAccountsBulk,
 } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { evmAddress } from "@lens-protocol/react";
@@ -30,24 +28,27 @@ import { useSession } from "@/components/SessionContext";
 import { JoinClanModal } from "@/components/join-clan-modal";
 import { useParams } from "next/navigation";
 import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
-import { useChainId, useAccount } from "wagmi";
+import { useChainId, } from "wagmi";
 import { useToast } from "@/hooks/use-toast";
+import { Group } from "@/lib/types";
+import { GroupTreasury } from "@/components/GroupTreasury";
+
+
 
 export default function ClanPage() {
   const { toast } = useToast();
   const { id: clanGroupId } = useParams();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [clan, setClan] = useState<any | null>(null);
+  const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [fetchedMembers, setFetchedMembers] = useState<any[]>([]); // Using any[] for now, ideally use Lens SDK type
+  const [groupMembers, setGroupMembers] = useState<any[]>([]); // Using any[] for now, ideally use Lens SDK type
+
 
   const signer = useEthersSigner();
-  const { sessionClient } = useSession();
+  const { sessionClient, profile } = useSession();
   const chainId = useChainId();
-  const { address } = useAccount();
   const [isMemberInClan, setIsMemberInClan] = useState(false);
 
   // Mock data for war history
@@ -100,7 +101,7 @@ export default function ClanPage() {
   };
 
   // Fetch real clan data
-  const fetchGroupDetails = async () => {
+  const handleFetchGroup = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -109,62 +110,64 @@ export default function ClanPage() {
       });
       if (result.isErr()) {
         setError("Failed to fetch clan data");
-        setClan(null);
+        setGroup(null);
       } else {
-        setClan(result.value);
+        setGroup(result.value as Group);
       }
+    } catch (e) {
+      console.error("Error fetching clan data:", e);
+      setError("Error fetching clan data");
+      setGroup(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+
+  const handleFetchGroupMembers = async () => {
+    setLoading(true);
+    setError(null);
+    try {
       // Fetch group members (clan)
       const membersResult = await fetchGroupMembers(client, {
         group: evmAddress(clanGroupId as string), // clanGroupId
       });
       if (membersResult.isErr()) {
         setError("Failed to fetch clan members");
-        setFetchedMembers([]);
+        setGroupMembers([]);
       } else {
-        setFetchedMembers(
+        setGroupMembers(
           membersResult.value.items ? [...membersResult.value.items] : []
         );
       }
     } catch (e) {
-      console.error("Error fetching clan data:", e);
-      setError("Error fetching clan data");
-      setClan(null);
+      console.error("Error fetching group members:", e);
+      setError("Error fetching group members");
+      setGroupMembers([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchGroupDetails();
+    handleFetchGroup();
+    handleFetchGroupMembers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clanGroupId]);
 
   useEffect(() => {
-    const fetchProfile = async (address: `0x${string}`) => {
-      const result = await fetchAccountsBulk(client, {
-        ownedBy: [evmAddress(address!)],
-      });
-
-      if (result.isErr()) {
-        return console.error(result.error);
-      }
-
-      const profile = result.value[0];
-
-      if (profile) {
+    const checkMembership = async () => {
+      if (profile?.address) {
         const res: boolean = await checkMemberIsAlreadyInClan(
-          profile.address,
+          profile.address as `0x${string}`,
           chainId
         );
         setIsMemberInClan(res);
       }
     };
 
-    if (address && chainId) {
-      fetchProfile(address);
-    }
-  }, [address, chainId]);
+    checkMembership();
+  }, [profile?.address, chainId]);
 
   // Modal handler functions
   const openJoinModal = () => {
@@ -172,12 +175,14 @@ export default function ClanPage() {
       toast({
         title: "You are already a member of this clan",
         description: "You can't join more than one clan",
-        variant: "destructive",
+        variant: "default",
       });
       return;
     }
     setIsJoinModalOpen(true);
   };
+
+
   const handleAcceptJoin = async () => {
     // TODO: Implement actual join logic, e.g., API call
     const result = await joinGroup(sessionClient!, {
@@ -192,7 +197,7 @@ export default function ClanPage() {
       console.log(result.value);
     }
 
-    console.log("Attempting to join clan:", clan?.id);
+    console.log("Attempting to join clan:", group?.address);
     setIsJoinModalOpen(false); // Close modal on accept
   };
 
@@ -201,7 +206,7 @@ export default function ClanPage() {
       <div className="text-center text-white py-12">Loading clan data…</div>
     );
   }
-  if (error || !clan) {
+  if (error || !group || groupMembers.length === 0) {
     return (
       <div className="text-center text-red-500 py-12">
         {error || "Clan not found."}
@@ -209,66 +214,59 @@ export default function ClanPage() {
     );
   }
 
-  // Map API fields
-  const clanName = clan.metadata?.name || "Unknown Clan";
-  const clanDescription =
-    clan.metadata?.description || "No description available.";
-  const clanLogo = clan.metadata?.icon
-    ? storageClient.resolve(clan.metadata.icon)
-    : "/placeholder.svg";
-  const clanBanner = !clan.metadata?.coverPicture
-    ? storageClient.resolve(clan.metadata.icon)
-    : "/placeholder.svg";
-  const clanLeader = clan.owner || "Unknown";
-  const clanFounded = clan.timestamp
-    ? new Date(clan.timestamp).toLocaleDateString()
-    : "Unknown";
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Clan Banner */}
       <div className="mt-12 relative rounded-lg overflow-hidden h-48 md:h-64">
         <Image
-          src={clanBanner}
-          alt={`${clanName} Banner`}
+          src={!group.metadata?.coverPicture
+            ? storageClient.resolve(group.metadata.icon)
+            : "/placeholder.svg"}
+          alt={`${group.metadata?.name} Banner`}
           fill
-          className="object-cover"
+          className="bg-white object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-70"></div>
-        <div className="absolute bottom-0 left-0 p-6 flex items-center">
+        <div className="absolute bottom-0 left-0 p-6 flex items-center justify-between">
           <Image
-            src={clanLogo}
-            alt={clanName}
+            src={group.metadata?.icon
+              ? storageClient.resolve(group.metadata.icon)
+              : "/placeholder.svg"}
+            alt={group.metadata?.name || "Unknown Clan"}
             width={80}
             height={80}
             className="rounded-full border-4 border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
           />
-          <div className="ml-4">
-            <h1 className="text-white font-extrabold text-3xl md:text-4xl">
-              {clanName}
-            </h1>
-            <p className="text-gray-300">
-              Led by {clanLeader} • Founded {clanFounded}
-            </p>
+          <div className="flex justify-between w-full items-center mt-4">
+            <div className="ml-5">
+              <h1 className="text-white font-extrabold text-3xl md:text-4xl">
+                {group.metadata?.name || "Unknown Clan"}
+              </h1>
+              <p className="text-gray-300">
+                Led by {group.owner || "Unknown"} • Founded {group.timestamp
+                  ? new Date(group.timestamp).toLocaleDateString()
+                  : "Unknown"}
+              </p>
+              <Button
+                onClick={openJoinModal}
+                className="cursor-pointer mt-3  bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden"
+                style={{
+                  clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
+                }}
+              >
+                <span className="relative z-10 flex items-center">
+                  JOIN CLAN
+                  <Users className="ml-2 h-4 w-4" />
+                </span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-center mt-4">
-        <Button
-          onClick={openJoinModal}
-          className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden"
-          style={{
-            clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
-          }}
-        >
-          <span className="relative z-10 flex items-center">
-            JOIN CLAN
-            <Users className="ml-2 h-4 w-4" />
-          </span>
-          <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
-        </Button>
-      </div>
+
 
       {/* Clan Stats */}
       <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -277,7 +275,7 @@ export default function ClanPage() {
             <Trophy className="h-5 w-5 text-[#a3ff12] mr-2" />
             <h3 className="text-gray-400 text-xs font-medium">WINS</h3>
           </div>
-          <p className="text-white text-2xl font-bold">{clan.wins}</p>
+          <p className="text-white text-2xl font-bold">{0}</p>
         </div>
 
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 p-4 rounded-lg">
@@ -285,7 +283,7 @@ export default function ClanPage() {
             <Shield className="h-5 w-5 text-[#a3ff12] mr-2" />
             <h3 className="text-gray-400 text-xs font-medium">LOSSES</h3>
           </div>
-          <p className="text-white text-2xl font-bold">{clan.losses}</p>
+          <p className="text-white text-2xl font-bold">{0}</p>
         </div>
 
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 p-4 rounded-lg">
@@ -293,22 +291,16 @@ export default function ClanPage() {
             <Users className="h-5 w-5 text-[#a3ff12] mr-2" />
             <h3 className="text-gray-400 text-xs font-medium">MEMBERS</h3>
           </div>
-          <p className="text-white text-2xl font-bold">{clan.members}</p>
+          <p className="text-white text-2xl font-bold">{groupMembers.length}</p>
         </div>
 
-        <div className="border border-[#a3ff12] bg-black bg-opacity-50 p-4 rounded-lg">
-          <div className="flex items-center mb-2">
-            <Coins className="h-5 w-5 text-[#a3ff12] mr-2" />
-            <h3 className="text-gray-400 text-xs font-medium">TREASURY</h3>
-          </div>
-          <p className="text-white text-2xl font-bold">{clan.treasury}</p>
-        </div>
+        <GroupTreasury groupAddress={group.address} />
       </div>
 
       {/* Clan Description */}
       <div className="mt-8 border border-[#a3ff12] bg-black bg-opacity-50 p-6 rounded-lg">
         <h2 className="text-[#a3ff12] font-bold text-xl mb-4">ABOUT</h2>
-        <p className="text-gray-300">{clanDescription}</p>
+        <p className="text-gray-300">{group.metadata?.description || "No description available."}</p>
       </div>
 
       {/* Clan Tabs */}
@@ -356,11 +348,10 @@ export default function ClanPage() {
                           VS {war.opponent}
                         </span>
                         <span
-                          className={`ml-3 px-2 py-1 text-xs font-bold rounded ${
-                            war.result === "WIN"
-                              ? "bg-[#a3ff12] text-black"
-                              : "bg-red-500 text-white"
-                          }`}
+                          className={`ml-3 px-2 py-1 text-xs font-bold rounded ${war.result === "WIN"
+                            ? "bg-[#a3ff12] text-black"
+                            : "bg-red-500 text-white"
+                            }`}
                         >
                           {war.result}
                         </span>
@@ -386,7 +377,7 @@ export default function ClanPage() {
           {/* Members Tab */}
           <TabsContent value="members" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {fetchedMembers.map((member) => {
+              {groupMembers.map((member) => {
                 const memberName =
                   member.account.username?.localName ||
                   member.account.metadata?.name ||
@@ -403,10 +394,10 @@ export default function ClanPage() {
                 // Determine role based on clan owner
                 let memberRole = "Member";
                 if (
-                  clan &&
-                  clan.owner &&
+                  group &&
+                  group.owner &&
                   member.account.address.toLowerCase() ===
-                    clan.owner.toLowerCase()
+                  group.owner.toLowerCase()
                 ) {
                   memberRole = "Leader";
                 }
@@ -427,11 +418,10 @@ export default function ClanPage() {
                       <h3 className="text-white font-bold">{memberName}</h3>
                       <div className="flex items-center justify-between">
                         <span
-                          className={`text-xs px-2 py-0.5 rounded ${
-                            memberRole === "Leader"
-                              ? "bg-[#a3ff12] text-black"
-                              : "bg-gray-700 text-gray-300"
-                          }`}
+                          className={`text-xs px-2 py-0.5 rounded ${memberRole === "Leader"
+                            ? "bg-[#a3ff12] text-black"
+                            : "bg-gray-700 text-gray-300"
+                            }`}
                         >
                           {memberRole}
                         </span>
@@ -447,7 +437,7 @@ export default function ClanPage() {
             <div className="mt-6 flex justify-center">
               <Button
                 onClick={openJoinModal}
-                className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden"
+                className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden"
                 style={{
                   clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
                 }}
@@ -487,13 +477,15 @@ export default function ClanPage() {
                 <div className="flex flex-col md:flex-row items-center justify-center gap-8 my-8">
                   <div className="flex flex-col items-center">
                     <Image
-                      src={clanLogo}
-                      alt={clanName}
+                      src={group.metadata?.icon
+                        ? storageClient.resolve(group.metadata.icon)
+                        : "/placeholder.svg"}
+                      alt={group.metadata?.name || "Unknown Clan"}
                       width={100}
                       height={100}
                       className="rounded-full border-4 border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
                     />
-                    <h3 className="text-white font-bold mt-2">{clanName}</h3>
+                    <h3 className="text-white font-bold mt-2">{group.metadata?.name || "Unknown Clan"}</h3>
                     <div className="text-[#a3ff12] font-bold text-3xl mt-1">
                       {activeWar.score.clan}
                     </div>
@@ -536,10 +528,10 @@ export default function ClanPage() {
                           {index === 0
                             ? "124"
                             : index === 1
-                            ? "37"
-                            : index === 2
-                            ? "18"
-                            : "42"}
+                              ? "37"
+                              : index === 2
+                                ? "18"
+                                : "42"}
                         </div>
                       </div>
                     ))}
@@ -598,7 +590,7 @@ export default function ClanPage() {
                   <div className="text-center">
                     <span className="text-white text-sm">TOTAL BALANCE</span>
                     <div className="text-[#a3ff12] font-bold text-xl">
-                      {clan.treasury}
+                      {0}
                     </div>
                   </div>
                 </div>
@@ -685,12 +677,12 @@ export default function ClanPage() {
       </div>
 
       {/* Render the modal */}
-      {clan && (
+      {group && (
         <JoinClanModal
           isOpen={isJoinModalOpen}
           onOpenChange={setIsJoinModalOpen}
           onAccept={handleAcceptJoin}
-          clanName={clanName}
+          clanName={group.metadata?.name || "Unknown Clan"}
         />
       )}
     </div>

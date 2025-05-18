@@ -4,6 +4,7 @@ export type Clan = {
   owner: string;
   status: number;
 };
+
 export type Group = {
   address: string;
   timestamp: string;
