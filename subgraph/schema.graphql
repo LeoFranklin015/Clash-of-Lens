@@ -5,6 +5,8 @@ type Clan @entity(immutable: false) {
   balance: BigInt! # current balance held in contract
   warsAsClan1: [War!]! @derivedFrom(field: "clan1")
   warsAsClan2: [War!]! @derivedFrom(field: "clan2")
+  wins: Int!
+  wars: Int!
 }
 
 type War @entity(immutable: false) {
