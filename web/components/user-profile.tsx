@@ -15,12 +15,13 @@ import { useSession } from "@/components/SessionContext";
 import { evmAddress } from "@lens-protocol/client";
 import { fetchGroups } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { contractsConfig } from "@/lib/contractsConfig";
 import { Group, Clan, ClanWithGroup } from "@/lib/types";
+import { storageClient } from "@/lib/storage-client";
 
 // Mock data for the user
-const user = {
+const initialUser = {
   id: "user-1",
   name: "Loading...",
   avatar: "/placeholder.svg?height=200&width=200",
@@ -46,7 +47,6 @@ const user = {
     twitter: "@0xCyb3r_eth",
   },
 };
-
 
 // Mock data for contributions
 const contributions = [
@@ -192,16 +192,33 @@ const nfts = [
   },
 ];
 
-
-const fetchClansFromContract = async () => {
+const fetchClansFromSubgraph = async () => {
   const subgraph = contractsConfig.lensTestnet.subgraphUrl;
-  const query = 
-}
+  const res = await fetch(subgraph, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      query: `{
+              clans {
+                id
+                balance
+                owner
+                status
+              }
+            }`,
+    }),
+  });
+  const json = await res.json();
+  const clansFromSubgraph: Clan[] = json.data?.clans || [];
+  return clansFromSubgraph;
+};
 
 export default function UserProfile() {
   const { profile } = useSession();
+  const [user, setUser] = useState(initialUser);
 
   const fetchClans = async () => {
+    const clans = await fetchClansFromSubgraph();
     if (profile?.address) {
       await fetchGroups(client, {
         filter: {
@@ -212,37 +229,37 @@ export default function UserProfile() {
           return console.error(result.error);
         }
 
+        console.log("Clans", clans);
+        console.log("Items", result.value.items);
 
+        // Find the first matching clan
+        const userClan = result.value.items.find((item) =>
+          clans.find(
+            (clan) => clan.id.toLowerCase() === item.address.toLowerCase()
+          )
+        );
 
-        console.log("Groups", result.value);
+        console.log("User Clan", userClan);
 
-        const { items, pageInfo } = result.value;
-
-        const clans: Clan[] = items;
+        if (userClan) {
+          // Update the user's clan information
+          setUser((prevUser) => ({
+            ...prevUser,
+            clan: {
+              id: userClan.address,
+              name: userClan.metadata?.name || "Unnamed Clan",
+              logo: userClan.metadata?.icon || "/placeholder.svg",
+            },
+          }));
+          console.log("Updated user clan:", userClan);
+        }
       });
     }
   };
-  // const fetchClans = async () => {
-  //   const result = await fetchGroups(client, {
-  //     filter: {
-  //       member: evmAddress(address!),
-  //     },
-  //   });
-
-  //   if (result.isErr()) {
-  //     return console.error(result.error);
-  //   }
-
-  //   return result.value;
-  // };
-
-
 
   useEffect(() => {
     fetchClans();
   }, [profile]);
-
-
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -287,7 +304,9 @@ export default function UserProfile() {
                 className="flex items-center text-[#a3ff12] hover:underline"
               >
                 <Image
-                  src={user.clan.logo || "/placeholder.svg"}
+                  src={
+                    storageClient.resolve(user.clan.logo) || "/placeholder.svg"
+                  }
                   alt={user.clan.name}
                   width={16}
                   height={16}
@@ -369,10 +388,10 @@ export default function UserProfile() {
             Joined{" "}
             {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
               : user.joinDate}
           </span>
         </div>
