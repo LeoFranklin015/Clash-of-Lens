@@ -7,17 +7,23 @@ import { Users, Trophy } from "lucide-react";
 import { fetchLeaderBoard } from "@/lib/subgraphHandlers/fetchLeaderBoard";
 import { useEffect, useState } from "react";
 import { storageClient } from "@/lib/storage-client";
+import { useChainId } from "wagmi";
 
 export default function Leaderboard() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanRankings, setClanRankings] = useState<any[]>([]);
-  const [playerRankings, setPlayerRankings] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
+  const chainId = useChainId();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const playerRankings: any[] = [];
 
   const fetchData = async () => {
     try {
-      const clans = await fetchLeaderBoard(37111);
+      const clans = await fetchLeaderBoard(chainId);
       if (clans) {
         // Transform clan data for display
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const transformedClans = clans.map((clan: any, index: number) => ({
           id: clan.id,
           name: clan.metadata?.name || "Unnamed Clan",

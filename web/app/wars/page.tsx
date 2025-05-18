@@ -15,7 +15,9 @@ import { storageClient } from "@/lib/storage-client";
 
 export default function WarsPage() {
   const chainId = useChainId();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [wars, setWars] = useState<any[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
 
@@ -43,6 +45,7 @@ export default function WarsPage() {
 
       // Fetch details for all unique clans in wars
       const uniqueClans = new Set<string>();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       wars.forEach((war: any) => {
         uniqueClans.add(war.clan1.id.toLowerCase());
         uniqueClans.add(war.clan2.id.toLowerCase());

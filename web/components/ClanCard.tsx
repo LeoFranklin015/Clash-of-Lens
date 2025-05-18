@@ -1,6 +1,6 @@
 "use client";
 
-import { statusToLabel, ClanCardData } from "@/app/clans/page";
+import { ClanCardData } from "@/app/clans/page";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -119,6 +119,13 @@ interface ClanCardProps {
 }
 
 export function ClanCard({ clan }: ClanCardProps) {
+  function statusToLabel(status: number) {
+    return status === 0
+      ? "Ready for War"
+      : status === 1
+      ? "At War"
+      : "Not Ready";
+  }
   const statusLabel = statusToLabel(clan.status);
   const { address } = useAccount();
   const { userClan } = useSession();

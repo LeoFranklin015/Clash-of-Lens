@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Coins, Zap, Heart, MessageSquare, Share2, Send } from "lucide-react";
+import { Coins, Heart, MessageSquare, Share2, Send } from "lucide-react";
 import { fetchWarStats } from "@/lib/subgraphHandlers/fetchWarStats";
 import { fetchWarClans } from "@/lib/subgraphHandlers/fetchWarClans";
 import { fetchGroup } from "@lens-protocol/client/actions";
@@ -24,7 +24,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
   const contributionFeedRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warStats, setWarStats] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warData, setWarData] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
 
   // Auto scroll to bottom of contribution feed

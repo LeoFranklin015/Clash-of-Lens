@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, } from "lucide-react";
+import { Search } from "lucide-react";
 import { useAccount, useChainId } from "wagmi";
 import {
   fetchAccountsBulk,
@@ -40,9 +40,6 @@ export interface ClanCardData {
   members: number;
   wins: number;
 }
-
-
-
 
 export default function ClansPage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -216,8 +213,9 @@ export default function ClansPage() {
         <div className="flex items-center gap-4 w-full md:w-auto">
           <Button
             asChild
-            className={`bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none ${isMemberInClan ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none ${
+              isMemberInClan ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             style={{
               clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
             }}
@@ -287,8 +285,4 @@ export default function ClansPage() {
       )}
     </div>
   );
-}
-
-export function statusToLabel(status: number) {
-  return status === 0 ? "Ready for War" : status === 1 ? "At War" : "Not Ready";
 }

@@ -1,5 +1,5 @@
 "use client";
-import { notFound, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import WarDetail from "@/components/war-detail";
 
 export default function WarPage() {

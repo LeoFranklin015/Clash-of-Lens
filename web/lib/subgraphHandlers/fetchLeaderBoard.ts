@@ -26,6 +26,7 @@ export const fetchLeaderBoard = async (chainId: number) => {
   const clans = json.data.clans || [];
 
   const clansWithDetails = await Promise.all(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     clans.map(async (clan: any) => {
       const clanDetails = await fetchGroup(client, {
         group: evmAddress(clan.id),
@@ -47,6 +48,7 @@ export const fetchLeaderBoard = async (chainId: number) => {
   );
 
   const clansWithDetailsSorted = clansWithDetails.sort(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (a: any, b: any) => b.wins - a.wins
   );
 

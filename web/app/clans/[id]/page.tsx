@@ -33,6 +33,7 @@ export default function ClanPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warLogs, setWarLogs] = useState<any[]>([]);
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,23 +52,6 @@ export default function ClanPage() {
   const { sessionClient, profile } = useSession();
   const chainId = useChainId();
   const [isMemberInClan, setIsMemberInClan] = useState(false);
-
-  // Mock data for active war
-  const activeWar = {
-    id: "active-war-1",
-    opponent: {
-      name: "CHAIN CHAMPIONS",
-      logo: "/placeholder.svg?height=100&width=100",
-    },
-    startDate: "May 10, 2023",
-    endDate: "May 17, 2023",
-    timeRemaining: "3d 8h",
-    score: {
-      clan: 1240,
-      opponent: 1180,
-    },
-    metrics: ["Tips", "Followers", "NFT Sales", "Posts"],
-  };
 
   // Fetch real clan data
   const handleFetchGroup = async () => {
