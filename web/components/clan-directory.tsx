@@ -18,6 +18,7 @@ import {
 import { storageClient } from "@/lib/storage-client";
 import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
+import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
 
 interface ClanSubgraph {
   id: string;
@@ -41,7 +42,7 @@ interface ClanCardData {
   wins: number;
 }
 
-const SUBGRAPH_CONFIG: Record<number, { subgraphUrl: string }> = {
+export const SUBGRAPH_CONFIG: Record<number, { subgraphUrl: string }> = {
   232: {
     subgraphUrl:
       "https://api.studio.thegraph.com/query/111645/clashoflens/version/latest",
@@ -60,52 +61,6 @@ export default function ClanDirectory() {
   const [isMemberInClan, setIsMemberInClan] = useState(false);
   const chainId = useChainId();
   const { address } = useAccount();
-
-  const checkMemberIsAlreadyInClan = async (
-    member: `0x${string}`,
-    chainId: number
-  ) => {
-    const subgraphUrl =
-      SUBGRAPH_CONFIG[chainId]?.subgraphUrl ||
-      SUBGRAPH_CONFIG[37111].subgraphUrl;
-    // 1. Fetch clans from subgraph
-    const res = await fetch(subgraphUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        query: `{
-              clans {
-                id
-                balance
-                owner
-                status
-              }
-            }`,
-      }),
-    });
-    const json = await res.json();
-    const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || [];
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const memberGroups: any = await fetchGroups(client, {
-      filter: {
-        member: evmAddress(member),
-      },
-    });
-
-    const isMember = memberGroups.value.items.some(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (memberGroup: any) => {
-        return clansFromSubgraph.some(
-          (clan: any) =>
-            clan.id.toLowerCase() === memberGroup.address.toLowerCase()
-        );
-      }
-    );
-
-    console.log(isMember);
-    return isMember;
-  };
 
   useEffect(() => {
     async function fetchClans() {

@@ -18,6 +18,7 @@ import {
   fetchGroup,
   fetchGroupMembers,
   joinGroup,
+  fetchAccountsBulk,
 } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { evmAddress } from "@lens-protocol/react";
@@ -28,8 +29,12 @@ import { useEthersSigner } from "@/lib/walletClientToSigner";
 import { useSession } from "@/components/SessionContext";
 import { JoinClanModal } from "@/components/join-clan-modal";
 import { useParams } from "next/navigation";
+import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
+import { useChainId, useAccount } from "wagmi";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ClanPage() {
+  const { toast } = useToast();
   const { id: clanGroupId } = useParams();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clan, setClan] = useState<any | null>(null);
@@ -41,6 +46,9 @@ export default function ClanPage() {
 
   const signer = useEthersSigner();
   const { sessionClient } = useSession();
+  const chainId = useChainId();
+  const { address } = useAccount();
+  const [isMemberInClan, setIsMemberInClan] = useState(false);
 
   // Mock data for war history
   const warHistory = [
@@ -132,8 +140,44 @@ export default function ClanPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clanGroupId]);
 
+  useEffect(() => {
+    const fetchProfile = async (address: `0x${string}`) => {
+      const result = await fetchAccountsBulk(client, {
+        ownedBy: [evmAddress(address!)],
+      });
+
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+
+      const profile = result.value[0];
+
+      if (profile) {
+        const res: boolean = await checkMemberIsAlreadyInClan(
+          profile.address,
+          chainId
+        );
+        setIsMemberInClan(res);
+      }
+    };
+
+    if (address && chainId) {
+      fetchProfile(address);
+    }
+  }, [address, chainId]);
+
   // Modal handler functions
-  const openJoinModal = () => setIsJoinModalOpen(true);
+  const openJoinModal = () => {
+    if (isMemberInClan) {
+      toast({
+        title: "You are already a member of this clan",
+        description: "You can't join more than one clan",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsJoinModalOpen(true);
+  };
   const handleAcceptJoin = async () => {
     // TODO: Implement actual join logic, e.g., API call
     const result = await joinGroup(sessionClient!, {

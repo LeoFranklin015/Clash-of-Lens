@@ -5,6 +5,7 @@ import { Provider } from "@/components/FamilyConnectProvider";
 import { LensProviderWrapper } from "@/components/LensProviderWrapper";
 import { Layout } from "@/components/layout/layout";
 import { SessionProvider } from "@/components/SessionContext";
+import { Toaster } from "@/components/ui/toaster";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
           <LensProviderWrapper>
             <SessionProvider>
               <Layout>{children}</Layout>
+              <Toaster />
             </SessionProvider>
           </LensProviderWrapper>
         </Provider>
