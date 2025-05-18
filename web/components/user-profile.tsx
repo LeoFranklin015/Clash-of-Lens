@@ -16,7 +16,7 @@ import { fetchAccountsBulk } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/react";
 import { client } from "@/lib/client";
 import { useAccount } from "wagmi";
-import { fetchGroups } from "@lens-protocol/client/actions";
+// import { fetchGroups } from "@lens-protocol/client/actions";
 
 interface LensUsername {
   __typename: "Username";
@@ -81,19 +81,19 @@ export default function UserProfile() {
     return result.value;
   };
 
-  const fetchClans = async () => {
-    const result = await fetchGroups(client, {
-      filter: {
-        member: evmAddress(address!),
-      },
-    });
+  // const fetchClans = async () => {
+  //   const result = await fetchGroups(client, {
+  //     filter: {
+  //       member: evmAddress(address!),
+  //     },
+  //   });
 
-    if (result.isErr()) {
-      return console.error(result.error);
-    }
+  //   if (result.isErr()) {
+  //     return console.error(result.error);
+  //   }
 
-    return result.value;
-  };
+  //   return result.value;
+  // };
 
   useEffect(() => {
     if (address) {
