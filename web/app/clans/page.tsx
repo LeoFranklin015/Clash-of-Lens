@@ -17,7 +17,6 @@ import { storageClient } from "@/lib/storage-client";
 import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
 import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
-import { contractsConfig } from "@/lib/contractsConfig";
 import { fetchClans } from "@/lib/subgraphHandlers/fetchClans";
 
 interface ClanSubgraph {
