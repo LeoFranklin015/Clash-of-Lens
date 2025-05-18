@@ -10,6 +10,7 @@ import { ClashOfLensAddress } from "./utils/abi";
 import { postWarDetails } from "./handlers/postWarDetails";
 import { storeSnapShot } from "./handlers/storeSnapShot";
 import { processSnapShot } from "./handlers/processSnapShot";
+import { getWarStats } from "./handlers/getWarStats";
 
 // Load environment variables
 dotenv.config();
@@ -46,16 +47,25 @@ app.get("/", async (req: Request, res: Response) => {
   // );
   // await postWarDetails("1", "1", "2");
 
-  // await storeSnapShot(
-  //   "1",
-  //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d",
-  //   "0x290f23BE2654c063D120edd10E9A7d13Cd183d2e"
-  // );
+  await storeSnapShot(
+    "1",
+    "0x1ac6c424691f49b65947797577a9c0b2e1df0257",
+    "0x2fa3ca1fd40f32183bb5a3f539ddc6f38907e04e"
+  );
 
-  await processSnapShot();
+  // await processSnapShot();
   res.json({
     message: "Welcome to Clash of Lens API",
   });
+});
+
+app.get("/warstats", async (req: Request, res: Response) => {
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).json({ error: "War ID is required" });
+  }
+  const warStats = await getWarStats(id as string);
+  res.status(200).json(warStats);
 });
 
 const contractListener = new ContractListener(

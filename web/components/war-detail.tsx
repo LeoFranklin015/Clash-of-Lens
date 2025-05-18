@@ -1,59 +1,169 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Coins, Zap, Heart, MessageSquare, Share2, Send } from "lucide-react"
+import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Coins, Zap, Heart, MessageSquare, Share2, Send } from "lucide-react";
+import { fetchWarStats } from "@/lib/subgraphHandlers/fetchWarStats";
+import { fetchWarClans } from "@/lib/subgraphHandlers/fetchWarClans";
+import { fetchGroup } from "@lens-protocol/client/actions";
+import { client } from "@/lib/client";
+import { evmAddress } from "@lens-protocol/client";
+import { storageClient } from "@/lib/storage-client";
 
 interface WarDetailProps {
-  warId: string
+  warId: string;
 }
 
 export default function WarDetail({ warId }: WarDetailProps) {
-  const [message, setMessage] = useState("")
-  const contributionFeedRef = useRef<HTMLDivElement>(null)
+  const [message, setMessage] = useState("");
+  const contributionFeedRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [warStats, setWarStats] = useState<any>(null);
+  const [warData, setWarData] = useState<any>(null);
+  const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
     if (contributionFeedRef.current) {
-      contributionFeedRef.current.scrollTop = contributionFeedRef.current.scrollHeight
+      contributionFeedRef.current.scrollTop =
+        contributionFeedRef.current.scrollHeight;
     }
-  }, [])
+  }, []);
+
+  const fetchClanDetails = async (clanAddress: string) => {
+    try {
+      const result = await fetchGroup(client, {
+        group: evmAddress(clanAddress),
+      });
+      if (result.isOk()) {
+        setClanDetails((prev) => ({
+          ...prev,
+          [clanAddress.toLowerCase()]: result.value,
+        }));
+      }
+    } catch (e) {
+      console.error("Error fetching clan details:", e);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [statsData, warClansData] = await Promise.all([
+        fetchWarStats(warId),
+        fetchWarClans(37111, warId),
+      ]);
+      setWarStats(statsData);
+      setWarData(warClansData);
+
+      // Fetch details for both clans
+      if (warClansData?.clan1?.id) {
+        await fetchClanDetails(warClansData.clan1.id);
+      }
+      if (warClansData?.clan2?.id) {
+        await fetchClanDetails(warClansData.clan2.id);
+      }
+    };
+    fetchData();
+  }, [warId]);
+
+  // Calculate total scores
+  const clan1Score = warStats
+    ? warStats.clan1.tips +
+      warStats.clan1.collects +
+      warStats.clan1.comments +
+      warStats.clan1.quotes +
+      warStats.clan1.upvotes +
+      warStats.clan1.bookmarks
+    : 0;
+  const clan2Score = warStats
+    ? warStats.clan2.tips +
+      warStats.clan2.collects +
+      warStats.clan2.comments +
+      warStats.clan2.quotes +
+      warStats.clan2.upvotes +
+      warStats.clan2.bookmarks
+    : 0;
+
+  // Get clan details
+  const clan1Details = warData?.clan1?.id
+    ? clanDetails[warData.clan1.id.toLowerCase()]
+    : null;
+  const clan2Details = warData?.clan2?.id
+    ? clanDetails[warData.clan2.id.toLowerCase()]
+    : null;
 
   // Mock data for the war
   const war = {
     id: warId,
     clan1: {
-      id: "clan-1",
-      name: "CYBER WOLVES",
-      logo: "/placeholder.svg?height=100&width=100",
+      id: warData?.clan1?.id || "clan-1",
+      name: clan1Details?.metadata?.name || "CYBER WOLVES",
+      logo: clan1Details?.metadata?.icon
+        ? storageClient.resolve(clan1Details.metadata.icon)
+        : "/placeholder.svg?height=100&width=100",
     },
     clan2: {
-      id: "clan-2",
-      name: "NEON KNIGHTS",
-      logo: "/placeholder.svg?height=100&width=100",
+      id: warData?.clan2?.id || "clan-2",
+      name: clan2Details?.metadata?.name || "NEON KNIGHTS",
+      logo: clan2Details?.metadata?.icon
+        ? storageClient.resolve(clan2Details.metadata.icon)
+        : "/placeholder.svg?height=100&width=100",
     },
     startDate: "May 10, 2023",
     endDate: "May 17, 2023",
     timeRemaining: "2d 14h",
-    score: { clan1: 1240, clan2: 1180 },
+    score: {
+      clan1: clan1Score,
+      clan2: clan2Score,
+    },
     metrics: [
-      { name: "Tips", clan1: 450, clan2: 380 },
-      { name: "Followers", clan1: 320, clan2: 350 },
-      { name: "NFT Sales", clan1: 18, clan2: 15 },
-      { name: "Posts", clan1: 452, clan2: 435 },
+      {
+        name: "Tips",
+        clan1: warStats?.clan1.tips || 0,
+        clan2: warStats?.clan2.tips || 0,
+      },
+      {
+        name: "Collects",
+        clan1: warStats?.clan1.collects || 0,
+        clan2: warStats?.clan2.collects || 0,
+      },
+      {
+        name: "Comments",
+        clan1: warStats?.clan1.comments || 0,
+        clan2: warStats?.clan2.comments || 0,
+      },
+      {
+        name: "Quotes",
+        clan1: warStats?.clan1.quotes || 0,
+        clan2: warStats?.clan2.quotes || 0,
+      },
+      {
+        name: "Upvotes",
+        clan1: warStats?.clan1.upvotes || 0,
+        clan2: warStats?.clan2.upvotes || 0,
+      },
+      {
+        name: "Bookmarks",
+        clan1: warStats?.clan1.bookmarks || 0,
+        clan2: warStats?.clan2.bookmarks || 0,
+      },
     ],
-  }
+  };
 
   // Mock data for contribution feed
   const contributionFeed = [
     {
       id: "contrib-1",
-      user: { name: "0xCyb3r", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "0xCyb3r",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       action: "tipped",
       target: "WolfByte's post",
       amount: "0.05 ETH",
@@ -61,7 +171,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "contrib-2",
-      user: { name: "NeonRider", avatar: "/placeholder.svg?height=50&width=50", clan: "clan2" },
+      user: {
+        name: "NeonRider",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan2",
+      },
       action: "collected",
       target: "Digital Warrior NFT",
       amount: "",
@@ -69,7 +183,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "contrib-3",
-      user: { name: "CryptoHowler", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "CryptoHowler",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       action: "posted",
       target: "Strategy Update",
       amount: "",
@@ -77,7 +195,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "contrib-4",
-      user: { name: "LightKnight", avatar: "/placeholder.svg?height=50&width=50", clan: "clan2" },
+      user: {
+        name: "LightKnight",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan2",
+      },
       action: "gained",
       target: "5 new followers",
       amount: "",
@@ -85,7 +207,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "contrib-5",
-      user: { name: "AlphaWolf", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "AlphaWolf",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       action: "tipped",
       target: "0xCyb3r's post",
       amount: "0.1 ETH",
@@ -93,19 +219,27 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "contrib-6",
-      user: { name: "NeonQueen", avatar: "/placeholder.svg?height=50&width=50", clan: "clan2" },
+      user: {
+        name: "NeonQueen",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan2",
+      },
       action: "posted",
       target: "Rally Call",
       amount: "",
       time: "7 hours ago",
     },
-  ]
+  ];
 
   // Mock data for posts
   const posts = [
     {
       id: "post-1",
-      user: { name: "0xCyb3r", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "0xCyb3r",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       content:
         "Just dropped our new clan NFT collection! Collect them to support us in the war against NEON KNIGHTS. Every collection counts towards our victory!",
       image: "/placeholder.svg?height=300&width=500",
@@ -115,7 +249,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "post-2",
-      user: { name: "WolfByte", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "WolfByte",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       content:
         "Strategy update: Focus on tipping and collecting today. We're leading in posts but falling behind in followers. Let's coordinate our efforts!",
       image: "",
@@ -125,7 +263,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
     },
     {
       id: "post-3",
-      user: { name: "CryptoHowler", avatar: "/placeholder.svg?height=50&width=50", clan: "clan1" },
+      user: {
+        name: "CryptoHowler",
+        avatar: "/placeholder.svg?height=50&width=50",
+        clan: "clan1",
+      },
       content:
         "Just created a new post about blockchain gaming. Check it out and give it some love to help us win this war!",
       image: "/placeholder.svg?height=300&width=500",
@@ -133,14 +275,16 @@ export default function WarDetail({ warId }: WarDetailProps) {
       comments: 5,
       time: "12 hours ago",
     },
-  ]
+  ];
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Left Column - Scoreboard */}
       <div className="lg:col-span-1">
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-          <h2 className="text-white font-bold text-xl mb-6 text-center">SCOREBOARD</h2>
+          <h2 className="text-white font-bold text-xl mb-6 text-center">
+            SCOREBOARD
+          </h2>
 
           <div className="flex items-center justify-between mb-8">
             <div className="flex flex-col items-center">
@@ -150,7 +294,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan1.name}
                   width={80}
                   height={80}
-                  className="rounded-full border-4 border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                  className={`rounded-full w-20 h-20 object-cover bg-white border-4 ${
+                    clan1Score >= clan2Score
+                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                      : "border-gray-700"
+                  }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan1.name}</h3>
@@ -158,9 +306,21 @@ export default function WarDetail({ warId }: WarDetailProps) {
 
             <div className="text-center">
               <div className="text-4xl font-bold">
-                <span className="text-[#a3ff12]">{war.score.clan1}</span>
+                <span
+                  className={
+                    clan1Score >= clan2Score ? "text-[#a3ff12]" : "text-white"
+                  }
+                >
+                  {war.score.clan1}
+                </span>
                 <span className="text-gray-500 mx-2">:</span>
-                <span className="text-white">{war.score.clan2}</span>
+                <span
+                  className={
+                    clan2Score >= clan1Score ? "text-[#a3ff12]" : "text-white"
+                  }
+                >
+                  {war.score.clan2}
+                </span>
               </div>
               <div className="text-gray-400 text-sm mt-1">TOTAL SCORE</div>
             </div>
@@ -172,7 +332,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan2.name}
                   width={80}
                   height={80}
-                  className="rounded-full border-4 border-gray-700"
+                  className={`rounded-full border-4 ${
+                    clan2Score >= clan1Score
+                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                      : "border-gray-700"
+                  }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan2.name}</h3>
@@ -180,26 +344,42 @@ export default function WarDetail({ warId }: WarDetailProps) {
           </div>
 
           <div className="space-y-4">
-            {war.metrics.map((metric, index) => (
-              <div key={index} className="border border-gray-800 rounded-lg p-3">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-gray-400 text-sm">{metric.name}</span>
-                  <div className="flex items-center">
-                    <span className="text-[#a3ff12] font-bold">{metric.clan1}</span>
-                    <span className="text-gray-500 mx-2">:</span>
-                    <span className="text-white font-bold">{metric.clan2}</span>
+            {war.metrics.map((metric, index) => {
+              const total = metric.clan1 + metric.clan2;
+              const leftWidth = total === 0 ? 50 : (metric.clan1 / total) * 100;
+              const rightWidth =
+                total === 0 ? 50 : (metric.clan2 / total) * 100;
+
+              return (
+                <div
+                  key={index}
+                  className="border border-gray-800 rounded-lg p-3"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-400 text-sm">{metric.name}</span>
+                    <div className="flex items-center">
+                      <span className="text-[#a3ff12] font-bold">
+                        {metric.clan1}
+                      </span>
+                      <span className="text-gray-500 mx-2">:</span>
+                      <span className="text-white font-bold">
+                        {metric.clan2}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden flex">
+                    <div
+                      className="bg-[#a3ff12] h-full"
+                      style={{ width: `${leftWidth}%` }}
+                    ></div>
+                    <div
+                      className="bg-gray-400 h-full"
+                      style={{ width: `${rightWidth}%` }}
+                    ></div>
                   </div>
                 </div>
-                <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-[#a3ff12] h-full rounded-full"
-                    style={{
-                      width: `${(metric.clan1 / (metric.clan1 + metric.clan2)) * 100}%`,
-                    }}
-                  ></div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="mt-8">
@@ -212,16 +392,22 @@ export default function WarDetail({ warId }: WarDetailProps) {
 
         {/* Contribution Feed */}
         <div className="mt-8 border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-          <h2 className="text-white font-bold text-xl mb-4">CONTRIBUTION FEED</h2>
+          <h2 className="text-white font-bold text-xl mb-4">
+            CONTRIBUTION FEED
+          </h2>
 
-          <div ref={contributionFeedRef} className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+          <div
+            ref={contributionFeedRef}
+            className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar"
+          >
             {contributionFeed.map((contribution) => (
               <div
                 key={contribution.id}
-                className={`border ${contribution.user.clan === "clan1"
-                  ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
-                  : "border-gray-700 bg-gray-800 bg-opacity-20"
-                  } rounded-lg p-3 flex items-start`}
+                className={`border ${
+                  contribution.user.clan === "clan1"
+                    ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
+                    : "border-gray-700 bg-gray-800 bg-opacity-20"
+                } rounded-lg p-3 flex items-start`}
               >
                 <Image
                   src={contribution.user.avatar || "/placeholder.svg"}
@@ -233,16 +419,25 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 <div className="ml-3">
                   <div className="flex items-center">
                     <span
-                      className={`font-bold ${contribution.user.clan === "clan1" ? "text-[#a3ff12]" : "text-white"
-                        }`}
+                      className={`font-bold ${
+                        contribution.user.clan === "clan1"
+                          ? "text-[#a3ff12]"
+                          : "text-white"
+                      }`}
                     >
                       {contribution.user.name}
                     </span>
-                    <span className="text-gray-400 text-xs ml-2">{contribution.time}</span>
+                    <span className="text-gray-400 text-xs ml-2">
+                      {contribution.time}
+                    </span>
                   </div>
                   <p className="text-gray-300 text-sm">
                     {contribution.action} {contribution.target}{" "}
-                    {contribution.amount && <span className="text-[#a3ff12]">{contribution.amount}</span>}
+                    {contribution.amount && (
+                      <span className="text-[#a3ff12]">
+                        {contribution.amount}
+                      </span>
+                    )}
                   </p>
                 </div>
               </div>
@@ -258,10 +453,16 @@ export default function WarDetail({ warId }: WarDetailProps) {
 
           <Tabs defaultValue="post" className="w-full">
             <TabsList className="bg-black border border-[#a3ff12] p-1 w-full grid grid-cols-3">
-              <TabsTrigger value="post" className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black">
+              <TabsTrigger
+                value="post"
+                className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
+              >
                 CREATE POST
               </TabsTrigger>
-              <TabsTrigger value="tip" className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black">
+              <TabsTrigger
+                value="tip"
+                className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
+              >
                 TIP POST
               </TabsTrigger>
               <TabsTrigger
@@ -282,7 +483,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 />
                 <div className="flex justify-between items-center">
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="border-gray-700 text-gray-400">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-700 text-gray-400"
+                    >
                       <span className="sr-only">Upload image</span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -297,7 +502,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                         />
                       </svg>
                     </Button>
-                    <Button variant="outline" size="sm" className="border-gray-700 text-gray-400">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-700 text-gray-400"
+                    >
                       <span className="sr-only">Add NFT</span>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -324,7 +533,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
             <TabsContent value="tip" className="mt-4">
               <div className="space-y-4">
                 <div className="border border-gray-700 rounded-lg p-4">
-                  <h3 className="text-white font-bold mb-2">Select Post to Tip</h3>
+                  <h3 className="text-white font-bold mb-2">
+                    Select Post to Tip
+                  </h3>
                   <div className="space-y-2">
                     {posts.map((post, index) => (
                       <div
@@ -340,8 +551,12 @@ export default function WarDetail({ warId }: WarDetailProps) {
                             className="rounded-full"
                           />
                           <div className="ml-3">
-                            <div className="text-white font-bold">{post.user.name}</div>
-                            <div className="text-gray-400 text-xs">{post.time}</div>
+                            <div className="text-white font-bold">
+                              {post.user.name}
+                            </div>
+                            <div className="text-gray-400 text-xs">
+                              {post.time}
+                            </div>
                           </div>
                         </div>
                         <Button
@@ -433,7 +648,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     </div>
                     <h3 className="text-white font-bold">Alpha Pack #007</h3>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">By CryptoHowler</span>
+                      <span className="text-gray-400 text-sm">
+                        By CryptoHowler
+                      </span>
                       <span className="text-[#a3ff12] font-bold">0.15 ETH</span>
                     </div>
                   </div>
@@ -449,7 +666,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     </div>
                     <h3 className="text-white font-bold">Night Hunter #029</h3>
                     <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">By AlphaWolf</span>
+                      <span className="text-gray-400 text-sm">
+                        By AlphaWolf
+                      </span>
                       <span className="text-[#a3ff12] font-bold">0.12 ETH</span>
                     </div>
                   </div>
@@ -469,7 +688,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
 
           <div className="space-y-6">
             {posts.map((post) => (
-              <div key={post.id} className="border border-gray-800 rounded-lg overflow-hidden">
+              <div
+                key={post.id}
+                className="border border-gray-800 rounded-lg overflow-hidden"
+              >
                 <div className="p-4">
                   <div className="flex items-center">
                     <Image
@@ -480,7 +702,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
                       className="rounded-full border-2 border-[#a3ff12]"
                     />
                     <div className="ml-3">
-                      <div className="text-white font-bold">{post.user.name}</div>
+                      <div className="text-white font-bold">
+                        {post.user.name}
+                      </div>
                       <div className="text-gray-400 text-xs">{post.time}</div>
                     </div>
                   </div>
@@ -523,7 +747,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
                         <Coins className="h-4 w-4 mr-1" />
                         TIP
                       </Button>
-                      <Button size="sm" className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
+                      <Button
+                        size="sm"
+                        className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                      >
                         COLLECT NFT
                       </Button>
                     </div>
@@ -535,5 +762,5 @@ export default function WarDetail({ warId }: WarDetailProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
