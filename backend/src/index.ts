@@ -9,6 +9,7 @@ import { authenticate } from "./utils/authentication";
 import { ClashOfLensAddress } from "./utils/abi";
 import { postWarDetails } from "./handlers/postWarDetails";
 import { storeSnapShot } from "./handlers/storeSnapShot";
+import { processSnapShot } from "./handlers/processSnapShot";
 
 // Load environment variables
 dotenv.config();
@@ -43,13 +44,15 @@ app.get("/", async (req: Request, res: Response) => {
   // const members = await getGroupMembers(
   //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
   // );
-  await postWarDetails("1", "1", "2");
+  // await postWarDetails("1", "1", "2");
 
   // await storeSnapShot(
   //   "1",
   //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d",
-  //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
+  //   "0x290f23BE2654c063D120edd10E9A7d13Cd183d2e"
   // );
+
+  await processSnapShot();
   res.json({
     message: "Welcome to Clash of Lens API",
   });

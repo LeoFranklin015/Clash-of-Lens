@@ -16,9 +16,8 @@ import { storageClient } from "@/lib/storage-client";
 import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
 import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
-import { contractsConfig } from "@/lib/contractsConfig";
 import { ClanCard } from "@/components/ClanCard";
-
+import { fetchClans } from "@/lib/subgraphHandlers/fetchClans";
 
 interface ClanSubgraph {
   id: string;
@@ -55,30 +54,11 @@ export default function ClansPage() {
   const { address } = useAccount();
 
   useEffect(() => {
-    async function fetchClans() {
+    async function fetchClanData() {
       setLoading(true);
       setError(null);
       try {
-        const subgraphUrl =
-          contractsConfig[chainId as keyof typeof contractsConfig]?.subgraphUrl ||
-          contractsConfig[37111].subgraphUrl;
-        // 1. Fetch clans from subgraph
-        const res = await fetch(subgraphUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: `{
-              clans {
-                id
-                balance
-                owner
-                status
-              }
-            }`,
-          }),
-        });
-        const json = await res.json();
-        const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || [];
+        const clansFromSubgraph: ClanSubgraph[] = await fetchClans(chainId);
         // 2. For each clan, fetch metadata from Lens
         const enrichedClans: ClanCardData[] = await Promise.all(
           clansFromSubgraph.map(async (clan) => {
@@ -175,7 +155,7 @@ export default function ClansPage() {
         setLoading(false);
       }
     }
-    fetchClans();
+    fetchClanData();
   }, [chainId, address]);
 
   useEffect(() => {

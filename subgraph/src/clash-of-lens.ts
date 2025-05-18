@@ -18,6 +18,8 @@ export function handleClanRegistered(event: ClanRegistered): void {
   clan.owner = event.params.owner;
   clan.status = 2;
   clan.balance = BigInt.zero();
+  clan.wins = 0;
+  clan.wars = 0;
 
   clan.save();
 }
@@ -61,12 +63,14 @@ export function handleWarDeclared(event: WarDeclared): void {
   let clan1 = Clan.load(war.clan1);
   if (clan1 != null) {
     clan1.status = 1;
+    clan1.wars = clan1.wars + 1;
     clan1.save();
   }
 
   let clan2 = Clan.load(war.clan2);
   if (clan2 != null) {
     clan2.status = 1;
+    clan2.wars = clan2.wars + 1;
     clan2.save();
   }
 }
@@ -85,12 +89,18 @@ export function handleWarResult(event: WarResult): void {
   let clan1 = Clan.load(war.clan1);
   if (clan1 != null) {
     clan1.status = 2;
+    if (event.params.result == 1) {
+      clan1.wins = clan1.wins + 1;
+    }
     clan1.save();
   }
 
   let clan2 = Clan.load(war.clan2);
   if (clan2 != null) {
     clan2.status = 2;
+    if (event.params.result == 2) {
+      clan2.wins = clan2.wins + 1;
+    }
     clan2.save();
   }
 }

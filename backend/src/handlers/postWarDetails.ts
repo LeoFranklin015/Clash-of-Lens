@@ -50,50 +50,59 @@ export const postWarDetails = async (
 
   // 3. Encode the values as ABI
   const encodedWarId = defaultAbiCoder.encode(["uint256"], [1]);
-  const encodedOutcome = defaultAbiCoder.encode(["uint16"], [1]);
+  const encodedOutcome1 = defaultAbiCoder.encode(["uint16"], [1]);
+  const encodedOutcome2 = defaultAbiCoder.encode(["uint16"], [2]);
 
   const stake = parseEther("0.001");
 
-  //   const result = await post(sessionClient, {
-  //     contentUri: uri(postURI),
-  //     actions: [
-  //       {
-  //         unknown: {
-  //           address: evmAddress("0x8A5fA1b0A754Ca969a748bF507b41c76aB43DC97"),
-  //           params: [
-  //             {
-  //               raw: {
-  //                 key: blockchainData(keyWarId),
-  //                 data: blockchainData(encodedWarId),
-  //               },
+  // const result = await post(sessionClient, {
+  //   contentUri: uri(postURI),
+  //   actions: [
+  //     {
+  //       unknown: {
+  //         address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
+  //         params: [
+  //           {
+  //             raw: {
+  //               key: blockchainData(keyWarId),
+  //               data: blockchainData(encodedWarId),
   //             },
-  //             {
-  //               raw: {
-  //                 key: blockchainData(keyOutcome),
-  //                 data: blockchainData(encodedOutcome),
-  //               },
+  //           },
+  //           {
+  //             raw: {
+  //               key: blockchainData(keyOutcome),
+  //               data: blockchainData(encodedOutcome1),
   //             },
-  //           ],
-  //         },
+  //           },
+  //         ],
   //       },
-  //     ],
-  //   }).andThen(handleOperationWith(signer));
+  //     },
+  //   ],
+  // }).andThen(handleOperationWith(signer));
 
   const result = await executePostAction(sessionClient, {
     post: postId(
-      "113384720024951229807404353929314120004015724350817904136507870003647521392978"
+      "3074444738793955210812987261500622091936914464418994570129214333300368901845"
     ),
     action: {
       unknown: {
-        address: evmAddress("0x8A5fA1b0A754Ca969a748bF507b41c76aB43DC97"),
+        address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
         params: [
           {
-            key: "0xc4b43ac09e131e6a42c80d3aef32e77c3bc28d5423789bcfbfcf8be0feac708d",
-            data: "0x0000000000000000000000000000000000000000000000000000000000000001",
+            key: blockchainData(
+              "0xc4b43ac09e131e6a42c80d3aef32e77c3bc28d5423789bcfbfcf8be0feac708d"
+            ),
+            data: blockchainData(
+              "0x0000000000000000000000000000000000000000000000000000000000000001"
+            ),
           },
           {
-            key: "0x5db60783da8fbb85fb7e3f94133fddb5a81cde2c804f358f6db1854a56ea10e0",
-            data: "0x0000000000000000000000000000000000000000000000000000000000000001",
+            key: blockchainData(
+              "0x5db60783da8fbb85fb7e3f94133fddb5a81cde2c804f358f6db1854a56ea10e0"
+            ),
+            data: blockchainData(
+              "0x0000000000000000000000000000000000000000000000000000000000000001"
+            ),
           },
         ],
       },
