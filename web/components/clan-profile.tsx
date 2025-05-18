@@ -106,9 +106,9 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
         setClan(result.value);
       }
 
-      // Fetch group members
+      // Fetch group members (clan)
       const membersResult = await fetchGroupMembers(client, {
-        group: evmAddress("0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"),
+        group: evmAddress("0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"), // clanId
       });
       if (membersResult.isErr()) {
         setError("Failed to fetch clan members");
@@ -312,11 +312,10 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                           VS {war.opponent}
                         </span>
                         <span
-                          className={`ml-3 px-2 py-1 text-xs font-bold rounded ${
-                            war.result === "WIN"
+                          className={`ml-3 px-2 py-1 text-xs font-bold rounded ${war.result === "WIN"
                               ? "bg-[#a3ff12] text-black"
                               : "bg-red-500 text-white"
-                          }`}
+                            }`}
                         >
                           {war.result}
                         </span>
@@ -362,7 +361,7 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                   clan &&
                   clan.owner &&
                   member.account.address.toLowerCase() ===
-                    clan.owner.toLowerCase()
+                  clan.owner.toLowerCase()
                 ) {
                   memberRole = "Leader";
                 }
@@ -383,11 +382,10 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                       <h3 className="text-white font-bold">{memberName}</h3>
                       <div className="flex items-center justify-between">
                         <span
-                          className={`text-xs px-2 py-0.5 rounded ${
-                            memberRole === "Leader"
+                          className={`text-xs px-2 py-0.5 rounded ${memberRole === "Leader"
                               ? "bg-[#a3ff12] text-black"
                               : "bg-gray-700 text-gray-300"
-                          }`}
+                            }`}
                         >
                           {memberRole}
                         </span>
@@ -492,10 +490,10 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                           {index === 0
                             ? "124"
                             : index === 1
-                            ? "37"
-                            : index === 2
-                            ? "18"
-                            : "42"}
+                              ? "37"
+                              : index === 2
+                                ? "18"
+                                : "42"}
                         </div>
                       </div>
                     ))}
