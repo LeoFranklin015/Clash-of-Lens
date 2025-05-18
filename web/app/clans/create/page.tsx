@@ -102,12 +102,26 @@ export default function CreateClan() {
         const { uri } = await storageClient.uploadAsJson(metadata);
         console.log("Metadata URI:", uri);
 
-        const result: any = await createGroup(sessionClient, {
+        if (!sessionClient) {
+          throw new Error("Session client is not available");
+        }
+
+        const createGroupResult = await createGroup(sessionClient, {
           metadataUri: URI(uri),
         })
           .andThen(handleOperationWith(signer!))
           .andThen(sessionClient.waitForTransaction)
           .andThen((txHash) => fetchGroup(sessionClient, { txHash }));
+
+        if (createGroupResult.isErr()) {
+          throw new Error(createGroupResult.error.message || "Failed to create group");
+        }
+
+        const result = createGroupResult.value;
+
+        if (!result || !result.address) {
+          throw new Error("Group creation result is invalid or missing address");
+        }
 
         console.log("Group created:", result);
         setCompletedSteps([0, 1]);
@@ -118,7 +132,7 @@ export default function CreateClan() {
           address: CLASH_OF_LENS_ADDRESS,
           abi: ClashOfLensABI,
           functionName: "registerClan",
-          args: [result.value.address],
+          args: [result.address],
           account: address!,
         });
 
