@@ -16,6 +16,7 @@ import { fetchAccountsBulk } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/react";
 import { client } from "@/lib/client";
 import { useAccount } from "wagmi";
+import { fetchGroups } from "@lens-protocol/client/actions";
 
 interface LensUsername {
   __typename: "Username";
@@ -71,6 +72,20 @@ export default function UserProfile() {
   const fetchAccountDetails = async () => {
     const result = await fetchAccountsBulk(client, {
       ownedBy: [evmAddress(address!)],
+    });
+
+    if (result.isErr()) {
+      return console.error(result.error);
+    }
+
+    return result.value;
+  };
+
+  const fetchClans = async () => {
+    const result = await fetchGroups(client, {
+      filter: {
+        member: evmAddress(address!),
+      },
     });
 
     if (result.isErr()) {
@@ -390,10 +405,10 @@ export default function UserProfile() {
             Joined{" "}
             {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })
               : user.joinDate}
           </span>
         </div>
