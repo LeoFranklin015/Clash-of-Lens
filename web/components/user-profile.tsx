@@ -9,7 +9,6 @@ import {
   Coins,
   Zap,
   Calendar,
-  ExternalLink,
 } from "lucide-react";
 import { useSession } from "@/components/SessionContext";
 import { evmAddress } from "@lens-protocol/client";
@@ -17,8 +16,11 @@ import { fetchGroups } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { useEffect, useState } from "react";
 import { contractsConfig } from "@/lib/contractsConfig";
-import { Group, Clan, ClanWithGroup } from "@/lib/types";
+import { Clan, } from "@/lib/types";
 import { storageClient } from "@/lib/storage-client";
+import { useChainId } from "wagmi";
+
+
 
 // Mock data for the user
 const initialUser = {
@@ -192,8 +194,8 @@ const nfts = [
   },
 ];
 
-const fetchClansFromSubgraph = async () => {
-  const subgraph = contractsConfig.lensTestnet.subgraphUrl;
+const fetchClansFromSubgraph = async (chainId: keyof typeof contractsConfig) => {
+  const subgraph = contractsConfig[chainId]?.subgraphUrl;
   const res = await fetch(subgraph, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -216,9 +218,10 @@ const fetchClansFromSubgraph = async () => {
 export default function UserProfile() {
   const { profile } = useSession();
   const [user, setUser] = useState(initialUser);
+  const chainId = useChainId();
 
   const fetchClans = async () => {
-    const clans = await fetchClansFromSubgraph();
+    const clans = await fetchClansFromSubgraph(chainId as keyof typeof contractsConfig);
     if (profile?.address) {
       await fetchGroups(client, {
         filter: {
@@ -299,21 +302,7 @@ export default function UserProfile() {
               <span className="text-gray-300 mr-4">
                 {profile?.address || user.wallet}
               </span>
-              <Link
-                href={`/clans/${user.clan.id}`}
-                className="flex items-center text-[#a3ff12] hover:underline"
-              >
-                <Image
-                  src={
-                    storageClient.resolve(user.clan.logo) || "/placeholder.svg"
-                  }
-                  alt={user.clan.name}
-                  width={16}
-                  height={16}
-                  className="rounded-full mr-1"
-                />
-                {user.clan.name}
-              </Link>
+
             </div>
           </div>
         </div>
@@ -362,24 +351,34 @@ export default function UserProfile() {
 
       {/* User Bio */}
       <div className="mt-8 border border-[#a3ff12] bg-black bg-opacity-50 p-6 rounded-lg">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-center">
           <div>
             <h2 className="text-[#a3ff12] font-bold text-xl mb-4">ABOUT</h2>
             <p className="text-gray-300">
               {profile?.metadata?.bio || user.bio}
             </p>
           </div>
-          <div className="flex flex-col space-y-2">
-            {Object.entries(user.socialLinks).map(([platform, handle]) => (
-              <Link
-                key={platform}
-                href="#"
-                className="flex items-center text-gray-400 hover:text-[#a3ff12] transition-colors"
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                {handle}
-              </Link>
-            ))}
+          <div className="flex flex-col items-end">
+            <div
+              className="flex items-center gap-2 "
+            >
+              <div className="flex flex-col items-end">
+                <div className="text-gray-400 text-sm">
+                  You belong to clan:
+                </div>
+                <Link href={`/clans/${user.clan.id}`} className="text-lg text-[#a3ff12] hover:underline font-medium">
+                  {user.clan.name}
+                </Link>
+              </div>
+
+              <Image
+                src={storageClient.resolve(user.clan.logo) || "/placeholder.svg"}
+                alt={user.clan.name}
+                width={16}
+                height={16}
+                className="ml-3 bg-white h-20 w-20 rounded-full"
+              />
+            </div>
           </div>
         </div>
         <div className="mt-4 text-gray-400 text-sm">
@@ -388,10 +387,10 @@ export default function UserProfile() {
             Joined{" "}
             {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
               : user.joinDate}
           </span>
         </div>

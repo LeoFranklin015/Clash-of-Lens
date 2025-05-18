@@ -1,7 +1,7 @@
-import { SUBGRAPH_CONFIG } from "@/components/clan-directory";
 import { fetchGroups } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/client";
 import { client } from "@/lib/client";
+import { contractsConfig } from "@/lib/contractsConfig";
 
 interface ClanSubgraph {
   id: string;
@@ -9,12 +9,14 @@ interface ClanSubgraph {
   owner: string;
   status: number;
 }
+
 export const checkMemberIsAlreadyInClan = async (
   member: `0x${string}`,
   chainId: number
 ) => {
   const subgraphUrl =
-    SUBGRAPH_CONFIG[chainId]?.subgraphUrl || SUBGRAPH_CONFIG[37111].subgraphUrl;
+    contractsConfig[chainId as keyof typeof contractsConfig]?.subgraphUrl ||
+    contractsConfig[37111].subgraphUrl;
   // 1. Fetch clans from subgraph
   const res = await fetch(subgraphUrl, {
     method: "POST",
@@ -44,7 +46,7 @@ export const checkMemberIsAlreadyInClan = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (memberGroup: any) => {
       return clansFromSubgraph.some(
-        (clan: any) =>
+        (clan: ClanSubgraph) =>
           clan.id.toLowerCase() === memberGroup.address.toLowerCase()
       );
     }
