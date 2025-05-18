@@ -75,5 +75,21 @@ export const LensConnect = () => {
 
   if (!signer) return <div>Connect your wallet to continue.</div>;
 
-  return <div></div>;
+  return (
+    <div>
+      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+      {loading && <div>Loading...</div>}
+      {authenticated && accounts && (
+        <div>
+          <h3>Accounts:</h3>
+          <ul>
+            {accounts.length === 0 && <li>No accounts found.</li>}
+            {accounts.map((account, idx) => (
+              <li key={idx}>{JSON.stringify(account)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 };

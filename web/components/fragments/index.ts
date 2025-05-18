@@ -4,7 +4,7 @@ import { AccountFragment } from "./account";
 import { PostMetadataFragment } from "./post";
 
 declare module "@lens-protocol/react" {
-  export interface Account extends FragmentOf<typeof AccountFragment> {}
+  export type LensAccount = FragmentOf<typeof AccountFragment>;
   export type PostMetadata = FragmentOf<typeof PostMetadataFragment>;
 }
 

@@ -1,17 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Shield, Users, Trophy, Coins } from "lucide-react"
+import { Users, Trophy, } from "lucide-react"
 
 export default function Leaderboard() {
-  const [isLoaded, setIsLoaded] = useState(false)
 
-  useEffect(() => {
-    setIsLoaded(true)
-  }, [])
 
   // Mock data for clan rankings
   const clanRankings = [
@@ -157,25 +152,7 @@ export default function Leaderboard() {
     },
   ]
 
-  // Mock data for season rewards
-  const seasonRewards = [
-    {
-      rank: "1st Place",
-      rewards: ["5 ETH Prize Pool", "Exclusive Champion NFTs", "Featured on Homepage"],
-    },
-    {
-      rank: "2nd Place",
-      rewards: ["2 ETH Prize Pool", "Rare Finalist NFTs", "Special Profile Badge"],
-    },
-    {
-      rank: "3rd Place",
-      rewards: ["1 ETH Prize Pool", "Uncommon Finalist NFTs", "Profile Badge"],
-    },
-    {
-      rank: "Top 10",
-      rewards: ["0.5 ETH Prize Pool", "Commemorative NFT", "Leaderboard Recognition"],
-    },
-  ]
+
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

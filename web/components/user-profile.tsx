@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { fetchAccountsBulk } from "@lens-protocol/client/actions";
-import { useEthersSigner } from "@/lib/walletClientToSigner";
 import { evmAddress } from "@lens-protocol/react";
 import { client } from "@/lib/client";
 import { useAccount } from "wagmi";
@@ -27,7 +26,7 @@ interface LensUsername {
   ownedBy: string;
   timestamp: string;
   namespace: string;
-  operations: null | any; // Adjust 'any' if a more specific type is known
+  operations: null | unknown; // Adjusted from 'any' to 'unknown'
 }
 
 interface MetadataAttribute {
@@ -49,8 +48,8 @@ interface AccountMetadata {
 
 interface AccountFollowRules {
   __typename: "AccountFollowRules";
-  required: any[]; // Adjust 'any' if a more specific type is known
-  anyOf: any[]; // Adjust 'any' if a more specific type is known
+  required: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
+  anyOf: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
 }
 
 interface LensAccount {
@@ -61,14 +60,13 @@ interface LensAccount {
   createdAt: string;
   username: LensUsername | null;
   metadata: AccountMetadata | null;
-  operations: null | any; // Adjust 'any' if a more specific type is known
+  operations: null | unknown; // Adjusted from 'any' to 'unknown'
   rules: AccountFollowRules | null;
-  actions: any[]; // Adjust 'any' if a more specific type is known
+  actions: unknown[]; // Adjusted from 'any[]' to 'unknown[]'
 }
 
 export default function UserProfile() {
   const [profile, setProfile] = useState<LensAccount | null>(null);
-  const signer = useEthersSigner();
   const { address } = useAccount();
   const fetchAccountDetails = async () => {
     const result = await fetchAccountsBulk(client, {
@@ -88,7 +86,7 @@ export default function UserProfile() {
         const account = await fetchAccountDetails();
         if (account && account.length > 0) {
           console.log(account[0]);
-          setProfile(account[0] as any);
+          setProfile(account[0]); // Removed 'as any', type is LensAccount
         }
       };
       getAccount();
@@ -392,10 +390,10 @@ export default function UserProfile() {
             Joined{" "}
             {profile?.createdAt
               ? new Date(profile.createdAt).toLocaleDateString("en-US", {
-                  month: "long",
-                  day: "numeric",
-                  year: "numeric",
-                })
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })
               : user.joinDate}
           </span>
         </div>
