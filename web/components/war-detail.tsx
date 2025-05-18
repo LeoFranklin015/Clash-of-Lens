@@ -381,13 +381,6 @@ export default function WarDetail({ warId }: WarDetailProps) {
               );
             })}
           </div>
-
-          <div className="mt-8">
-            <Button className="w-full bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
-              <Zap className="mr-2 h-4 w-4" />
-              CONTRIBUTE NOW
-            </Button>
-          </div>
         </div>
 
         {/* Contribution Feed */}
