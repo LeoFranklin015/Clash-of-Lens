@@ -1,12 +1,15 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect } from "react";
-
-type SessionClient = any; // Replace with your actual SessionClient type if available
+import { client } from "@/lib/client";
+import type { SessionClient } from "@lens-protocol/client";
+import { currentSession } from "@lens-protocol/client/actions";
+import type { AuthenticatedSession } from "@lens-protocol/graphql";
 
 interface SessionContextType {
   sessionClient: SessionClient | null;
   setSessionClient: (session: SessionClient) => void;
-  clearSession: () => void;
+  getCurrentSession: () => Promise<AuthenticatedSession | null>;
+  clearSession: () => Promise<void>;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -22,30 +25,39 @@ export const SessionProvider = ({
 
   // Load session from localStorage on mount
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("session");
-      if (stored) setSessionClientState({ session: JSON.parse(stored) });
-    }
+    const resume = async () => {
+      const resumed = await client.resumeSession();
+      if (resumed.isErr()) {
+        return console.error(resumed.error);
+      }
+      const sessionClient = resumed.value;
+      setSessionClientState(sessionClient);
+    };
+    resume();
   }, []);
 
-  // Save session to localStorage when it changes
-  const setSessionClient = (sessionClient: SessionClient) => {
-    setSessionClientState(sessionClient);
-    if (typeof window !== "undefined" && sessionClient?.session) {
-      localStorage.setItem("session", JSON.stringify(sessionClient.session));
+  // Expose a method to get the current session details
+  const getCurrentSession = async (): Promise<AuthenticatedSession | null> => {
+    if (!sessionClient) return null;
+    const result = await currentSession(sessionClient);
+    if (result.isErr()) {
+      console.error(result.error);
+      return null;
     }
+    return result.value;
   };
 
-  const clearSession = () => {
-    setSessionClientState(null);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("session");
+  // Expose a method to clear the session and logout
+  const clearSession = async () => {
+    if (sessionClient) {
+      await sessionClient.logout();
     }
+    setSessionClientState(null);
   };
 
   return (
     <SessionContext.Provider
-      value={{ sessionClient, setSessionClient, clearSession }}
+      value={{ sessionClient, setSessionClient: setSessionClientState, getCurrentSession, clearSession }}
     >
       {children}
     </SessionContext.Provider>

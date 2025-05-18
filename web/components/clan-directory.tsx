@@ -156,6 +156,7 @@ export default function ClanDirectory() {
   const filteredClans = clans.filter((clan) =>
     clan.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
+  const readyClans = filteredClans.filter((clan) => clan.status === 0)
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -225,7 +226,7 @@ export default function ClanDirectory() {
           </TabsContent>
           <TabsContent value="newest" className="mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredClans
+              {readyClans
                 .sort((a, b) => b.id.localeCompare(a.id))
                 .map((clan) => (
                   <ClanCard key={clan.id} clan={clan} />
@@ -252,6 +253,7 @@ interface ClanCardProps {
 }
 
 function ClanCard({ clan }: ClanCardProps) {
+  const statusLabel = clan.status === 0 ? "Ready for War" : clan.status === 1 ? "At War" : "Not Ready"
   return (
     <div className="border border-gray-800 bg-black bg-opacity-60 rounded-lg overflow-hidden hover:border-[#a3ff12] transition-all group">
       <div className="p-6">
@@ -260,13 +262,23 @@ function ClanCard({ clan }: ClanCardProps) {
             <Image
               src={clan.logo || "/placeholder.svg"}
               alt={clan.name}
-              width={60}
-              height={60}
-              className="rounded-full border-2 border-[#a3ff12]"
+              width={80}
+              height={80}
+              className="w-20 h-20 border-2 border-[#a3ff12] rounded-none"
             />
             <div className="ml-4">
               <h3 className="text-white font-bold text-lg">{clan.name}</h3>
               <p className="text-gray-400 text-sm">Led by {clan.leader}</p>
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${clan.status === 0
+                  ? "bg-[#a3ff12] text-black"
+                  : clan.status === 1
+                    ? "bg-[#FF0000] text-black"
+                    : "bg-[#FF0000] text-black"
+                  }`}
+              >
+                {statusLabel}
+              </span>
             </div>
           </div>
         </div>

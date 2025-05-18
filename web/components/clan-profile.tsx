@@ -20,7 +20,7 @@ import {
   joinGroup,
 } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
-import { evmAddress, useSessionClient } from "@lens-protocol/react";
+import { evmAddress } from "@lens-protocol/react";
 import { useEffect, useState } from "react";
 import { storageClient } from "@/lib/storage-client";
 import { JoinClanModal } from "./join-clan-modal";
@@ -313,8 +313,8 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                         </span>
                         <span
                           className={`ml-3 px-2 py-1 text-xs font-bold rounded ${war.result === "WIN"
-                              ? "bg-[#a3ff12] text-black"
-                              : "bg-red-500 text-white"
+                            ? "bg-[#a3ff12] text-black"
+                            : "bg-red-500 text-white"
                             }`}
                         >
                           {war.result}
@@ -383,8 +383,8 @@ export default function ClanProfile({ clanId }: ClanProfileProps) {
                       <div className="flex items-center justify-between">
                         <span
                           className={`text-xs px-2 py-0.5 rounded ${memberRole === "Leader"
-                              ? "bg-[#a3ff12] text-black"
-                              : "bg-gray-700 text-gray-300"
+                            ? "bg-[#a3ff12] text-black"
+                            : "bg-gray-700 text-gray-300"
                             }`}
                         >
                           {memberRole}

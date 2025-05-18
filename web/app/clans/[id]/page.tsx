@@ -1,4 +1,3 @@
-import { notFound } from "next/navigation"
 import ClanProfile from "@/components/clan-profile"
 
 interface ClanPageProps {

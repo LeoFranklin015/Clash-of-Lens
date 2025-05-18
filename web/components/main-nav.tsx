@@ -86,6 +86,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
   };
 
   useEffect(() => {
+
     if (address) {
       const getAccount = async () => {
         const account = await fetchAccountDetails();

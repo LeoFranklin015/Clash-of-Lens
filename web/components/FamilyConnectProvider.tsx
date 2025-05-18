@@ -29,10 +29,13 @@ const config = createConfig(
 const queryClient = new QueryClient();
 
 export const Provider = ({ children }: { children: React.ReactNode }) => {
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>{children}</ConnectKitProvider>
+        <ConnectKitProvider>
+          {children}
+        </ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
