@@ -18,6 +18,7 @@ import { client } from "@/lib/client";
 import { useEffect } from "react";
 import { contractsConfig } from "@/lib/contractsConfig";
 import { Group, Clan, ClanWithGroup } from "@/lib/types";
+
 // Mock data for the user
 const user = {
   id: "user-1",
@@ -45,6 +46,7 @@ const user = {
     twitter: "@0xCyb3r_eth",
   },
 };
+
 
 // Mock data for contributions
 const contributions = [
@@ -220,6 +222,19 @@ export default function UserProfile() {
       });
     }
   };
+  // const fetchClans = async () => {
+  //   const result = await fetchGroups(client, {
+  //     filter: {
+  //       member: evmAddress(address!),
+  //     },
+  //   });
+
+  //   if (result.isErr()) {
+  //     return console.error(result.error);
+  //   }
+
+  //   return result.value;
+  // };
 
 
 

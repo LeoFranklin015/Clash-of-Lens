@@ -1,38 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Users, Trophy, Search, Filter } from "lucide-react"
-import { useChainId } from "wagmi"
-import { fetchGroup } from "@lens-protocol/client/actions"
-import { storageClient } from "@/lib/storage-client"
-import { client } from "@/lib/client"
-import { evmAddress, Group } from "@lens-protocol/client"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, Trophy, Search, Filter } from "lucide-react";
+import { useAccount, useChainId } from "wagmi";
+import { fetchGroup, fetchGroupMembers } from "@lens-protocol/client/actions";
+import { storageClient } from "@/lib/storage-client";
+import { client } from "@/lib/client";
+import { evmAddress, Group } from "@lens-protocol/client";
 
 interface ClanSubgraph {
-  id: string
-  balance: string
-  owner: string
-  status: number
+  id: string;
+  balance: string;
+  owner: string;
+  status: number;
 }
 
 interface ClanCardData {
-  id: string
-  balance: string
-  owner: string
-  status: number
-  name: string
-  description: string
-  logo: string
-  banner: string
-  leader: string
-  founded: string
-  members: number
-  wins: number
+  id: string;
+  balance: string;
+  owner: string;
+  status: number;
+  name: string;
+  description: string;
+  logo: string;
+  banner: string;
+  leader: string;
+  founded: string;
+  members: number;
+  wins: number;
 }
 
 const SUBGRAPH_CONFIG: Record<number, { subgraphUrl: string }> = {
@@ -44,22 +44,24 @@ const SUBGRAPH_CONFIG: Record<number, { subgraphUrl: string }> = {
     subgraphUrl:
       "https://api.studio.thegraph.com/query/111645/clashoflens/version/latest",
   },
-}
+};
 
 export default function ClanDirectory() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [clans, setClans] = useState<ClanCardData[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const chainId = useChainId()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [clans, setClans] = useState<ClanCardData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const chainId = useChainId();
+  const address = useAccount();
 
   useEffect(() => {
     async function fetchClans() {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       try {
         const subgraphUrl =
-          SUBGRAPH_CONFIG[chainId]?.subgraphUrl || SUBGRAPH_CONFIG[37111].subgraphUrl
+          SUBGRAPH_CONFIG[chainId]?.subgraphUrl ||
+          SUBGRAPH_CONFIG[37111].subgraphUrl;
         // 1. Fetch clans from subgraph
         const res = await fetch(subgraphUrl, {
           method: "POST",
@@ -74,25 +76,45 @@ export default function ClanDirectory() {
               }
             }`,
           }),
-        })
-        const json = await res.json()
-        const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || []
+        });
+        const json = await res.json();
+        const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || [];
         // 2. For each clan, fetch metadata from Lens
         const enrichedClans: ClanCardData[] = await Promise.all(
           clansFromSubgraph.map(async (clan) => {
             try {
-              const groupResult = await fetchGroup(client, { group: evmAddress(clan.id) })
+              const groupResult = await fetchGroup(client, {
+                group: evmAddress(clan.id),
+              });
+
+              const membersResult: any = await fetchGroupMembers(client, {
+                group: evmAddress(clan.id),
+              });
               if (groupResult.isOk() && groupResult.value) {
-                const group = groupResult.value as Group
+                const group = groupResult.value as Group;
                 // Use inline type casts for metadata and group fields
-                const metadata = group.metadata as { name?: string; description?: string; icon?: string; coverPicture?: string } || {}
-                const name = typeof metadata.name === 'string' ? metadata.name : undefined
-                const description = typeof metadata.description === 'string' ? metadata.description : undefined
-                const icon = typeof metadata.icon === 'string' ? metadata.icon : undefined
-                const coverPicture = typeof metadata.coverPicture === 'string' ? metadata.coverPicture : undefined
+                const metadata =
+                  (group.metadata as {
+                    name?: string;
+                    description?: string;
+                    icon?: string;
+                    coverPicture?: string;
+                  }) || {};
+                const name =
+                  typeof metadata.name === "string" ? metadata.name : undefined;
+                const description =
+                  typeof metadata.description === "string"
+                    ? metadata.description
+                    : undefined;
+                const icon =
+                  typeof metadata.icon === "string" ? metadata.icon : undefined;
+                const coverPicture =
+                  typeof metadata.coverPicture === "string"
+                    ? metadata.coverPicture
+                    : undefined;
                 // Some fields like membersCount and wins may not be typed on Group, so use 'as { membersCount?: number; wins?: number }'
-                const membersCount = (group as { membersCount?: number }).membersCount ?? 0
-                const wins = (group as { wins?: number }).wins ?? 0
+                const membersCount = membersResult.value.items.length || 0;
+                const wins = (group as { wins?: number }).wins ?? 0;
                 return {
                   id: clan.id,
                   balance: clan.balance,
@@ -101,14 +123,16 @@ export default function ClanDirectory() {
                   name: name || "Unknown Clan",
                   description: description || "No description available.",
                   logo: icon ? storageClient.resolve(icon) : "/placeholder.svg",
-                  banner: coverPicture ? storageClient.resolve(coverPicture) : "/placeholder.svg",
+                  banner: coverPicture
+                    ? storageClient.resolve(coverPicture)
+                    : "/placeholder.svg",
                   leader: group.owner || "Unknown",
                   founded: group.timestamp
                     ? new Date(group.timestamp).toLocaleDateString()
                     : "Unknown",
                   members: membersCount,
                   wins: wins,
-                }
+                };
               } else {
                 return {
                   id: clan.id,
@@ -123,7 +147,7 @@ export default function ClanDirectory() {
                   founded: "Unknown",
                   members: 0,
                   wins: 0,
-                }
+                };
               }
             } catch {
               return {
@@ -139,31 +163,36 @@ export default function ClanDirectory() {
                 founded: "Unknown",
                 members: 0,
                 wins: 0,
-              }
+              };
             }
           })
-        )
-        setClans(enrichedClans)
+        );
+        setClans(enrichedClans);
       } catch (err: unknown) {
-        setError((err as Error).message || "Failed to fetch clans.")
+        setError((err as Error).message || "Failed to fetch clans.");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    fetchClans()
-  }, [chainId])
+    fetchClans();
+  }, [chainId, address]);
 
   const filteredClans = clans.filter((clan) =>
     clan.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
-  const readyClans = filteredClans.filter((clan) => clan.status === 0)
+  );
+  const readyClans = filteredClans.filter((clan) => clan.status === 0);
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Page header */}
       <div className="mt-12 mb-8">
-        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter">CLAN DIRECTORY</h1>
-        <p className="text-gray-400 mt-2">Join an existing clan or create your own to start battling for supremacy</p>
+        <h1 className="text-[#a3ff12] font-extrabold text-4xl md:text-5xl tracking-tighter">
+          CLAN DIRECTORY
+        </h1>
+        <p className="text-gray-400 mt-2">
+          Join an existing clan or create your own to start battling for
+          supremacy
+        </p>
       </div>
       {/* Search and filter */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -213,7 +242,10 @@ export default function ClanDirectory() {
             >
               Show all Clans
             </TabsTrigger>
-            <TabsTrigger value="newest" className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black">
+            <TabsTrigger
+              value="newest"
+              className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
+            >
               Show clans ready for War
             </TabsTrigger>
           </TabsList>
@@ -245,15 +277,20 @@ export default function ClanDirectory() {
         </Tabs>
       )}
     </div>
-  )
+  );
 }
 
 interface ClanCardProps {
-  clan: ClanCardData
+  clan: ClanCardData;
 }
 
 function ClanCard({ clan }: ClanCardProps) {
-  const statusLabel = clan.status === 0 ? "Ready for War" : clan.status === 1 ? "At War" : "Not Ready"
+  const statusLabel =
+    clan.status === 0
+      ? "Ready for War"
+      : clan.status === 1
+      ? "At War"
+      : "Not Ready";
   return (
     <div className="border border-gray-800 bg-black bg-opacity-60 rounded-lg overflow-hidden hover:border-[#a3ff12] transition-all group">
       <div className="p-6">
@@ -270,19 +307,22 @@ function ClanCard({ clan }: ClanCardProps) {
               <h3 className="text-white font-bold text-lg">{clan.name}</h3>
               <p className="text-gray-400 text-sm">Led by {clan.leader}</p>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${clan.status === 0
-                  ? "bg-[#a3ff12] text-black"
-                  : clan.status === 1
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  clan.status === 0
+                    ? "bg-[#a3ff12] text-black"
+                    : clan.status === 1
                     ? "bg-[#FF0000] text-black"
                     : "bg-[#FF0000] text-black"
-                  }`}
+                }`}
               >
                 {statusLabel}
               </span>
             </div>
           </div>
         </div>
-        <p className="text-gray-400 text-sm mb-4 line-clamp-2">{clan.description}</p>
+        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
+          {clan.description}
+        </p>
         <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
           <div className="flex items-center">
             <Users className="h-4 w-4 mr-1 text-[#a3ff12]" />
@@ -302,5 +342,5 @@ function ClanCard({ clan }: ClanCardProps) {
       </div>
       <div className="h-1 w-full bg-[#a3ff12] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></div>
     </div>
-  )
+  );
 }
