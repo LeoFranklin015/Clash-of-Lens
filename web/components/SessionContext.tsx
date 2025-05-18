@@ -45,6 +45,7 @@ export const SessionProvider = ({
       return null;
     }
     return result.value;
+
   };
 
   // Expose a method to clear the session and logout
