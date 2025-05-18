@@ -13,7 +13,12 @@ export const fetchWarLogs = async (
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       query: ` {
-  wars(where: {or: {clan1: "${clanAddress}", clan2: "${clanAddress}"}}) {
+  wars(where: {
+      or: [
+        { clan1: "${clanAddress}" }
+        { clan2: "${clanAddress}" }
+      ]
+    }) {
     clan1 {
       id
     }
