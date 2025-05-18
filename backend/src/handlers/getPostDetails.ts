@@ -11,6 +11,7 @@ export interface PostStats {
   downvotes: number;
   reposts: number;
   tips: number;
+  address: string;
 }
 
 export const getPostDetails = async (address: string) => {
@@ -35,6 +36,7 @@ export const getPostDetails = async (address: string) => {
     downvotes: 0,
     reposts: 0,
     tips: 0,
+    address: address,
   };
 
   for (const post of items) {
