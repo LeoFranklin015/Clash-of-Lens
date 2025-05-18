@@ -18,6 +18,7 @@ import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
 import { checkMemberIsAlreadyInClan } from "@/lib/checkAvailablility";
 import { contractsConfig } from "@/lib/contractsConfig";
+import { fetchClans } from "@/lib/subgraphHandlers/fetchClans";
 
 interface ClanSubgraph {
   id: string;
@@ -41,8 +42,6 @@ interface ClanCardData {
   wins: number;
 }
 
-
-
 export default function ClansPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [clans, setClans] = useState<ClanCardData[]>([]);
@@ -53,30 +52,11 @@ export default function ClansPage() {
   const { address } = useAccount();
 
   useEffect(() => {
-    async function fetchClans() {
+    async function fetchClanData() {
       setLoading(true);
       setError(null);
       try {
-        const subgraphUrl =
-          contractsConfig[chainId as keyof typeof contractsConfig]?.subgraphUrl ||
-          contractsConfig[37111].subgraphUrl;
-        // 1. Fetch clans from subgraph
-        const res = await fetch(subgraphUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            query: `{
-              clans {
-                id
-                balance
-                owner
-                status
-              }
-            }`,
-          }),
-        });
-        const json = await res.json();
-        const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || [];
+        const clansFromSubgraph: ClanSubgraph[] = await fetchClans(chainId);
         // 2. For each clan, fetch metadata from Lens
         const enrichedClans: ClanCardData[] = await Promise.all(
           clansFromSubgraph.map(async (clan) => {
@@ -173,7 +153,7 @@ export default function ClansPage() {
         setLoading(false);
       }
     }
-    fetchClans();
+    fetchClanData();
   }, [chainId, address]);
 
   useEffect(() => {
@@ -234,8 +214,9 @@ export default function ClansPage() {
         <div className="flex items-center gap-4 w-full md:w-auto">
           <Button
             asChild
-            className={`bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none ${isMemberInClan ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+            className={`bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none ${
+              isMemberInClan ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             style={{
               clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
             }}
@@ -315,8 +296,6 @@ export default function ClansPage() {
   );
 }
 
-
-
 interface ClanCardProps {
   clan: ClanCardData;
 }
@@ -326,8 +305,8 @@ function ClanCard({ clan }: ClanCardProps) {
     clan.status === 0
       ? "Ready for War"
       : clan.status === 1
-        ? "At War"
-        : "Not Ready";
+      ? "At War"
+      : "Not Ready";
   return (
     <div className="border border-gray-800 bg-black bg-opacity-60 rounded-lg overflow-hidden hover:border-[#a3ff12] transition-all group">
       <div className="p-6">
@@ -342,14 +321,17 @@ function ClanCard({ clan }: ClanCardProps) {
             />
             <div className="ml-4">
               <h3 className="text-white font-bold text-lg">{clan.name}</h3>
-              <p className="text-gray-400 text-sm">Led by {clan.leader.slice(0, 6)}...{clan.leader.slice(-4)}</p>
+              <p className="text-gray-400 text-sm">
+                Led by {clan.leader.slice(0, 6)}...{clan.leader.slice(-4)}
+              </p>
               <span
-                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${clan.status === 0
-                  ? "bg-[#a3ff12] text-black"
-                  : clan.status === 1
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  clan.status === 0
+                    ? "bg-[#a3ff12] text-black"
+                    : clan.status === 1
                     ? "bg-[#FF0000] text-black"
                     : "bg-[#FF0000] text-black"
-                  }`}
+                }`}
               >
                 {statusLabel}
               </span>
