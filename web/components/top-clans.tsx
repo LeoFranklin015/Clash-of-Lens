@@ -49,7 +49,7 @@ export function TopClans({ isLoaded }: TopClansProps) {
           <Button
             asChild
             variant="link"
-            className="text-[#C300FF] p-0 h-auto font-medium"
+            className="text-[#a3ff12] p-0 h-auto font-medium"
           >
             <Link href="/clans" className="flex items-center">
               VIEW ALL
@@ -63,9 +63,9 @@ export function TopClans({ isLoaded }: TopClansProps) {
             <Link
               key={clan.id}
               href={`/clans/${clan.id}`}
-              className="block bg-[#1F1F2A] rounded-lg p-4 hover:border-[#39FF14] transition-all group relative overflow-hidden"
+              className="block bg-[#1F1F2A] rounded-lg p-4 hover:border-[#a3ff12] transition-all group relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#39FF14] to-[#C300FF] opacity-0 group-hover:opacity-5 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#a3ff12] to-[#C300FF] opacity-0 group-hover:opacity-5 transition-opacity"></div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
                   <div className="relative">
@@ -74,9 +74,9 @@ export function TopClans({ isLoaded }: TopClansProps) {
                       alt={clan.name}
                       width={50}
                       height={50}
-                      className="rounded-full border-2 border-[#39FF14]"
+                      className="rounded-full border-2 border-[#a3ff12]"
                     />
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#39FF14] rounded-full flex items-center justify-center text-[#0B0B0F] text-xs font-bold">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-[#a3ff12] rounded-full flex items-center justify-center text-[#0B0B0F] text-xs font-bold">
                       {clan.rank}
                     </div>
                   </div>
@@ -96,7 +96,7 @@ export function TopClans({ isLoaded }: TopClansProps) {
                   </div>
                 </div>
 
-                <ArrowRight className="h-4 w-4 text-[#666666] group-hover:text-[#39FF14] transition-colors" />
+                <ArrowRight className="h-4 w-4 text-[#666666] group-hover:text-[#a3ff12] transition-colors" />
               </div>
             </Link>
           ))}

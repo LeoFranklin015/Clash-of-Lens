@@ -8,10 +8,10 @@ interface GameStatsProps {
 
 export function GameStats({ isLoaded }: GameStatsProps) {
   const stats = [
-    { name: "ACTIVE WARS", value: "24", icon: Zap, color: "#00FFF7" },
-    { name: "TOTAL CLANS", value: "156", icon: Shield, color: "#39FF14" },
-    { name: "NFTS COLLECTED", value: "2.4K", icon: Coins, color: "#C300FF" },
-    { name: "BATTLES WON", value: "1.2K", icon: Trophy, color: "#FF4D00" },
+    { name: "ACTIVE WARS", value: "24", icon: Zap, color: "#a3ff12" },
+    { name: "TOTAL CLANS", value: "156", icon: Shield, color: "#a3ff12" },
+    { name: "NFTS COLLECTED", value: "2.4K", icon: Coins, color: "#a3ff12" },
+    { name: "BATTLES WON", value: "1.2K", icon: Trophy, color: "#a3ff12" },
   ];
 
   return (

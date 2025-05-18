@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Coins, Zap, Clock, Heart, MessageSquare, Share2, Send } from "lucide-react"
+import { Coins, Zap, Heart, MessageSquare, Share2, Send } from "lucide-react"
 
 interface WarDetailProps {
   warId: string

@@ -8,6 +8,7 @@ import { ActiveWars } from "@/components/active-war";
 import { TopClans } from "@/components/top-clans";
 import { motion } from "framer-motion";
 
+
 // SVG for sharp-edged swords
 const SwordSVG = ({ className = "", style = {} }) => (
   <svg
@@ -19,8 +20,8 @@ const SwordSVG = ({ className = "", style = {} }) => (
     className={className}
     style={style}
   >
-    <polygon points="40,10 54,230 26,230" fill="#39FF14" stroke="#0B0B0F" strokeWidth="4" />
-    <rect x="26" y="230" width="28" height="18" fill="#15151B" stroke="#39FF14" strokeWidth="3" />
+    <polygon points="40,10 54,230 26,230" fill="#a3ff12" stroke="#0B0B0F" strokeWidth="4" />
+    <rect x="26" y="230" width="28" height="18" fill="#15151B" stroke="#a3ff12" strokeWidth="3" />
     <rect x="32" y="248" width="16" height="10" fill="#FF4D00" stroke="#0B0B0F" strokeWidth="2" />
   </svg>
 );
@@ -28,27 +29,27 @@ const SwordSVG = ({ className = "", style = {} }) => (
 // Steps data for How to Clash
 const howToClashSteps = [
   {
-    color: '#39FF14',
+    color: '#a3ff12',
     title: '1. Create or Join Your Clan',
     desc: 'Each clan is a Lens Group — mint a membership NFT or join via invite rules.'
   },
   {
-    color: '#39FF14',
+    color: '#a3ff12',
     title: '2. Declare War',
     desc: 'Clan leaders pick an opponent and challenge them for a war lasting days. A custom Lens post launches the battle.'
   },
   {
-    color: '#39FF14',
+    color: '#a3ff12',
     title: '3. Compete Across Real Social Metrics',
     desc: 'Earn clan points by collecting GHO tips, selling NFTs, growing followers, and posting content.'
   },
   {
-    color: '#39FF14',
+    color: '#a3ff12',
     title: '4. Track the Battle Live',
     desc: 'Real-time leaderboard updates powered by Lens API & subgraph. Stay on top of your clan\'s progress.'
   },
   {
-    color: '#39FF14',
+    color: '#a3ff12',
     title: '5. Win & Claim Rewards',
     desc: 'Victorious clans share a GHO bonus pool, exclusive Victory Emblems, and Graph Aura Badges. Top contributors earn Gold Medal NFTs.'
   },
@@ -87,7 +88,7 @@ export default function LandingPage() {
           size: Math.random() * 2 + 0.5,
           speedX: Math.random() * 0.5 - 0.25,
           speedY: Math.random() * 0.5 - 0.25,
-          color: "#39FF14",
+          color: "#a3ff12",
           alpha: Math.random() * 0.5 + 0.1,
         });
       }
@@ -154,7 +155,7 @@ export default function LandingPage() {
               initial={{ opacity: 0, x: -40 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 1 }}
-              className="text-[#39FF14] font-extrabold text-5xl md:text-7xl leading-none tracking-tighter uppercase"
+              className="text-[#a3ff12] font-extrabold text-5xl md:text-7xl leading-none tracking-tighter uppercase"
               style={{ letterSpacing: '-0.04em' }}
             >
               Clash of Lens
@@ -174,13 +175,13 @@ export default function LandingPage() {
               className="text-[#B1B1B1] text-md max-w-xl mb-8"
             >
               Join clans, compete using real on-chain social metrics, and win rewards that boost your Lens reputation — all in a decentralized, transparent battlefield.<br />
-              <span className="text-[#39FF14] font-bold">Social influence is your strongest weapon.</span>
+              <span className="text-[#a3ff12] font-bold">Social influence is your strongest weapon.</span>
             </motion.p>
             <div className="flex gap-4 mt-2">
-              <Button asChild className="bg-[#39FF14] text-[#0B0B0F] font-bold border-2 border-[#39FF14] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-md" style={{ borderRadius: 0 }}>
+              <Button asChild className="bg-[#a3ff12] text-[#0B0B0F] font-bold border-2 border-[#a3ff12] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-md" style={{ borderRadius: 0 }}>
                 <Link href="/clans">Join a Clan</Link>
               </Button>
-              <Button asChild className="bg-[#15151B] border-2 border-[#39FF14] text-[#39FF14] font-bold hover:bg-[#39FF14] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-md" style={{ borderRadius: 0 }}>
+              <Button asChild className="bg-[#15151B] border-2 border-[#a3ff12] text-[#a3ff12] font-bold hover:bg-[#a3ff12] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-md" style={{ borderRadius: 0 }}>
                 <Link href="/leaderboard">Leaderboard</Link>
               </Button>
               <Button asChild className="bg-[#15151B] border-2 border-[#FF4D00] text-[#FF4D00] font-bold hover:bg-[#FF4D00] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-md" style={{ borderRadius: 0 }}>
@@ -214,13 +215,13 @@ export default function LandingPage() {
         </div>
       </section>
       {/* How to Clash Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#00FFF7]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
-        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#39FF14] text-3xl font-bold mb-8 uppercase tracking-widest">How to Clash</motion.h3>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#FF4D00]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
+        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#a3ff12] text-3xl font-bold mb-8 uppercase tracking-widest">How to Clash</motion.h3>
         <HowToClashSteps />
       </section>
       {/* Why Clash Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#39FF14]" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 98%)' }}>
-        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#39FF14] text-3xl font-bold mb-8 uppercase tracking-widest">Why Clash of Lens?</motion.h3>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#a3ff12]" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 98%)' }}>
+        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#a3ff12] text-3xl font-bold mb-8 uppercase tracking-widest">Why Clash of Lens?</motion.h3>
         <div className="grid md:grid-cols-4 gap-8">
           <div className="flex items-center border-1 border-[#FF4D00] p-6 text-[#FAFAFA] text-lg" style={{ borderRadius: 0 }}>
             Earn real rewards from your social activity.
@@ -237,8 +238,8 @@ export default function LandingPage() {
         </div>
       </section>
       {/* CTA Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#00FFF7]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
-        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#00FFF7] text-3xl font-bold mb-8 uppercase tracking-widest text-center md:text-left">Ready to Join the War?</motion.h3>
+      <section className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-b-2 border-[#FF4D00]" style={{ clipPath: 'polygon(0 2%, 100% 0, 100% 100%, 0 100%)' }}>
+        <motion.h3 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="text-[#FF4D00] text-3xl font-bold mb-8 uppercase tracking-widest text-center md:text-left">Ready to Join the War?</motion.h3>
         <div className="flex flex-col md:flex-row items-center md:items-start justify-between w-full gap-8 mb-8">
           <div className="flex-1 text-[#B1B1B1] text-sm md:text-base md:text-left text-center md:max-w-lg">
             1. Sign in with your Lens account<br />
@@ -248,13 +249,13 @@ export default function LandingPage() {
             5. Dominate leaderboards and claim rewards
           </div>
           <div className="flex flex-col md:flex-row flex-wrap gap-6 md:justify-end md:items-center w-full md:w-auto mt-8 md:mt-0">
-            <Button className="bg-[#39FF14] text-[#0B0B0F] font-bold border-2 border-[#39FF14] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+            <Button className="bg-[#a3ff12] text-[#0B0B0F] font-bold border-2 border-[#a3ff12] hover:bg-opacity-90 transition-all shadow-[0_0_15px_rgba(57,255,20,0.5)] px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
               Sign In with Lens
             </Button>
-            <Button asChild className="bg-[#15151B] border-2 border-[#39FF14] text-[#39FF14] font-bold hover:bg-[#39FF14] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+            <Button asChild className="bg-[#15151B] border-2 border-[#a3ff12] text-[#a3ff12] font-bold hover:bg-[#a3ff12] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
               <Link href="/clans/create">Create Clan</Link>
             </Button>
-            <Button asChild className="bg-[#15151B] border-2 border-[#00FFF7] text-[#00FFF7] font-bold hover:bg-[#00FFF7] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
+            <Button asChild className="bg-[#15151B] border-2 border-[#FF4D00] text-[#FF4D00] font-bold hover:bg-[#00FFF7] hover:bg-opacity-10 transition-all px-8 py-3 uppercase text-lg" style={{ borderRadius: 0 }}>
               <Link href="/clans">Explore Clans</Link>
             </Button>
           </div>
@@ -269,22 +270,22 @@ export default function LandingPage() {
       </div>
       {/* Scan line effect */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="w-full h-[2px] bg-[#39FF14] opacity-10 scanline"></div>
+        <div className="w-full h-[2px] bg-[#a3ff12] opacity-10 scanline"></div>
       </div>
       {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#39FF14] via-transparent to-transparent opacity-[0.03] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-[#a3ff12] via-transparent to-transparent opacity-[0.03] pointer-events-none"></div>
       {/* Footer */}
-      <footer className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between border-t-2 border-[#39FF14] mt-16 text-[#B1B1B1] text-sm" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 98%)' }}>
+      <footer className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row items-center justify-between border-t-2 border-[#a3ff12] mt-16 text-[#B1B1B1] text-sm" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 98%)' }}>
         <div>Clash of Lens — Where your social moves become your power plays.</div>
         <div className="flex gap-4 mt-4 md:mt-0">
-          <a href="#" className="hover:text-[#39FF14]">Discord</a>
+          <a href="#" className="hover:text-[#a3ff12]">Discord</a>
           <a href="#" className="hover:text-[#00FFF7]">Telegram</a>
           <a href="#" className="hover:text-[#C300FF]">FAQ</a>
         </div>
       </footer>
       <style jsx global>{`
         .sword-glow svg {
-          filter: drop-shadow(0 0 16px #39FF14) drop-shadow(0 0 32px #39FF14);
+          filter: drop-shadow(0 0 16px #a3ff12) drop-shadow(0 0 32px #a3ff12);
         }
       `}</style>
     </div>
@@ -292,44 +293,24 @@ export default function LandingPage() {
 }
 
 function HowToClashSteps() {
+  const steps = [...howToClashSteps];
   // Marquee effect: no activeStep, no arrows
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full overflow-x-hidden relative py-2">
-        <MarqueeSteps />
-      </div>
+      <motion.div
+        className="flex flex-row gap-4"
+      >
+        {steps.map((step, idx) => (
+          <div
+            key={idx}
+            className="max-w-[260px] bg-[#15151B] border-2 p-6 shadow-xl flex flex-col items-start transition-all duration-300 snap-center"
+            style={{ borderColor: step.color, borderRadius: 0 }}
+          >
+            <span className="font-bold text-lg mb-2" style={{ color: step.color }}>{step.title}</span>
+            <p className="text-[#B1B1B1] text-md mt-2">{step.desc}</p>
+          </div>
+        ))}
+      </motion.div>
     </div>
-  );
-}
-
-// MarqueeSteps component for infinite horizontal scroll
-function MarqueeSteps() {
-  // Duplicate steps for seamless loop
-  const steps = [...howToClashSteps];
-  return (
-    <motion.div
-      className="flex flex-row gap-6 w-max"
-      animate={{ x: [0, -steps.length * 260 / 2] }}
-      transition={{
-        repeat: Infinity,
-        repeatType: 'loop',
-        ease: 'linear',
-        duration: 18,
-      }}
-      style={{ willChange: 'transform' }}
-    >
-      {steps.map((step, idx) => (
-        <div
-          key={idx}
-          className="max-w-[260px] bg-[#15151B] border-2 p-6 shadow-xl flex flex-col items-start transition-all duration-300 snap-center"
-          style={{ borderColor: step.color, borderRadius: 0 }}
-        >
-          <span className="font-bold text-lg mb-2" style={{ color: step.color }}>{step.title}</span>
-          <p className="text-[#B1B1B1] text-md mt-2">{step.desc}</p>
-        </div>
-      ))}
-      {/* Spacer for extra gap */}
-      <div style={{ minWidth: 160, background: 'transparent' }} />
-    </motion.div>
   );
 }

@@ -136,9 +136,8 @@ export function MainNav({ isLoaded }: MainNavProps) {
     <header className="flex justify-between items-center bg-[#0B0B0F] py-4 px-10">
       <Link
         href="/"
-        className={`flex items-center transform transition-all duration-1000 ${
-          isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
-        }`}
+        className={`flex items-center transform transition-all duration-1000 ${isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
+          }`}
       >
         <Image
           src="/logo.png"
@@ -147,9 +146,9 @@ export function MainNav({ isLoaded }: MainNavProps) {
           height={60}
           className="mr-2"
         />
-        <span className="text-[#39FF14] font-bold relative">
+        <span className="text-[#a3ff12] font-bold relative">
           CLASH OF LENS
-          <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#39FF14] grow-underline"></span>
+          <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#a3ff12] grow-underline"></span>
         </span>
         <span className="flex items-center ml-4 space-x-2 text-xs text-[#B1B1B1] font-normal">
           powered by
@@ -190,7 +189,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
           variant="ghost"
           size="icon"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-[#39FF14]"
+          className="text-[#a3ff12]"
         >
           {mobileMenuOpen ? (
             <X className="h-6 w-6" />
@@ -208,7 +207,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
               <Link
                 key={item.name}
                 href={item.href}
-                className="px-3 py-2 text-[#B1B1B1] hover:text-[#39FF14] hover:bg-[#1F1F2A] transition-all rounded"
+                className="px-3 py-2 text-[#B1B1B1] hover:text-[#a3ff12] hover:bg-[#1F1F2A] transition-all rounded"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
@@ -216,7 +215,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
             ))}
             <Button
               asChild
-              className="mt-4 bg-[#39FF14] text-[#0B0B0F] font-bold hover:bg-opacity-90 shadow-[0_0_10px_rgba(57,255,20,0.3)]"
+              className="mt-4 bg-[#a3ff12] text-[#0B0B0F] font-bold hover:bg-opacity-90 shadow-[0_0_10px_rgba(57,255,20,0.3)]"
             >
               <Link href="/connect">CONNECT WALLET</Link>
             </Button>
@@ -226,9 +225,8 @@ export function MainNav({ isLoaded }: MainNavProps) {
 
       {/* Desktop navigation */}
       <nav
-        className={`hidden md:flex transform transition-all duration-1000 ${
-          isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
-        }`}
+        className={`hidden md:flex transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
+          }`}
       >
         <ul className="flex items-center space-x-1">
           {navItems.map((item, index) => (
@@ -242,7 +240,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
                 className="px-3 py-1 text-xs text-[#B1B1B1] hover:text-[#FAFAFA] hover:bg-[#1F1F2A] transition-all relative overflow-hidden group rounded"
               >
                 <span className="relative z-10">{item.name}</span>
-                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#39FF14] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-[#a3ff12] transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left"></span>
               </Link>
             </li>
           ))}
@@ -260,7 +258,7 @@ export function MainNav({ isLoaded }: MainNavProps) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="cursor-pointer focus:outline-none">
-                    <div className="w-10 h-10 shadow-[#39FF14] shadow-lg bg-gray-700 overflow-hidden rounded-full border-2 border-[#39FF14] flex items-center justify-center">
+                    <div className="w-10 h-10 shadow-[#a3ff12] shadow-lg bg-gray-700 overflow-hidden rounded-full border-2 border-[#a3ff12] flex items-center justify-center">
                       {profile.metadata?.picture ? (
                         <Avatar>
                           <AvatarImage

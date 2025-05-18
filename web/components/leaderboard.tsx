@@ -187,54 +187,6 @@ export default function Leaderboard() {
         <p className="text-gray-400 mt-2">Track the top performing clans and players in the current season</p>
       </div>
 
-      {/* Season Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6 col-span-2">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-white font-bold text-xl">SEASON 1</h2>
-            <div className="px-3 py-1 bg-[#a3ff12] text-black text-xs font-bold rounded-full">15 DAYS REMAINING</div>
-          </div>
-          <p className="text-gray-400 mb-4">
-            The inaugural season of Clash of Lens. Compete for glory, rewards, and establish your clan's dominance in
-            the social strategy arena.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center">
-              <Shield className="h-5 w-5 text-[#a3ff12] mr-2" />
-              <span className="text-white">8 Clans Competing</span>
-            </div>
-            <div className="flex items-center">
-              <Trophy className="h-5 w-5 text-[#a3ff12] mr-2" />
-              <span className="text-white">24 Wars Completed</span>
-            </div>
-            <div className="flex items-center">
-              <Coins className="h-5 w-5 text-[#a3ff12] mr-2" />
-              <span className="text-white">8.5 ETH Total Prize Pool</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-          <h2 className="text-white font-bold text-xl mb-4">SEASON REWARDS</h2>
-          <div className="space-y-3">
-            {seasonRewards.map((reward, index) => (
-              <div key={index} className="border border-gray-800 rounded-lg p-3">
-                <div className="flex items-center mb-2">
-                  <Trophy className="h-4 w-4 text-[#a3ff12] mr-2" />
-                  <span className="text-white font-bold">{reward.rank}</span>
-                </div>
-                <ul className="text-gray-400 text-sm space-y-1 pl-6">
-                  {reward.rewards.map((item, i) => (
-                    <li key={i} className="list-disc">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Leaderboard Tabs */}
       <Tabs defaultValue="clans" className="w-full">

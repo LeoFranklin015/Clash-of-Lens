@@ -64,7 +64,7 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
           <Button
             asChild
             variant="link"
-            className="text-[#C300FF] p-0 h-auto font-medium"
+            className="text-[#a3ff12] p-0 h-auto font-medium"
           >
             <Link href="/wars" className="flex items-center">
               VIEW ALL
@@ -78,9 +78,9 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
             <Link
               key={war.id}
               href={`/wars/${war.id}`}
-              className="block bg-[#1F1F2A] rounded-lg p-4 hover:border-[#39FF14] transition-all group relative overflow-hidden"
+              className="block bg-[#1F1F2A] rounded-lg p-4 hover:border-[#a3ff12] transition-all group relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#39FF14] to-[#00FFF7] opacity-0 group-hover:opacity-5 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#a3ff12] to-[#00FFF7] opacity-0 group-hover:opacity-5 transition-opacity"></div>
               <div className="flex items-center justify-between space-x-6">
                 <div className="flex justify-center flex-col items-center">
                   <Image
@@ -88,12 +88,12 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
                     alt={war.clan1.name}
                     width={40}
                     height={40}
-                    className="rounded-full border-2 border-[#39FF14]"
+                    className="rounded-full border-2 border-[#a3ff12]"
                   />
                   <span className="text-[#B1B1B1] text-xs mt-1">
                     {war.clan1.name}
                   </span>
-                  <span className="text-[#39FF14] font-bold">
+                  <span className="text-[#a3ff12] font-bold">
                     {war.score.clan1}
                   </span>
                 </div>
@@ -112,12 +112,12 @@ export function ActiveWars({ isLoaded }: ActiveWarsProps) {
                     alt={war.clan2.name}
                     width={40}
                     height={40}
-                    className="rounded-full border-2 border-[#39FF14]"
+                    className="rounded-full border-2 border-[#a3ff12]"
                   />
                   <span className="text-[#B1B1B1] text-xs mt-1">
                     {war.clan2.name}
                   </span>
-                  <span className="text-[#39FF14] font-bold">
+                  <span className="text-[#a3ff12] font-bold">
                     {war.score.clan2}
                   </span>
                 </div>
