@@ -4,9 +4,11 @@ import { client } from "@/lib/client";
 import type { SessionClient } from "@lens-protocol/client";
 import { currentSession } from "@lens-protocol/client/actions";
 import type { AuthenticatedSession } from "@lens-protocol/graphql";
-import { useAccount } from "wagmi";
-import { fetchAccountsBulk } from "@lens-protocol/client/actions";
+import { useAccount, useChainId } from "wagmi";
+import { fetchAccountsBulk, fetchGroups } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/client";
+import { contractsConfig } from "@/lib/contractsConfig";
+import { Clan } from "@/lib/types";
 
 // Add LensAccount and related types
 interface LensUsername {
@@ -51,6 +53,8 @@ interface SessionContextType {
   clearSession: () => Promise<void>;
   profile: LensAccount | null;
   setProfile: (profile: LensAccount | null) => void;
+  userClan: { id: string; name: string; logo: string } | null;
+  setUserClan: (clan: { id: string; name: string; logo: string } | null) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -64,7 +68,9 @@ export const SessionProvider = ({
     null
   );
   const [profile, setProfile] = useState<LensAccount | null>(null);
+  const [userClan, setUserClan] = useState<{ id: string; name: string; logo: string } | null>(null);
   const { address } = useAccount();
+  const chainId = useChainId();
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -109,6 +115,62 @@ export const SessionProvider = ({
     }
   }, [address]);
 
+  // Fetch user's clan when profile or chainId changes
+  useEffect(() => {
+    const fetchClansFromSubgraph = async (chainId: keyof typeof contractsConfig) => {
+      const subgraph = contractsConfig[chainId]?.subgraphUrl;
+      const res = await fetch(subgraph, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `{
+                  clans {
+                    id
+                    balance
+                    owner
+                    status
+                  }
+                }`,
+        }),
+      });
+      const json = await res.json();
+      const clansFromSubgraph: Clan[] = json.data?.clans || [];
+      return clansFromSubgraph;
+    };
+    const fetchUserClan = async () => {
+      setUserClan(null);
+      if (!profile?.address || !chainId) return;
+      const clans = await fetchClansFromSubgraph(chainId as keyof typeof contractsConfig);
+      const result = await fetchGroups(client, {
+        filter: {
+          member: evmAddress(profile.address),
+        },
+      });
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+      // Find the first matching clan
+      const userClan = result.value.items.find((item) => {
+        if (!item || !item.address) return false;
+        return clans.find(
+          (clan) => clan.id.toLowerCase() === item.address.toLowerCase()
+        );
+      });
+      if (userClan) {
+        setUserClan({
+          id: userClan.address,
+          name: userClan.metadata?.name || "Unnamed Clan",
+          logo: userClan.metadata?.icon || "/placeholder.svg",
+        });
+      }
+    };
+    if (profile && chainId) {
+      fetchUserClan();
+    } else {
+      setUserClan(null);
+    }
+  }, [profile, chainId]);
+
   // Expose a method to get the current session details
   const getCurrentSession = async (): Promise<AuthenticatedSession | null> => {
     if (!sessionClient) return null;
@@ -127,6 +189,7 @@ export const SessionProvider = ({
     }
     setSessionClientState(null);
     setProfile(null);
+    setUserClan(null);
   };
 
   return (
@@ -138,6 +201,8 @@ export const SessionProvider = ({
         clearSession,
         profile,
         setProfile,
+        userClan,
+        setUserClan,
       }}
     >
       {children}

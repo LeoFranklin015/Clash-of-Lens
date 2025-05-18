@@ -10,6 +10,7 @@ import { useWriteContract } from "wagmi";
 import { useState } from "react";
 import { useChainId } from "wagmi";
 import { contractsConfig } from "@/lib/contractsConfig";
+import { useSession } from "./SessionContext";
 
 
 
@@ -60,6 +61,54 @@ function SetReadyButton({ clanAddress }: {
     );
 }
 
+function WageWarButton({ clanAddress, opponentAddress }: {
+    clanAddress: `0x${string}`,
+    opponentAddress: `0x${string}`
+}) {
+    const { writeContract, isPending, isError, isSuccess } = useWriteContract();
+    const chainId = useChainId();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleSetReady = async () => {
+        try {
+            setIsLoading(true);
+            await writeContract({
+                address: contractsConfig[chainId as keyof typeof contractsConfig]?.contractAddress as `0x${string}` ||
+                    contractsConfig[37111].contractAddress,
+                abi: contractsConfig[chainId as keyof typeof contractsConfig]?.contractABI ||
+                    contractsConfig[37111].contractABI,
+                functionName: "wageWar",
+                args: [clanAddress, opponentAddress],
+            });
+        } catch (error) {
+            console.error("Error setting clan ready:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <Button
+            onClick={handleSetReady}
+            disabled={isPending || isLoading}
+            className="cursor-pointer w-full bg-transparent border border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:text-black transition-all"
+        >
+            {isPending || isLoading ? (
+                <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-[#a3ff12] border-t-transparent rounded-full animate-spin" />
+                    Setting Ready...
+                </div>
+            ) : isSuccess ? (
+                "Ready Set! Please refresh the page"
+            ) : isError ? (
+                "Error Setting Ready"
+            ) : (
+                "Set Ready"
+            )}
+        </Button>
+    );
+}
+
 
 interface ClanCardProps {
     clan: ClanCardData;
@@ -68,6 +117,7 @@ interface ClanCardProps {
 export function ClanCard({ clan }: ClanCardProps) {
     const statusLabel = statusToLabel(clan.status);
     const { address } = useAccount();
+    const { userClan } = useSession();
     const isOwner = address && clan.owner && address.toLowerCase() === clan.owner.toLowerCase();
     const isNotReady = clan.status !== 0;
 
@@ -114,6 +164,9 @@ export function ClanCard({ clan }: ClanCardProps) {
                 </div>
                 {isNotReady && isOwner && (
                     <SetReadyButton clanAddress={clan.id as `0x${string}`} />
+                )}
+                {!isNotReady && !isOwner && (
+                    <WageWarButton clanAddress={userClan?.id as `0x${string}`} opponentAddress={clan.id as `0x${string}`} />
                 )}
                 <Button
                     asChild

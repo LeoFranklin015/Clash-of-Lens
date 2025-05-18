@@ -11,14 +11,8 @@ import {
   Calendar,
 } from "lucide-react";
 import { useSession } from "@/components/SessionContext";
-import { evmAddress } from "@lens-protocol/client";
-import { fetchGroups } from "@lens-protocol/client/actions";
-import { client } from "@/lib/client";
-import { useEffect, useState } from "react";
-import { contractsConfig } from "@/lib/contractsConfig";
-import { Clan, } from "@/lib/types";
+import { useState } from "react";
 import { storageClient } from "@/lib/storage-client";
-import { useChainId } from "wagmi";
 
 
 
@@ -194,75 +188,9 @@ const nfts = [
   },
 ];
 
-const fetchClansFromSubgraph = async (chainId: keyof typeof contractsConfig) => {
-  const subgraph = contractsConfig[chainId]?.subgraphUrl;
-  const res = await fetch(subgraph, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `{
-              clans {
-                id
-                balance
-                owner
-                status
-              }
-            }`,
-    }),
-  });
-  const json = await res.json();
-  const clansFromSubgraph: Clan[] = json.data?.clans || [];
-  return clansFromSubgraph;
-};
-
 export default function UserProfile() {
-  const { profile } = useSession();
-  const [user, setUser] = useState(initialUser);
-  const chainId = useChainId();
-
-  const fetchClans = async () => {
-    const clans = await fetchClansFromSubgraph(chainId as keyof typeof contractsConfig);
-    if (profile?.address) {
-      await fetchGroups(client, {
-        filter: {
-          member: evmAddress(profile.address),
-        },
-      }).then((result) => {
-        if (result.isErr()) {
-          return console.error(result.error);
-        }
-
-        console.log("Clans", clans);
-        console.log("Items", result.value.items);
-
-        // Find the first matching clan
-        const userClan = result.value.items.find((item) =>
-          clans.find(
-            (clan) => clan.id.toLowerCase() === item.address.toLowerCase()
-          )
-        );
-
-        console.log("User Clan", userClan);
-
-        if (userClan) {
-          // Update the user's clan information
-          setUser((prevUser) => ({
-            ...prevUser,
-            clan: {
-              id: userClan.address,
-              name: userClan.metadata?.name || "Unnamed Clan",
-              logo: userClan.metadata?.icon || "/placeholder.svg",
-            },
-          }));
-          console.log("Updated user clan:", userClan);
-        }
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchClans();
-  }, [profile]);
+  const { profile, userClan } = useSession();
+  const [user] = useState(initialUser);
 
   return (
     <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -366,14 +294,14 @@ export default function UserProfile() {
                 <div className="text-gray-400 text-sm">
                   You belong to clan:
                 </div>
-                <Link href={`/clans/${user.clan.id}`} className="text-lg text-[#a3ff12] hover:underline font-medium">
-                  {user.clan.name}
+                <Link href={`/clans/${userClan?.id || user.clan.id}`} className="text-lg text-[#a3ff12] hover:underline font-medium">
+                  {userClan?.name || user.clan.name}
                 </Link>
               </div>
 
               <Image
-                src={storageClient.resolve(user.clan.logo) || "/placeholder.svg"}
-                alt={user.clan.name}
+                src={storageClient.resolve(userClan?.logo || user.clan.logo) || "/placeholder.svg"}
+                alt={userClan?.name || user.clan.name}
                 width={16}
                 height={16}
                 className="ml-3 bg-white h-20 w-20 rounded-full"
