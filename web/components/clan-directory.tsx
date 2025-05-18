@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, Trophy, Search, Filter } from "lucide-react";
 import { useAccount, useChainId } from "wagmi";
-import { fetchGroup, fetchGroupMembers } from "@lens-protocol/client/actions";
+import {
+  fetchAccounts,
+  fetchAccountsBulk,
+  fetchGroup,
+  fetchGroupMembers,
+  fetchGroups,
+} from "@lens-protocol/client/actions";
 import { storageClient } from "@/lib/storage-client";
 import { client } from "@/lib/client";
 import { evmAddress, Group } from "@lens-protocol/client";
@@ -51,8 +57,55 @@ export default function ClanDirectory() {
   const [clans, setClans] = useState<ClanCardData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMemberInClan, setIsMemberInClan] = useState(false);
   const chainId = useChainId();
-  const address = useAccount();
+  const { address } = useAccount();
+
+  const checkMemberIsAlreadyInClan = async (
+    member: `0x${string}`,
+    chainId: number
+  ) => {
+    const subgraphUrl =
+      SUBGRAPH_CONFIG[chainId]?.subgraphUrl ||
+      SUBGRAPH_CONFIG[37111].subgraphUrl;
+    // 1. Fetch clans from subgraph
+    const res = await fetch(subgraphUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `{
+              clans {
+                id
+                balance
+                owner
+                status
+              }
+            }`,
+      }),
+    });
+    const json = await res.json();
+    const clansFromSubgraph: ClanSubgraph[] = json.data?.clans || [];
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const memberGroups: any = await fetchGroups(client, {
+      filter: {
+        member: evmAddress(member),
+      },
+    });
+
+    const isMember = memberGroups.value.items.some(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (memberGroup: any) => {
+        return clansFromSubgraph.some(
+          (clan: any) =>
+            clan.id.toLowerCase() === memberGroup.address.toLowerCase()
+        );
+      }
+    );
+
+    console.log(isMember);
+    return isMember;
+  };
 
   useEffect(() => {
     async function fetchClans() {
@@ -68,7 +121,7 @@ export default function ClanDirectory() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             query: `{
-              clans(first: 10) {
+              clans {
                 id
                 balance
                 owner
@@ -87,6 +140,7 @@ export default function ClanDirectory() {
                 group: evmAddress(clan.id),
               });
 
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const membersResult: any = await fetchGroupMembers(client, {
                 group: evmAddress(clan.id),
               });
@@ -177,6 +231,32 @@ export default function ClanDirectory() {
     fetchClans();
   }, [chainId, address]);
 
+  useEffect(() => {
+    const fetchProfile = async (address: `0x${string}`) => {
+      const result = await fetchAccountsBulk(client, {
+        ownedBy: [evmAddress(address!)],
+      });
+
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+
+      const profile = result.value[0];
+
+      if (profile) {
+        const res: boolean = await checkMemberIsAlreadyInClan(
+          profile.address,
+          chainId
+        );
+        setIsMemberInClan(res);
+      }
+    };
+
+    if (address && chainId) {
+      fetchProfile(address);
+    }
+  }, [address, chainId]);
+
   const filteredClans = clans.filter((clan) =>
     clan.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -209,16 +289,27 @@ export default function ClanDirectory() {
         <div className="flex items-center gap-4 w-full md:w-auto">
           <Button
             asChild
-            className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none"
+            className={`bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 transition-all relative group overflow-hidden flex-1 md:flex-none ${
+              isMemberInClan ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             style={{
               clipPath: "polygon(0 0, 100% 0, 90% 100%, 10% 100%)",
             }}
+            disabled={isMemberInClan}
           >
-            <Link href="/clans/create">
+            {!isMemberInClan ? (
+              <Link
+                href="/clans/create"
+                className={`${isMemberInClan ? "cursor-not-allowed" : ""}`}
+              >
+                <span className="relative z-10">CREATE CLAN</span>
+                <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
+              </Link>
+            ) : (
               <span className="relative z-10">CREATE CLAN</span>
-              <span className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity"></span>
-            </Link>
+            )}
           </Button>
+
           <Button
             variant="outline"
             className="border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10 flex-1 md:flex-none"
