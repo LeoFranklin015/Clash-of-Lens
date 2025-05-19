@@ -716,6 +716,22 @@ export default function WarDetail({ warId }: WarDetailProps) {
           </Tabs>
         </div>
 
+        {/* Winner Announcement */}
+        {warData?.result > 0 && (
+          <div className="mt-8 mb-4 p-6 border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg text-center">
+            <h2 className="text-2xl font-bold text-[#a3ff12] mb-2">
+              WAR ENDED
+            </h2>
+            <p className="text-xl text-white">
+              {warData.result === 1 ? war.clan1.name : war.clan2.name} has won
+              the war!
+            </p>
+            <p className="text-gray-400 mt-2">
+              Final Score: {war.score.clan1} - {war.score.clan2}
+            </p>
+          </div>
+        )}
+
         {/* Clan Posts */}
         <div className="mt-8 border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
           <h2 className="text-white font-bold text-xl mb-4">CLAN POSTS</h2>
