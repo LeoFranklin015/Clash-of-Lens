@@ -188,10 +188,6 @@ const Page = () => {
         <div className="flex flex-col items-center justify-center w-full max-w-2xl px-4">
           {filteredMarkets.length > 0 ? (
             filteredMarkets.map((market) => {
-              const warId = parseInt(
-                market.actions[0].config![0].data,
-                16
-              ).toString();
               const details = warDetails[market.id];
               const clan1Details = details?.clan1?.id
                 ? clanDetails[details.clan1.id.toLowerCase()]
