@@ -1,7 +1,8 @@
 import { PublicClient, testnet } from "@lens-protocol/client";
-import { createPublicClient, http } from "viem";
+import { createPublicClient, createWalletClient, http } from "viem";
 import { lensTestnet } from "viem/chains";
 import dotenv from "dotenv";
+import { privateKeyToAccount } from "viem/accounts";
 dotenv.config();
 
 export const client = PublicClient.create({
@@ -14,4 +15,14 @@ export const publicClient = createPublicClient({
   transport: http(
     `https://lens-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
   ),
+});
+
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`);
+
+export const walletClient = createWalletClient({
+  chain: lensTestnet,
+  transport: http(
+    `https://lens-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
+  ),
+  account,
 });

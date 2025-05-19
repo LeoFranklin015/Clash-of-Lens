@@ -58,7 +58,8 @@ export const getWarStats = async (id: string) => {
   const war = await War.findOne({ warId: id });
   console.log("war", war);
   if (!war) {
-    throw new Error("War not found");
+    console.log("War not found");
+    return;
   }
 
   const clan1Snapshots = await Snapshots.find({

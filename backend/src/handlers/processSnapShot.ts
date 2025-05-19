@@ -1,5 +1,7 @@
 import { Snapshots } from "../schema/snapshotSchema";
 import { War } from "../schema/warSchema";
+import { ClashOfLensAddress, ClashOfLensABI } from "../utils/abi";
+import { walletClient } from "../utils/client";
 import { getPostDetails } from "./getPostDetails";
 
 // Define metric weights
@@ -42,7 +44,11 @@ const calculateScoreGrowth = (initial: any, current: any) => {
 };
 
 export const processSnapShot = async () => {
-  const war = await War.find({ completed: false });
+  const war = await War.find({
+    completed: false,
+    createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+  });
+  console.log(war.length);
   for (const w of war) {
     const clan1 = w.clan1;
     const clan2 = w.clan2;
@@ -77,8 +83,25 @@ export const processSnapShot = async () => {
     }
 
     let result = 0;
-    if (clan1Score > clan2Score) result = clan1;
-    else if (clan2Score > clan1Score) result = clan2;
+    if (clan1Score > clan2Score) {
+      result = clan1;
+      await walletClient.writeContract({
+        address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
+        abi: ClashOfLensABI,
+        functionName: "declareVictory",
+        args: [w.warId, 1],
+      });
+    } else if (clan2Score > clan1Score) {
+      result = clan2;
+      await walletClient.writeContract({
+        address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
+        abi: ClashOfLensABI,
+        functionName: "declareVictory",
+        args: [w.warId, 2],
+      });
+    } else {
+      result = 0;
+    }
 
     w.result = result;
     w.completed = true;

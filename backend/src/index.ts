@@ -45,16 +45,16 @@ app.get("/", async (req: Request, res: Response) => {
   // const members = await getGroupMembers(
   //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
   // );
-  await postWarDetails(
-    "1",
-    "0x2fA3Ca1fD40F32183BB5A3f539DdC6F38907E04E",
-    "0x1AC6C424691f49B65947797577A9C0b2e1df0257"
-  );
+  // await postWarDetails(
+  //   "2",
+  //   "0x5ce25d46036029879581bab2f09b70d713211089",
+  //   "0x587bdcdb5ccf375b04c077a1af1d523122913b9d"
+  // );
 
   // await storeSnapShot(
-  //   "1",
-  //   "0x1ac6c424691f49b65947797577a9c0b2e1df0257",
-  //   "0x2fa3ca1fd40f32183bb5a3f539ddc6f38907e04e"
+  //   "2",
+  //   "0x5ce25d46036029879581bab2f09b70d713211089",
+  //   "0x587bdcdb5ccf375b04c077a1af1d523122913b9d"
   // );
 
   // await processSnapShot();
@@ -70,6 +70,12 @@ app.get("/warstats", async (req: Request, res: Response) => {
   }
   const warStats = await getWarStats(id as string);
   res.status(200).json(warStats);
+});
+
+app.get("/check-wars", async (req: Request, res: Response) => {
+  console.log("Processing wars");
+  await processSnapShot();
+  res.status(200).json({ message: "Wars processed" });
 });
 
 const contractListener = new ContractListener(
