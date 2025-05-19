@@ -179,7 +179,16 @@ const Page = () => {
   return (
     <div>
       <div className="flex flex-col items-center justify-center min-h-screen text-white  py-10">
-        <h1 className="text-4xl font-bold mb-8 pb-3 border-b w-full text-center container mx-auto max-w-5xl">Prediction Markets</h1>
+        <div className="text-center mb-12">
+          <h1 className="text-7xl font-bold mb-4 bg-gradient-to-b from-lime-400 to-zinc-900 bg-clip-text text-transparent">
+            Prediction Markets
+          </h1>
+          <p className="text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
+            Place your bets and vote for your favorite clan in the upcoming clan wars.
+            Support your champions and earn rewards for your predictions.
+          </p>
+        </div>
+
         {error && (
           <div className="mb-4 p-4 bg-red-500 text-white rounded-lg">
             Error: {error}
