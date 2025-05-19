@@ -77,7 +77,7 @@ export default function CreateClan() {
   };
 
   const handleCreateClan = async () => {
-    if (!signer || !address) {
+    if (!signer || !address || !sessionClient || !storageClient) {
       return;
     }
     setProcessing(true);
@@ -305,8 +305,9 @@ export default function CreateClan() {
               </Button>
               {currentStep === steps.length - 1 ? (
                 <Button
+                  disabled={(!clanData.name || !clanData.description || !imageFile) && storageClient}
                   onClick={handleCreateClan}
-                  className="min-w-[120px] bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                  className="min-w-[120px] cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 disabled:opacity-50"
                   variant="default"
                 >
                   Create Clan

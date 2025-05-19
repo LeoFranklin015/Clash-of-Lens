@@ -23,20 +23,18 @@ export const Stepper: React.FC<StepperProps> = ({
           <React.Fragment key={index}>
             <div className="flex flex-col items-center">
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${
-                  index <= currentStep
-                    ? "bg-purple-600 text-white"
-                    : "bg-gray-700 text-gray-400"
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-all ${index <= currentStep
+                  ? "bg-lime-400 text-black"
+                  : "bg-gray-700 text-gray-400"
+                  }`}
                 onClick={() => onStepClick && onStepClick(index)}
               >
                 {index + 1}
               </div>
               <div className="mt-2 text-sm font-medium text-center">
                 <div
-                  className={`${
-                    index <= currentStep ? "text-white" : "text-gray-400"
-                  }`}
+                  className={`${index <= currentStep ? "text-white" : "text-gray-400"
+                    }`}
                 >
                   {step.title}
                 </div>
@@ -47,9 +45,8 @@ export const Stepper: React.FC<StepperProps> = ({
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-1 mx-4 ${
-                  index < currentStep ? "bg-purple-600" : "bg-gray-700"
-                }`}
+                className={`flex-1 h-1 mx-4 ${index < currentStep ? "bg-lime-400" : "bg-gray-700"
+                  }`}
               />
             )}
           </React.Fragment>
