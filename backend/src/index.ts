@@ -47,8 +47,8 @@ app.get("/", async (req: Request, res: Response) => {
   // );
   await postWarDetails(
     "1",
-    "0x1ac6c424691f49b65947797577a9c0b2e1df0257",
-    "0x2fa3ca1fd40f32183bb5a3f539ddc6f38907e04e"
+    "0x2fA3Ca1fD40F32183BB5A3f539DdC6F38907E04E",
+    "0x1AC6C424691f49B65947797577A9C0b2e1df0257"
   );
 
   // await storeSnapShot(

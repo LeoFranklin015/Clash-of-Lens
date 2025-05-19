@@ -2,6 +2,8 @@ import { publicClient } from "./client";
 import { ClashOfLensABI } from "./abi";
 import { Log } from "viem";
 import dotenv from "dotenv";
+import { storeSnapShot } from "../handlers/storeSnapShot";
+import { postWarDetails } from "../handlers/postWarDetails";
 dotenv.config();
 
 export class ContractListener {
@@ -20,8 +22,20 @@ export class ContractListener {
         address: this.contractAddress as `0x${string}`,
         abi: ClashOfLensABI,
         eventName: this.eventName,
-        onLogs: (logs) => {
+        onLogs: async (logs: any) => {
           onLogs(logs);
+
+          await storeSnapShot(
+            logs[0].args.warId,
+            logs[0].args.clan1,
+            logs[0].args.clan2
+          );
+
+          await postWarDetails(
+            logs[0].args.warId,
+            logs[0].args.clan1,
+            logs[0].args.clan2
+          );
           console.log(logs);
         },
         onError: (error) => {

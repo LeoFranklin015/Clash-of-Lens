@@ -23,6 +23,7 @@ import {
 } from "ethers";
 import { handleOperationWith } from "@lens-protocol/client/ethers";
 import dotenv from "dotenv";
+import { ClashOfLensAddress } from "../utils/abi";
 dotenv.config();
 
 // Function to get signer from private key
@@ -61,7 +62,7 @@ export const postWarDetails = async (
   console.log(clan2Details);
 
   const metadata = textOnly({
-    content: `🏆 Place your bet for ${clan1Data.metadata.name}. \n\n War ID: ${warid} \n\n War: ${clan1Data.metadata.name} vs ${clan2Data.metadata.name}`,
+    content: `🏆 Place your bet for Favourite Clan ❤️. \n\n War ID: ${warid} \n\n War: ${clan1Data.metadata.name} vs ${clan2Data.metadata.name}`,
   });
 
   const { uri: postURI } = await storageClient.uploadAsJson(metadata);
@@ -73,17 +74,13 @@ export const postWarDetails = async (
   // 3. Encode the values as ABI
   const encodedWarId = defaultAbiCoder.encode(["uint256"], [warid]);
   const encodedOutcome1 = defaultAbiCoder.encode(["uint16"], [1]);
-  const encodedOutcome2 = defaultAbiCoder.encode(["uint16"], [2]);
-  console;
-
-  const stake = parseEther("0.001");
 
   const result = await post(sessionClient, {
     contentUri: uri(postURI),
     actions: [
       {
         unknown: {
-          address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
+          address: evmAddress(ClashOfLensAddress),
           params: [
             {
               raw: {
@@ -103,37 +100,5 @@ export const postWarDetails = async (
     ],
   }).andThen(handleOperationWith(signer));
 
-  const metadata2 = textOnly({
-    content: `🏆 Place your bet for ${clan2Data.metadata.name}. \n\n War ID: ${warid} \n\n War: ${clan2Data.metadata.name} vs ${clan1Data.metadata.name}`,
-  });
-
-  const { uri: postURI2 } = await storageClient.uploadAsJson(metadata2);
-
-  const result2 = await post(sessionClient, {
-    contentUri: uri(postURI2),
-    actions: [
-      {
-        unknown: {
-          address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
-          params: [
-            {
-              raw: {
-                key: blockchainData(keyWarId),
-                data: blockchainData(encodedWarId),
-              },
-            },
-            {
-              raw: {
-                key: blockchainData(keyOutcome),
-                data: blockchainData(encodedOutcome2),
-              },
-            },
-          ],
-        },
-      },
-    ],
-  }).andThen(handleOperationWith(signer));
-
   console.log(result);
-  console.log(result2);
 };

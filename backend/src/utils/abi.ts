@@ -1,4 +1,4 @@
-export const ClashOfLensAddress = "0x1C416C02bb304c8ae0EBefAbF0a3B74c0F3b5Cb7";
+export const ClashOfLensAddress = "0x48eef948D1197a9Ff6058dFDfa323D2c76326c8C";
 export const ClashOfLensABI = [
   {
     inputs: [
@@ -198,24 +198,6 @@ export const ClashOfLensABI = [
         name: "_warId",
         type: "uint256",
       },
-      {
-        internalType: "uint16",
-        name: "_outcome",
-        type: "uint16",
-      },
-    ],
-    name: "betOnWar",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_warId",
-        type: "uint256",
-      },
     ],
     name: "claimWin",
     outputs: [],
@@ -273,6 +255,52 @@ export const ClashOfLensABI = [
   {
     inputs: [
       {
+        internalType: "address",
+        name: "originalMsgSender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "feed",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "postId",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "key",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes",
+            name: "value",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct IPostAction.KeyValue[]",
+        name: "params",
+        type: "tuple[]",
+      },
+    ],
+    name: "configure",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "uint256",
         name: "_warId",
         type: "uint256",
@@ -299,6 +327,52 @@ export const ClashOfLensABI = [
     name: "depositBalance",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "originalMsgSender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "feed",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "postId",
+        type: "uint256",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "key",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes",
+            name: "value",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct IPostAction.KeyValue[]",
+        name: "params",
+        type: "tuple[]",
+      },
+    ],
+    name: "execute",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -338,13 +412,64 @@ export const ClashOfLensABI = [
     inputs: [
       {
         internalType: "address",
+        name: "originalMsgSender",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "feed",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "postId",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isDisabled",
+        type: "bool",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "key",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes",
+            name: "value",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct IPostAction.KeyValue[]",
+        name: "params",
+        type: "tuple[]",
+      },
+    ],
+    name: "setDisabled",
+    outputs: [
+      {
+        internalType: "bytes",
+        name: "",
+        type: "bytes",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
         name: "_clan",
         type: "address",
       },
     ],
     name: "setReady",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -375,7 +500,7 @@ export const ClashOfLensABI = [
     ],
     name: "wageWar",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
