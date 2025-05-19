@@ -7,6 +7,9 @@ import { executePostAction } from "@lens-protocol/client/actions";
 import { handleOperationWith } from "@lens-protocol/client/ethers";
 import { useEthersSigner } from "@/lib/walletClientToSigner";
 import { useSession } from "@/components/SessionContext";
+import { Signer, Provider } from "@lens-chain/sdk/ethers";
+import { lensProvider, browserProvider } from "@/lib/provider";
+import { JsonRpcSigner } from "ethers";
 
 // Using a more generic type for Post based on the provided JSON structure
 interface PostAction {
@@ -29,7 +32,8 @@ interface LensPost {
 const Page = () => {
   const [posts, setPosts] = useState<LensPost[]>([]);
   const { sessionClient } = useSession();
-  const signer = useEthersSigner();
+  // const signer = useEthersSigner();
+  const [signer, setSigner] = useState<Signer | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchPost = async () => {
@@ -50,6 +54,23 @@ const Page = () => {
       setPosts([]);
     }
   };
+
+  useEffect(() => {
+    const getSigner = async () => {
+      if (!browserProvider) {
+        return;
+      }
+      const network = await browserProvider.getNetwork();
+      const ethersSigner = await browserProvider.getSigner();
+      const signer = Signer.from(
+        ethersSigner as unknown as JsonRpcSigner & { provider: Provider },
+        Number(network.chainId),
+        lensProvider
+      );
+      setSigner(signer);
+    };
+    getSigner();
+  }, []);
 
   useEffect(() => {
     fetchPost();
