@@ -1,16 +1,16 @@
 "use client";
 
 import { WagmiProvider, createConfig, http } from "wagmi";
-import { lensTestnet } from "wagmi/chains";
+import { lens } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [lensTestnet],
+    chains: [lens],
     transports: {
-      [lensTestnet.id]: http(),
+      [lens.id]: http(),
     },
 
     // Required API Keys
@@ -29,13 +29,10 @@ const config = createConfig(
 const queryClient = new QueryClient();
 
 export const Provider = ({ children }: { children: React.ReactNode }) => {
-
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <ConnectKitProvider>
-          {children}
-        </ConnectKitProvider>
+        <ConnectKitProvider>{children}</ConnectKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

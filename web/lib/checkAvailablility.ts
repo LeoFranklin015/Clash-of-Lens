@@ -16,7 +16,7 @@ export const checkMemberIsAlreadyInClan = async (
 ) => {
   const subgraphUrl =
     contractsConfig[chainId as keyof typeof contractsConfig]?.subgraphUrl ||
-    contractsConfig[37111].subgraphUrl;
+    contractsConfig[232].subgraphUrl;
   // 1. Fetch clans from subgraph
   const res = await fetch(subgraphUrl, {
     method: "POST",

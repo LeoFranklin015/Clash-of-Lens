@@ -92,7 +92,7 @@ export default function CreateClan() {
     try {
       // Step 1: Upload image
       if (imageFile && address) {
-        const acl = lensAccountOnly(address, chains.testnet.id);
+        const acl = lensAccountOnly(address, chains.mainnet.id);
         const response = await storageClient.uploadFile(imageFile, { acl });
         setClanData((prev) => ({ ...prev, icon: response.uri }));
         setCompletedSteps([0]);
@@ -142,10 +142,10 @@ export default function CreateClan() {
           address:
             (contractsConfig[chainId as keyof typeof contractsConfig]
               ?.contractAddress as `0x${string}`) ||
-            contractsConfig[37111].contractAddress,
+            contractsConfig[232].contractAddress,
           abi:
             contractsConfig[chainId as keyof typeof contractsConfig]
-              ?.contractABI || contractsConfig[37111].contractABI,
+              ?.contractABI || contractsConfig[232].contractABI,
           functionName: "registerClan",
           args: [result.address],
         });

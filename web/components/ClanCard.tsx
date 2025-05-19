@@ -24,10 +24,10 @@ function SetReadyButton({ clanAddress }: { clanAddress: `0x${string}` }) {
         address:
           (contractsConfig[chainId as keyof typeof contractsConfig]
             ?.contractAddress as `0x${string}`) ||
-          contractsConfig[37111].contractAddress,
+          contractsConfig[232].contractAddress,
         abi:
           contractsConfig[chainId as keyof typeof contractsConfig]
-            ?.contractABI || contractsConfig[37111].contractABI,
+            ?.contractABI || contractsConfig[232].contractABI,
         functionName: "setReady",
         args: [clanAddress],
       });
@@ -79,10 +79,10 @@ function WageWarButton({
         address:
           (contractsConfig[chainId as keyof typeof contractsConfig]
             ?.contractAddress as `0x${string}`) ||
-          contractsConfig[37111].contractAddress,
+          contractsConfig[232].contractAddress,
         abi:
           contractsConfig[chainId as keyof typeof contractsConfig]
-            ?.contractABI || contractsConfig[37111].contractABI,
+            ?.contractABI || contractsConfig[232].contractABI,
         functionName: "wageWar",
         args: [clanAddress, opponentAddress],
       });

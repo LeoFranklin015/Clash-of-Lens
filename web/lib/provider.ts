@@ -6,7 +6,7 @@ import {
 import { Eip1193Provider } from "ethers";
 
 // Lens Chain (L2)
-export const lensProvider = getDefaultProvider(Network.Testnet);
+export const lensProvider = getDefaultProvider(Network.Mainnet);
 
 // User's network
 export const browserProvider =

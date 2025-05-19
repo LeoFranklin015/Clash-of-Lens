@@ -6,8 +6,8 @@ import { fetchAccountsAvailable } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/client";
 
 const appId = {
-  mainnet: "0x8A5Cc31180c37078e1EbA2A23c861Acf351a97cE",
-  testnet: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
+  mainnet: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
+  testnet: "0x93cfc80caEf74845880a5AD0AAfc585f89f6c637",
 };
 
 // If you have the type, import it:
@@ -30,7 +30,7 @@ export const LensConnect = () => {
     try {
       const result = await client.login({
         onboardingUser: {
-          app: appId.testnet,
+          app: appId.mainnet,
           wallet: signer.address,
         },
         signMessage: signMessageWith(signer),

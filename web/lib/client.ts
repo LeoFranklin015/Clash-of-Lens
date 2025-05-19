@@ -1,16 +1,16 @@
-import { PublicClient, testnet } from "@lens-protocol/react";
+import { PublicClient, mainnet } from "@lens-protocol/react";
 import { custom, createWalletClient } from "viem";
 import { http } from "viem";
 import { createPublicClient } from "viem";
-import { lensTestnet } from "viem/chains";
+import { lens } from "viem/chains";
 
 export const client = PublicClient.create({
-  environment: testnet,
+  environment: mainnet,
   storage: typeof window !== "undefined" ? window.localStorage : undefined,
 });
 
 export const publicClient = createPublicClient({
-  chain: lensTestnet,
+  chain: lens,
   transport: http(),
 });
 
@@ -18,7 +18,7 @@ export const publicClient = createPublicClient({
 export const walletClient =
   typeof window !== "undefined"
     ? createWalletClient({
-        chain: lensTestnet,
+        chain: lens,
         transport: custom(window.ethereum),
       })
     : null;

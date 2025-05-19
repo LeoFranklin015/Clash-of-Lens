@@ -238,7 +238,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
     const fetchData = async () => {
       const [statsData, warClansData] = await Promise.all([
         fetchWarStats(warId),
-        fetchWarClans(37111, warId),
+        fetchWarClans(232, warId),
       ]);
       setWarStats(statsData);
       setWarData(warClansData);

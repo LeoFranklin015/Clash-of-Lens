@@ -67,7 +67,7 @@ const Page = () => {
             market.actions[0].config[0].data,
             16
           ).toString();
-          const details = await fetchWarClans(37111, warId);
+          const details = await fetchWarClans(232, warId);
           warDetailsMap[market.id] = details;
 
           // Fetch clan details for both clans
@@ -184,8 +184,8 @@ const Page = () => {
             Prediction Markets
           </h1>
           <p className="text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
-            Place your bets and vote for your favorite clan in the upcoming clan wars.
-            Support your champions and earn rewards for your predictions.
+            Place your bets and vote for your favorite clan in the upcoming clan
+            wars. Support your champions and earn rewards for your predictions.
           </p>
         </div>
 
@@ -228,8 +228,8 @@ const Page = () => {
                           src={
                             clan1Details?.metadata?.icon
                               ? storageClient.resolve(
-                                clan1Details.metadata.icon
-                              )
+                                  clan1Details.metadata.icon
+                                )
                               : "/placeholder.svg"
                           }
                           alt={clan1Details?.metadata?.name || "Clan 1"}
@@ -275,8 +275,8 @@ const Page = () => {
                           src={
                             clan2Details?.metadata?.icon
                               ? storageClient.resolve(
-                                clan2Details.metadata.icon
-                              )
+                                  clan2Details.metadata.icon
+                                )
                               : "/placeholder.svg"
                           }
                           alt={clan2Details?.metadata?.name || "Clan 2"}
@@ -303,7 +303,6 @@ const Page = () => {
                       </button>
                     </div>
                   </div>
-
                 </div>
               );
             })
@@ -314,7 +313,7 @@ const Page = () => {
           )}
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
