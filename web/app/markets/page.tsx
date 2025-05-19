@@ -178,14 +178,14 @@ const Page = () => {
 
   return (
     <div>
-      <div className="flex flex-col items-center justify-center min-h-screen text-white bg-gray-900 py-10">
-        <h1 className="text-4xl font-bold mb-8">Prediction Markets</h1>
+      <div className="flex flex-col items-center justify-center min-h-screen text-white  py-10">
+        <h1 className="text-4xl font-bold mb-8 pb-3 border-b w-full text-center container mx-auto max-w-5xl">Prediction Markets</h1>
         {error && (
           <div className="mb-4 p-4 bg-red-500 text-white rounded-lg">
             Error: {error}
           </div>
         )}
-        <div className="flex flex-col items-center justify-center w-full max-w-2xl px-4">
+        <div className="grid mx-auto container max-w-5xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 w-full px-4">
           {filteredMarkets.length > 0 ? (
             filteredMarkets.map((market) => {
               const details = warDetails[market.id];
@@ -195,7 +195,6 @@ const Page = () => {
               const clan2Details = details?.clan2?.id
                 ? clanDetails[details.clan2.id.toLowerCase()]
                 : null;
-              const timeRemaining = "0h REMAINING";
               const startDate = details?.timestamp
                 ? new Date(Number(details.timestamp) * 1000)
                 : null;
@@ -209,21 +208,8 @@ const Page = () => {
               return (
                 <div
                   key={market.id}
-                  className="relative bg-black rounded-2xl border border-[#232323] shadow-lg mb-8 w-full p-8 flex flex-col"
+                  className="relative bg-black rounded-2xl border border-[#232323] shadow-lg mb-2 w-full p-5 flex flex-col"
                 >
-                  {/* Time Remaining Pill */}
-                  <div className="absolute right-6 top-6">
-                    <span className="flex items-center gap-2 bg-lime-400 text-black font-semibold px-4 py-1 rounded-full text-sm">
-                      <span role="img" aria-label="clock">
-                        ⏰
-                      </span>{" "}
-                      {timeRemaining}
-                    </span>
-                  </div>
-                  {/* Title */}
-                  <div className="text-2xl font-bold mb-8 tracking-wide">
-                    CLAN WAR
-                  </div>
                   {/* Main Content */}
                   <div className="flex flex-row items-center justify-between w-full">
                     {/* Clan 1 */}
@@ -233,15 +219,15 @@ const Page = () => {
                           src={
                             clan1Details?.metadata?.icon
                               ? storageClient.resolve(
-                                  clan1Details.metadata.icon
-                                )
+                                clan1Details.metadata.icon
+                              )
                               : "/placeholder.svg"
                           }
                           alt={clan1Details?.metadata?.name || "Clan 1"}
                           className="w-20 h-20 object-cover rounded-full"
                         />
                       </div>
-                      <div className="text-lg font-medium mt-2 mb-3">
+                      <div className="text-sm font-medium mt-2 mb-3">
                         {clan1Details?.metadata?.name || "Clan 1"}
                       </div>
                       <button
@@ -255,7 +241,7 @@ const Page = () => {
                             "0x0000000000000000000000000000000000000000000000000000000000000001"
                           )
                         }
-                        className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition-colors"
+                        className="w-full text-xs px-2 font-bold py-2 border-2 cursor-pointer border-[#FF4D00] hover:bg-[#FF4D00] text-white  transition-colors"
                       >
                         Vote for {clan1Details?.metadata?.name || "Clan 1"}
                       </button>
@@ -280,15 +266,15 @@ const Page = () => {
                           src={
                             clan2Details?.metadata?.icon
                               ? storageClient.resolve(
-                                  clan2Details.metadata.icon
-                                )
+                                clan2Details.metadata.icon
+                              )
                               : "/placeholder.svg"
                           }
                           alt={clan2Details?.metadata?.name || "Clan 2"}
                           className="w-20 h-20 object-cover rounded-full"
                         />
                       </div>
-                      <div className="text-lg font-medium mt-2 mb-3">
+                      <div className="text-sm font-medium mt-2 mb-3">
                         {clan2Details?.metadata?.name || "Clan 2"}
                       </div>
                       <button
@@ -302,18 +288,13 @@ const Page = () => {
                             "0x0000000000000000000000000000000000000000000000000000000000000002"
                           )
                         }
-                        className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white font-semibold transition-colors"
+                        className="w-full text-xs px-2 font-bold py-2 border-2 cursor-pointer border-[#FF4D00] hover:bg-[#FF4D00] text-white  transition-colors"
                       >
                         Vote for {clan2Details?.metadata?.name || "Clan 2"}
                       </button>
                     </div>
                   </div>
-                  {/* Arrow */}
-                  <div className="absolute bottom-4 right-6 text-2xl text-gray-400 cursor-pointer hover:text-white transition-colors">
-                    <span role="img" aria-label="arrow">
-                      →
-                    </span>
-                  </div>
+
                 </div>
               );
             })
@@ -324,7 +305,7 @@ const Page = () => {
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 
