@@ -8,7 +8,11 @@ import {
   postId,
   uri,
 } from "@lens-protocol/client";
-import { executePostAction, post } from "@lens-protocol/client/actions";
+import {
+  executePostAction,
+  fetchGroup,
+  post,
+} from "@lens-protocol/client/actions";
 import {
   keccak256,
   toUtf8Bytes,
@@ -38,8 +42,26 @@ export const postWarDetails = async (
   const signer = getSignerFromPrivateKey(process.env.PRIVATE_KEY!);
   const defaultAbiCoder = new AbiCoder();
 
+  const clan1Details: any = await fetchGroup(sessionClient, {
+    group: evmAddress(clan1),
+  });
+
+  const clan2Details: any = await fetchGroup(sessionClient, {
+    group: evmAddress(clan2),
+  });
+
+  const clan1Data = clan1Details.value;
+  const clan2Data = clan2Details.value;
+
+  if (!clan1Data || !clan2Data) {
+    throw new Error("Clan details not found");
+  }
+
+  console.log(clan1Details);
+  console.log(clan2Details);
+
   const metadata = textOnly({
-    content: `GM! GM!`,
+    content: `🏆 Place your bet for ${clan1Data.metadata.name}. \n\n War ID: ${warid} \n\n War: ${clan1Data.metadata.name} vs ${clan2Data.metadata.name}`,
   });
 
   const { uri: postURI } = await storageClient.uploadAsJson(metadata);
@@ -49,65 +71,69 @@ export const postWarDetails = async (
   const keyOutcome = keccak256(toUtf8Bytes("lens.param.outcome"));
 
   // 3. Encode the values as ABI
-  const encodedWarId = defaultAbiCoder.encode(["uint256"], [1]);
+  const encodedWarId = defaultAbiCoder.encode(["uint256"], [warid]);
   const encodedOutcome1 = defaultAbiCoder.encode(["uint16"], [1]);
   const encodedOutcome2 = defaultAbiCoder.encode(["uint16"], [2]);
+  console;
 
   const stake = parseEther("0.001");
 
-  // const result = await post(sessionClient, {
-  //   contentUri: uri(postURI),
-  //   actions: [
-  //     {
-  //       unknown: {
-  //         address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
-  //         params: [
-  //           {
-  //             raw: {
-  //               key: blockchainData(keyWarId),
-  //               data: blockchainData(encodedWarId),
-  //             },
-  //           },
-  //           {
-  //             raw: {
-  //               key: blockchainData(keyOutcome),
-  //               data: blockchainData(encodedOutcome1),
-  //             },
-  //           },
-  //         ],
-  //       },
-  //     },
-  //   ],
-  // }).andThen(handleOperationWith(signer));
-
-  const result = await executePostAction(sessionClient, {
-    post: postId(
-      "3074444738793955210812987261500622091936914464418994570129214333300368901845"
-    ),
-    action: {
-      unknown: {
-        address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
-        params: [
-          {
-            key: blockchainData(
-              "0xc4b43ac09e131e6a42c80d3aef32e77c3bc28d5423789bcfbfcf8be0feac708d"
-            ),
-            data: blockchainData(
-              "0x0000000000000000000000000000000000000000000000000000000000000001"
-            ),
-          },
-          {
-            key: blockchainData(
-              "0x5db60783da8fbb85fb7e3f94133fddb5a81cde2c804f358f6db1854a56ea10e0"
-            ),
-            data: blockchainData(
-              "0x0000000000000000000000000000000000000000000000000000000000000001"
-            ),
-          },
-        ],
+  const result = await post(sessionClient, {
+    contentUri: uri(postURI),
+    actions: [
+      {
+        unknown: {
+          address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
+          params: [
+            {
+              raw: {
+                key: blockchainData(keyWarId),
+                data: blockchainData(encodedWarId),
+              },
+            },
+            {
+              raw: {
+                key: blockchainData(keyOutcome),
+                data: blockchainData(encodedOutcome1),
+              },
+            },
+          ],
+        },
       },
-    },
+    ],
+  }).andThen(handleOperationWith(signer));
+
+  const metadata2 = textOnly({
+    content: `🏆 Place your bet for ${clan2Data.metadata.name}. \n\n War ID: ${warid} \n\n War: ${clan2Data.metadata.name} vs ${clan1Data.metadata.name}`,
+  });
+
+  const { uri: postURI2 } = await storageClient.uploadAsJson(metadata2);
+
+  const result2 = await post(sessionClient, {
+    contentUri: uri(postURI2),
+    actions: [
+      {
+        unknown: {
+          address: evmAddress("0xF13D917D037e7d65cacfd2F739B579AC70203e0A"),
+          params: [
+            {
+              raw: {
+                key: blockchainData(keyWarId),
+                data: blockchainData(encodedWarId),
+              },
+            },
+            {
+              raw: {
+                key: blockchainData(keyOutcome),
+                data: blockchainData(encodedOutcome2),
+              },
+            },
+          ],
+        },
+      },
+    ],
   }).andThen(handleOperationWith(signer));
 
   console.log(result);
+  console.log(result2);
 };
