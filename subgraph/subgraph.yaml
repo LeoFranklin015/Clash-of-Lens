@@ -8,9 +8,9 @@ dataSources:
     name: ClashOfLens
     network: lens-testnet
     source:
-      address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248"
+      address: "0xe2d065594ed1941f84560EB485C7578aD224DDCF"
       abi: ClashOfLens
-      startBlock: 3619893
+      startBlock: 3650513
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
