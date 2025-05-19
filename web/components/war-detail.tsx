@@ -179,10 +179,6 @@ export default function WarDetail({ warId }: WarDetailProps) {
       const result = await fetchPosts(client, {
         filter: {
           feeds: [
-            // {
-            //   globalFeed: true,
-            // },
-            // filter by a specific feed address
             {
               feed: evmAddress(clan1Address),
             },
@@ -190,15 +186,28 @@ export default function WarDetail({ warId }: WarDetailProps) {
         },
       });
 
+      const result2 = await fetchPosts(client, {
+        filter: {
+          feeds: [
+            {
+              feed: evmAddress(clan2Address),
+            },
+          ],
+        },
+      });
       console.log("Result", result);
       if (result.isErr()) {
         return console.error(result.error);
       }
+      if (result2.isErr()) {
+        return console.error(result2.error);
+      }
 
       // items: Array<AnyPost>
       const { items } = result.value;
+      const { items: items2 } = result2.value;
       console.log("Posts", items);
-      setPosts(items as unknown as Post[]);
+      setPosts([...items, ...items2] as unknown as Post[]);
     };
 
     if (clanAddress.length > 1) {
