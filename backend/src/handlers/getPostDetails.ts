@@ -41,14 +41,16 @@ export const getPostDetails = async (address: string) => {
 
   for (const post of items) {
     const stats = (post as any).stats;
-    aggregatedStats.bookmarks += stats.bookmarks;
-    aggregatedStats.collects += stats.collects;
-    aggregatedStats.comments += stats.comments;
-    aggregatedStats.quotes += stats.quotes;
-    aggregatedStats.upvotes += stats.upvotes;
-    aggregatedStats.downvotes += stats.downvotes;
-    aggregatedStats.reposts += stats.reposts;
-    aggregatedStats.tips += stats.tips;
+    if (stats) {
+      aggregatedStats.bookmarks += stats.bookmarks || 0;
+      aggregatedStats.collects += stats.collects || 0;
+      aggregatedStats.comments += stats.comments || 0;
+      aggregatedStats.quotes += stats.quotes || 0;
+      aggregatedStats.upvotes += stats.upvotes || 0;
+      aggregatedStats.downvotes += stats.downvotes || 0;
+      aggregatedStats.reposts += stats.reposts || 0;
+      aggregatedStats.tips += stats.tips || 0;
+    }
   }
   console.log(aggregatedStats);
   return aggregatedStats;

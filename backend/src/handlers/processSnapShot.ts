@@ -14,41 +14,38 @@ const METRIC_WEIGHTS = {
   downvotes: -2,
   reposts: 2,
   tips: 4,
+} as const;
+
+type ScoreMetrics = {
+  bookmarks: number;
+  collects: number;
+  comments: number;
+  quotes: number;
+  upvotes: number;
+  downvotes: number;
+  reposts: number;
+  tips: number;
 };
 
-// Helper: calculate % growth-based weighted score
-const calculateScoreGrowth = (initial: any, current: any) => {
-  let total = 0;
+type MetricKey = keyof typeof METRIC_WEIGHTS;
 
-  for (const key in METRIC_WEIGHTS) {
-    const prev = initial[key] || 0;
-    const curr = current[key] || 0;
+// Helper: calculate growth for a single metric
+const calculateMetricGrowth = (prev: number, curr: number, weight: number) => {
+  let growth = 0;
+  if (prev === 0 && curr === 0) growth = 0;
+  else if (prev === 0) growth = curr * 100;
+  else growth = ((curr - prev) / prev) * 100;
 
-    let growth = 0;
-    if (prev === 0 && curr === 0) growth = 0;
-    else if (prev === 0) growth = curr * 100;
-    else growth = ((curr - prev) / prev) * 100;
-
-    const weighted =
-      growth * METRIC_WEIGHTS[key as keyof typeof METRIC_WEIGHTS];
-    total += weighted;
-  }
-
-  const activityVolume: any = Object.values(current).reduce(
-    (a: any, b: any) => a + b,
-    0
-  );
-  const userWeight = activityVolume < 5 ? 1.3 : 1;
-
-  return total * userWeight;
+  return growth * weight;
 };
 
 export const processSnapShot = async () => {
   const war = await War.find({
     completed: false,
-    createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    // createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
   });
   console.log(war.length);
+
   for (const w of war) {
     const clan1 = w.clan1;
     const clan2 = w.clan2;
@@ -70,16 +67,66 @@ export const processSnapShot = async () => {
     for (const snapshot of clan1Snapshots) {
       const prevSnapshot = snapshot.snapshot;
       const currentSnapshot = await getPostDetails(snapshot.address);
-      const score = calculateScoreGrowth(prevSnapshot, currentSnapshot);
-      clan1Score += score;
+      if (currentSnapshot) {
+        let snapshotScore = 0;
+        // Calculate growth for each metric independently
+        for (const key in METRIC_WEIGHTS) {
+          const metricKey = key as MetricKey;
+          const prev = prevSnapshot[metricKey] || 0;
+          const curr = currentSnapshot[metricKey] || 0;
+
+          if (prev !== curr) {
+            const growth = calculateMetricGrowth(
+              prev,
+              curr,
+              METRIC_WEIGHTS[metricKey]
+            );
+
+            // Apply user activity weighting
+            const activityVolume = Object.values(currentSnapshot).reduce(
+              (a, b) => a + (typeof b === "number" ? b : 0),
+              0
+            );
+            const userWeight = activityVolume < 5 ? 1.3 : 1;
+
+            snapshotScore += growth * userWeight;
+          }
+        }
+        clan1Score += snapshotScore;
+      }
     }
 
     // Process clan2 snapshots
     for (const snapshot of clan2Snapshots) {
       const prevSnapshot = snapshot.snapshot;
       const currentSnapshot = await getPostDetails(snapshot.address);
-      const score = calculateScoreGrowth(prevSnapshot, currentSnapshot);
-      clan2Score += score;
+      if (currentSnapshot) {
+        let snapshotScore = 0;
+        // Calculate growth for each metric independently
+        for (const key in METRIC_WEIGHTS) {
+          const metricKey = key as MetricKey;
+          const prev = prevSnapshot[metricKey] || 0;
+          const curr = currentSnapshot[metricKey] || 0;
+
+          if (prev !== curr) {
+            const growth = calculateMetricGrowth(
+              prev,
+              curr,
+              METRIC_WEIGHTS[metricKey]
+            );
+
+            // Apply user activity weighting
+            const activityVolume = Object.values(currentSnapshot).reduce(
+              (a, b) => a + (typeof b === "number" ? b : 0),
+              0
+            );
+            const userWeight = activityVolume < 5 ? 1.3 : 1;
+
+            snapshotScore += growth * userWeight;
+          }
+        }
+        clan2Score += snapshotScore;
+      }
     }
 
     let result = 0;
