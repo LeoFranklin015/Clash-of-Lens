@@ -16,8 +16,8 @@ import { storageClient } from "@/lib/storage-client";
 import { useSession } from "./SessionContext";
 import { textOnly } from "@lens-protocol/metadata";
 import { evmAddress, } from "@lens-protocol/client";
-import { post, fetchPosts } from "@lens-protocol/client/actions";
-
+import { post, fetchPosts, } from "@lens-protocol/client/actions";
+import { Post } from "@/lib/types";
 
 // Mock data for contribution feed
 const contributionFeed = [
@@ -155,7 +155,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
   const [warData, setWarData] = useState<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
-  const [posts, setPosts] = useState<any>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
@@ -170,13 +170,13 @@ export default function WarDetail({ warId }: WarDetailProps) {
       const result = await fetchPosts(client, {
         filter: {
           feeds: [
-            {
-              globalFeed: true,
-            },
-            // // filter by a specific feed address
             // {
-            //   feed: evmAddress(userClan?.feedAddress || ""),
+            //   globalFeed: true,
             // },
+            // filter by a specific feed address
+            {
+              feed: evmAddress(userClan?.feedAddress || ""),
+            },
           ],
         },
       });
@@ -188,7 +188,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
       // items: Array<AnyPost>
       const { items } = result.value;
       console.log("Posts", items);
-      setPosts(items);
+      setPosts(items as unknown as Post[]);
     };
 
     if (userClan?.feedAddress) {
@@ -480,7 +480,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
       <div className="lg:col-span-2">
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
           <h2 className="text-white font-bold text-xl mb-4">
-            ACTION PANEL {JSON.stringify(posts)}
+            ACTION PANEL
           </h2>
 
           <Tabs defaultValue="post" className="w-full">
@@ -587,14 +587,14 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     Select Post to Tip
                   </h3>
                   <div className="space-y-2">
-                    {posts.map((post: any, index: number) => (
+                    {/* {posts.map((post: any, index: number) => (
                       <div
                         key={index}
                         className="flex items-center justify-between border border-gray-800 rounded-lg p-3 hover:border-[#a3ff12] cursor-pointer"
                       >
                         <div className="flex items-center">
                           <Image
-                            src={post.user.avatar || "/placeholder.svg"}
+                            src={"/placeholder.svg"}
                             alt={post.user.name}
                             width={36}
                             height={36}
@@ -617,7 +617,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
                           Select
                         </Button>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 </div>
 
@@ -736,8 +736,8 @@ export default function WarDetail({ warId }: WarDetailProps) {
         <div className="mt-8 border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
           <h2 className="text-white font-bold text-xl mb-4">CLAN POSTS</h2>
 
-          <div className="space-y-6">
-            {posts.map((post: any) => (
+          <pre className="space-y-6 text-white">
+            {posts.map((post) => (
               <div
                 key={post.id}
                 className="border border-gray-800 rounded-lg overflow-hidden"
@@ -745,26 +745,26 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 <div className="p-4">
                   <div className="flex items-center">
                     <Image
-                      src={post.user.avatar || "/placeholder.svg"}
-                      alt={post.user.name}
+                      src={post.author.metadata.picture || "/placeholder.svg"}
+                      alt={post.author.username.value}
                       width={40}
                       height={40}
                       className="rounded-full border-2 border-[#a3ff12]"
                     />
                     <div className="ml-3">
                       <div className="text-white font-bold">
-                        {post.user.name}
+                        {post.author.username.value}
                       </div>
-                      <div className="text-gray-400 text-xs">{post.time}</div>
+                      <div className="text-gray-400 text-xs">{post.timestamp}</div>
                     </div>
                   </div>
 
-                  <p className="text-gray-300 mt-3">{post.content}</p>
+                  <p className="text-gray-300 mt-3">{post.metadata.content}</p>
 
-                  {post.image && (
+                  {post.metadata.mainContentFocus !== "TEXT_ONLY" && (
                     <div className="mt-3 rounded-lg overflow-hidden">
                       <Image
-                        src={post.image || "/placeholder.svg"}
+                        src={"/placeholder.svg"}
                         alt="Post image"
                         width={500}
                         height={300}
@@ -777,11 +777,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     <div className="flex items-center space-x-4">
                       <button className="flex items-center text-gray-400 hover:text-[#a3ff12] transition-colors">
                         <Heart className="h-5 w-5 mr-1" />
-                        <span>{post.likes}</span>
+                        <span>{post.stats.upvotes}</span>
                       </button>
                       <button className="flex items-center text-gray-400 hover:text-[#a3ff12] transition-colors">
                         <MessageSquare className="h-5 w-5 mr-1" />
-                        <span>{post.comments}</span>
+                        <span>{post.stats.comments}</span>
                       </button>
                       <button className="flex items-center text-gray-400 hover:text-[#a3ff12] transition-colors">
                         <Share2 className="h-5 w-5 mr-1" />
@@ -792,14 +792,14 @@ export default function WarDetail({ warId }: WarDetailProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10"
+                        className="bg-black cursor-pointer hover:text-white border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10"
                       >
                         <Coins className="h-4 w-4 mr-1" />
                         TIP
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                        className="bg-[#a3ff12] cursor-pointer text-black font-bold hover:bg-opacity-90"
                       >
                         COLLECT NFT
                       </Button>
@@ -808,7 +808,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 </div>
               </div>
             ))}
-          </div>
+          </pre>
         </div>
       </div>
     </div>
