@@ -1,13 +1,7 @@
 import { authenticate } from "../utils/authentication";
 import { textOnly } from "@lens-protocol/metadata";
 import { storageClient } from "../utils/storageClient";
-import {
-  blockchainData,
-  dateTime,
-  evmAddress,
-  postId,
-  uri,
-} from "@lens-protocol/client";
+import { blockchainData, evmAddress, uri } from "@lens-protocol/client";
 import {
   executePostAction,
   fetchGroup,

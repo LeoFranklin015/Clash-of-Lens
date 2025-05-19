@@ -126,6 +126,9 @@ export default function WarsPage() {
         <TabsContent value="active" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {wars.map((war) => {
+              if (war.result !== 0) {
+                return null;
+              }
               const clan1Details = clanDetails[war.clan1.id.toLowerCase()];
               const clan2Details = clanDetails[war.clan2.id.toLowerCase()];
               const startDate = new Date(

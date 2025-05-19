@@ -9,7 +9,7 @@ export const contractsConfig = {
       "https://api.studio.thegraph.com/query/111645/clashoflens/version/latest",
   },
   [lensTestnet.id]: {
-    contractAddress: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
+    contractAddress: "0xe2d065594ed1941f84560EB485C7578aD224DDCF",
     contractABI: ClashOfLensABI,
     subgraphUrl:
       "https://api.studio.thegraph.com/query/111645/clashoflens/version/latest",

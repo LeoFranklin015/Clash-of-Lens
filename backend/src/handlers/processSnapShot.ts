@@ -86,7 +86,7 @@ export const processSnapShot = async () => {
     if (clan1Score > clan2Score) {
       result = clan1;
       await walletClient.writeContract({
-        address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
+        address: ClashOfLensAddress,
         abi: ClashOfLensABI,
         functionName: "declareVictory",
         args: [w.warId, 1],
@@ -94,7 +94,7 @@ export const processSnapShot = async () => {
     } else if (clan2Score > clan1Score) {
       result = clan2;
       await walletClient.writeContract({
-        address: "0xEA7B2f3E032Ea807082494200aCEE251058c1248",
+        address: ClashOfLensAddress,
         abi: ClashOfLensABI,
         functionName: "declareVictory",
         args: [w.warId, 2],

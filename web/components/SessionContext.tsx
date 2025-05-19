@@ -9,6 +9,8 @@ import { fetchAccountsBulk, fetchGroups } from "@lens-protocol/client/actions";
 import { evmAddress } from "@lens-protocol/client";
 import { contractsConfig } from "@/lib/contractsConfig";
 import { Clan } from "@/lib/types";
+import { useEthersSigner } from "@/lib/walletClientToSigner";
+import { lensAuth } from "@/lib/authenticate";
 
 // Add LensAccount and related types
 interface LensUsername {
@@ -53,8 +55,15 @@ interface SessionContextType {
   clearSession: () => Promise<void>;
   profile: LensAccount | null;
   setProfile: (profile: LensAccount | null) => void;
-  userClan: { id: string; name: string; logo: string; feedAddress: string } | null;
-  setUserClan: (clan: { id: string; name: string; logo: string; feedAddress: string } | null) => void;
+  userClan: {
+    id: string;
+    name: string;
+    logo: string;
+    feedAddress: string;
+  } | null;
+  setUserClan: (
+    clan: { id: string; name: string; logo: string; feedAddress: string } | null
+  ) => void;
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
@@ -68,13 +77,19 @@ export const SessionProvider = ({
     null
   );
   const [profile, setProfile] = useState<LensAccount | null>(null);
-  const [userClan, setUserClan] = useState<{ id: string; name: string; logo: string; feedAddress: string } | null>(null);
+  const [userClan, setUserClan] = useState<{
+    id: string;
+    name: string;
+    logo: string;
+    feedAddress: string;
+  } | null>(null);
   const { address } = useAccount();
   const chainId = useChainId();
+  const signer = useEthersSigner();
 
   // Load session from localStorage on mount
   useEffect(() => {
-    if (sessionClient) return;
+    if (!sessionClient) return;
     try {
       const resume = async () => {
         const resumed = await client.resumeSession();
@@ -117,7 +132,9 @@ export const SessionProvider = ({
 
   // Fetch user's clan when profile or chainId changes
   useEffect(() => {
-    const fetchClansFromSubgraph = async (chainId: keyof typeof contractsConfig) => {
+    const fetchClansFromSubgraph = async (
+      chainId: keyof typeof contractsConfig
+    ) => {
       const subgraph = contractsConfig[chainId]?.subgraphUrl;
       const res = await fetch(subgraph, {
         method: "POST",
@@ -140,7 +157,9 @@ export const SessionProvider = ({
     const fetchUserClan = async () => {
       setUserClan(null);
       if (!profile?.address || !chainId) return;
-      const clans = await fetchClansFromSubgraph(chainId as keyof typeof contractsConfig);
+      const clans = await fetchClansFromSubgraph(
+        chainId as keyof typeof contractsConfig
+      );
       const result = await fetchGroups(client, {
         filter: {
           member: evmAddress(profile.address),
@@ -171,6 +190,12 @@ export const SessionProvider = ({
       setUserClan(null);
     }
   }, [profile, chainId]);
+
+  useEffect(() => {
+    if (profile?.address && signer && sessionClient === null) {
+      lensAuth(profile.address, signer);
+    }
+  }, [profile, signer, sessionClient]);
 
   // Expose a method to get the current session details
   const getCurrentSession = async (): Promise<AuthenticatedSession | null> => {
