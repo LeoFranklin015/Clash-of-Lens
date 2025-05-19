@@ -23,7 +23,7 @@ dotenv.config();
 // Function to get signer from private key
 export const getSignerFromPrivateKey = (privateKey: string) => {
   const provider = new ethers.JsonRpcProvider(
-    `https://lens-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
+    `https://lens-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
   );
   return new ethers.Wallet(privateKey, provider);
 };

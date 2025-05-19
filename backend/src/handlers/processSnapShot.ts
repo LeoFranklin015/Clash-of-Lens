@@ -42,7 +42,7 @@ const calculateMetricGrowth = (prev: number, curr: number, weight: number) => {
 export const processSnapShot = async () => {
   const war = await War.find({
     completed: false,
-    // createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    createdAt: { $lt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
   });
   console.log(war.length);
 

@@ -7,7 +7,7 @@ import { evmAddress } from "@lens-protocol/client";
 
 const appId = {
   mainnet: "0x8A5Cc31180c37078e1EbA2A23c861Acf351a97cE",
-  testnet: "0xC75A89145d765c396fd75CbD16380Eb184Bd2ca7",
+  testnet: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
 };
 
 // If you have the type, import it:
@@ -77,7 +77,7 @@ export const LensConnect = () => {
 
   return (
     <div>
-      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+      {error && <div style={{ color: "red" }}>Error: {error}</div>}
       {loading && <div>Loading...</div>}
       {authenticated && accounts && (
         <div>

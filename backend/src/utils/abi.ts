@@ -1,4 +1,4 @@
-export const ClashOfLensAddress = "0xCfB71095c4D727cDE4c7BC8D208B3F6CccB2f169";
+export const ClashOfLensAddress = "0xD47a9F4023b51f03D317614379A494284B67055A";
 export const ClashOfLensABI = [
   {
     inputs: [

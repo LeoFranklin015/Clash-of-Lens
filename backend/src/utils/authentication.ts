@@ -7,7 +7,7 @@ dotenv.config();
 // Function to get signer from private key
 export const getSignerFromPrivateKey = (privateKey: string) => {
   const provider = new ethers.JsonRpcProvider(
-    `https://lens-sepolia.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
+    `https://lens-mainnet.g.alchemy.com/v2/${process.env.ALCHEMY_KEY}`
   );
   return new ethers.Wallet(privateKey, provider);
 };
@@ -21,7 +21,7 @@ export const authenticate = async () => {
   const authenticated = await client.login({
     accountOwner: {
       account: `0x446e9e88Dc725f236527535a44Ae1fdEfbC47B55`,
-      app: "0x93cfc80caEf74845880a5AD0AAfc585f89f6c637",
+      app: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
       owner: signer.address,
     },
     signMessage: signMessageWith(signer),

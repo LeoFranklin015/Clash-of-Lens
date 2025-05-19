@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: ClashOfLens
-    network: lens-testnet
+    network: lens
     source:
-      address: "0xCfB71095c4D727cDE4c7BC8D208B3F6CccB2f169"
+      address: "0xD47a9F4023b51f03D317614379A494284B67055A"
       abi: ClashOfLens
-      startBlock: 3651299
+      startBlock: 1858783
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9

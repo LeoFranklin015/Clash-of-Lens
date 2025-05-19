@@ -5,7 +5,7 @@ import { signMessageWith } from "@lens-protocol/client/ethers";
 export const lensAuth = async (address: string, signer: any) => {
   const authenticated = await client.login({
     accountOwner: {
-      app: "0xC75A89145d765c396fd75CbD16380Eb184Bd2ca7",
+      app: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
       owner: signer.address,
       account: address,
     },
