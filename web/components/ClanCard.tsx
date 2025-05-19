@@ -67,6 +67,7 @@ function WageWarButton({
   clanAddress: `0x${string}`;
   opponentAddress: `0x${string}`;
 }) {
+  console.log(clanAddress, opponentAddress);
   const { writeContract, isPending, isError, isSuccess } = useWriteContract();
   const chainId = useChainId();
   const [isLoading, setIsLoading] = useState(false);
