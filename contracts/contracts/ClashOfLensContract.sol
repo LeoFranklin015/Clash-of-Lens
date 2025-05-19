@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IPostAction.sol";
 
-contract ClashOfLensContract is Ownable {
+contract ClashOfLensContract is Ownable, IPostAction {
     // —— EVENTS
     event ClanRegistered(address indexed clanAddress, address indexed owner);
     event ClanReady(address indexed clanAddress, uint256 stake);
@@ -144,24 +145,46 @@ contract ClashOfLensContract is Ownable {
         emit WarResult(_warId, _result);
     }
 
-    /// @notice Spectators bet on the outcome
-    function betOnWar(uint256 _warId, uint16 _outcome) external payable {
-        require(_warId > 0 && _warId <= warCount, "Invalid warId");
-        require(wars[_warId - 1].result == 0, "War already resolved");
-        require(_outcome == 1 || _outcome == 2, "Outcome must be 1 or 2");
-        require(msg.value > 0, "Stake required");
+function execute(
+        address originalMsgSender,
+        address feed,
+        uint256 postId,
+        KeyValue[] calldata params
+    ) external override returns (bytes memory) {
+
+        uint256 warId;
+        uint16 outcome;
+        bool foundWarId = false;
+        bool foundOutcome = false;
+
+        for (uint256 i = 0; i < params.length; i++) {
+            if (params[i].key == keccak256("lens.param.warId")) {
+                warId = abi.decode(params[i].value, (uint256));
+                foundWarId = true;
+            } else if (params[i].key == keccak256("lens.param.outcome")) {
+                outcome = abi.decode(params[i].value, (uint16));
+                foundOutcome = true;
+            }
+        }
+
+        require(foundWarId && foundOutcome, "Missing warId or outcome");
+
+
+        require(warId > 0 && warId <= warCount, "Invalid warId");
+        require(wars[warId - 1].result == 0, "War already resolved");
+        require(outcome == 1 || outcome == 2, "Outcome must be 1 or 2");
 
         betCount += 1;
         warBets.push(
             WarBet({
                 id: betCount,
-                warId: _warId,
+                warId: warId,
                 bettor: msg.sender,
-                outcome: _outcome
+                outcome: outcome
             })
         );
 
-        emit WarBetted(_warId, _outcome, msg.sender);
+        emit WarBetted(warId, outcome, msg.sender);
         // (payout logic for bettors can be added in a future version)
     }
 
@@ -189,4 +212,22 @@ contract ClashOfLensContract is Ownable {
     }
 
     constructor(address initialOwner) Ownable(initialOwner) {}
+
+       function configure(address originalMsgSender, address feed, uint256 postId, KeyValue[] calldata params)
+        external
+        returns (bytes memory){
+
+        }
+
+
+    function setDisabled(
+        address originalMsgSender,
+        address feed,
+        uint256 postId,
+        bool isDisabled,
+        KeyValue[] calldata params
+    ) external returns (bytes memory){
+
+    }
+
 }
