@@ -56,6 +56,7 @@ export default function ClansPage() {
       setError(null);
       try {
         const clansFromSubgraph: ClanSubgraph[] = await fetchClans(chainId);
+        console.log(clansFromSubgraph);
         // 2. For each clan, fetch metadata from Lens
         const enrichedClans: ClanCardData[] = await Promise.all(
           clansFromSubgraph.map(async (clan) => {
@@ -63,6 +64,7 @@ export default function ClansPage() {
               const groupResult = await fetchGroup(client, {
                 group: evmAddress(clan.id),
               });
+              console.log(groupResult);
 
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const membersResult: any = await fetchGroupMembers(client, {
@@ -70,6 +72,7 @@ export default function ClansPage() {
               });
               if (groupResult.isOk() && groupResult.value) {
                 const group = groupResult.value as Group;
+                console.log(groupResult.value);
                 // Use inline type casts for metadata and group fields
                 const metadata =
                   (group.metadata as {

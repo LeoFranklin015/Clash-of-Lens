@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Users, Trophy } from "lucide-react";
 import { useAccount } from "wagmi";
 import { useWriteContract } from "wagmi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useChainId } from "wagmi";
 import { contractsConfig } from "@/lib/contractsConfig";
 import { useSession } from "./SessionContext";
+import { Clan } from "@/lib/types";
+import { client } from "@/lib/client";
+import { evmAddress } from "@lens-protocol/react";
+import { fetchGroups } from "@lens-protocol/client/actions";
 
 function SetReadyButton({ clanAddress }: { clanAddress: `0x${string}` }) {
   const { writeContract, isPending, isError, isSuccess } = useWriteContract();
@@ -129,11 +133,77 @@ export function ClanCard({ clan }: ClanCardProps) {
   }
   const statusLabel = statusToLabel(clan.status);
   const { address } = useAccount();
-  const { userClan } = useSession();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [userClan, setUserClan] = useState<any | null>(null);
   const isOwner =
     address && clan.owner && address.toLowerCase() === clan.owner.toLowerCase();
   const isNotReady = clan.status !== 0;
   const isAlreadyInWar = clan.status === 1;
+  const { profile } = useSession();
+  const chainId = useChainId();
+
+  // Fetch user's clan when profile or chainId changes
+  useEffect(() => {
+    const fetchClansFromSubgraph = async (
+      chainId: keyof typeof contractsConfig
+    ) => {
+      const subgraph = contractsConfig[chainId]?.subgraphUrl;
+      const res = await fetch(subgraph, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query: `{
+                  clans {
+                    id
+                    balance
+                    owner
+                    status
+                  }
+                }`,
+        }),
+      });
+      const json = await res.json();
+      const clansFromSubgraph: Clan[] = json.data?.clans || [];
+      return clansFromSubgraph;
+    };
+
+    const fetchUserClan = async () => {
+      setUserClan(null);
+      if (!profile?.address || !chainId) return;
+      const clans = await fetchClansFromSubgraph(
+        chainId as keyof typeof contractsConfig
+      );
+      const result = await fetchGroups(client, {
+        filter: {
+          member: evmAddress(profile.address),
+        },
+      });
+      if (result.isErr()) {
+        return console.error(result.error);
+      }
+      // Find the first matching clan
+      const userclan = result.value.items.find((item) => {
+        if (!item || !item.address) return false;
+        return clans.find(
+          (clan) => clan.id.toLowerCase() === item.address.toLowerCase()
+        );
+      });
+      if (userclan) {
+        console.log(userclan);
+        setUserClan({
+          id: userclan.address,
+          name: userclan.metadata?.name || "Unnamed Clan",
+          feedAddress: userclan.feed?.address,
+          logo: userclan.metadata?.icon || "/placeholder.svg",
+        });
+      }
+    };
+    if (profile && chainId) {
+      fetchUserClan();
+    } else {
+      setUserClan(null);
+    }
+  }, []);
 
   return (
     <div className="border flex flex-col items-between border-gray-800 bg-black bg-opacity-60 rounded-lg overflow-hidden hover:border-[#a3ff12] transition-all group">

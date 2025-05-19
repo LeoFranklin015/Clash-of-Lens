@@ -3,7 +3,7 @@ import { lensTestnet, lens } from "wagmi/chains";
 
 export const contractsConfig = {
   [lens.id]: {
-    contractAddress: "0xD47a9F4023b51f03D317614379A494284B67055A",
+    contractAddress: "0x57223AABb448F552Bd69cd48e4bCA980aDa9EAaB",
     contractABI: ClashOfLensABI,
     subgraphUrl:
       "https://api.studio.thegraph.com/query/111645/clashoflens-mainnet/version/latest",

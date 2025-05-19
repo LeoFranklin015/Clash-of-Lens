@@ -8,7 +8,7 @@ dataSources:
     name: ClashOfLens
     network: lens
     source:
-      address: "0xD47a9F4023b51f03D317614379A494284B67055A"
+      address: "0x57223AABb448F552Bd69cd48e4bCA980aDa9EAaB"
       abi: ClashOfLens
       startBlock: 1858783
     mapping:

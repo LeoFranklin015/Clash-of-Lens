@@ -29,7 +29,7 @@ const variables = {
 
 export async function fetchPredictionMarkets() {
   try {
-    const response = await fetch("https://api.testnet.lens.xyz/graphql", {
+    const response = await fetch("https://api.lens.xyz/graphql", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
