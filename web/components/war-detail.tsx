@@ -14,7 +14,7 @@ import { fetchGroup } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { storageClient } from "@/lib/storage-client";
 import { useSession } from "./SessionContext";
-import { textOnly } from "@lens-protocol/metadata";
+import { textOnly, image as imageMetadata, MediaImageMimeType, MetadataLicenseType } from "@lens-protocol/metadata";
 import { evmAddress, } from "@lens-protocol/client";
 import { post, fetchPosts, } from "@lens-protocol/client/actions";
 import { Post } from "@/lib/types";
@@ -156,6 +156,8 @@ export default function WarDetail({ warId }: WarDetailProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [clanDetails, setClanDetails] = useState<Record<string, any>>({});
   const [posts, setPosts] = useState<Post[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
@@ -513,12 +515,25 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-700 text-gray-400"
+                {/* Image upload and preview, label wraps both input and button for accessibility */}
+                <div className="flex items-center space-x-2">
+                  <label style={{ cursor: "pointer" }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setImageFile(file);
+                          setImagePreview(URL.createObjectURL(file));
+                          console.log("File selected:", file);
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="border border-gray-700 text-gray-400 rounded-md px-3 py-1.5 text-sm font-medium bg-transparent hover:bg-gray-100"
                     >
                       <span className="sr-only">Upload image</span>
                       <svg
@@ -533,7 +548,29 @@ export default function WarDetail({ warId }: WarDetailProps) {
                           clipRule="evenodd"
                         />
                       </svg>
+                    </button>
+                  </label>
+                  {imagePreview && (
+                    <div className="ml-2">
+                      <Image src={imagePreview} alt="Preview" width={60} height={60} className="rounded" />
+                    </div>
+                  )}
+                  {imageFile && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-400"
+                      onClick={() => {
+                        setImageFile(null);
+                        setImagePreview("");
+                      }}
+                    >
+                      Remove
                     </Button>
+                  )}
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-2">
                     <Button
                       variant="outline"
                       size="sm"
@@ -554,24 +591,53 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   <Button
                     onClick={async () => {
                       if (sessionClient) {
-                        const metadata = textOnly({
-                          content: message,
-                        });
-
+                        let metadata;
+                        if (imageFile) {
+                          // Upload image to Pinata via API route
+                          const formData = new FormData();
+                          formData.append('file', imageFile);
+                          const res = await fetch('/api/pinata-upload', {
+                            method: 'POST',
+                            body: formData,
+                          });
+                          const data = await res.json();
+                          if (!res.ok) {
+                            alert(data.error || 'Image upload failed');
+                            return;
+                          }
+                          // Detect mime type
+                          let mimeType = MediaImageMimeType.PNG;
+                          if (imageFile.type === 'image/jpeg') mimeType = MediaImageMimeType.JPEG;
+                          else if (imageFile.type === 'image/gif') mimeType = MediaImageMimeType.GIF;
+                          else if (imageFile.type === 'image/webp') mimeType = MediaImageMimeType.WEBP;
+                          metadata = imageMetadata({
+                            title: message || 'Image post',
+                            image: {
+                              item: data.url,
+                              type: mimeType,
+                              altTag: 'User uploaded image',
+                              license: MetadataLicenseType.CCO,
+                            },
+                          });
+                        } else {
+                          metadata = textOnly({
+                            content: message,
+                          });
+                        }
                         const { uri } = await storageClient.uploadAsJson(metadata);
-
-                        console.log(uri); // e.g., lens://4f91ca…
-
-                        const result = await post(sessionClient, {
+                        await post(sessionClient, {
                           contentUri: uri,
-                          feed: evmAddress(userClan?.feedAddress || ""), // the custom feed address
+                          feed: evmAddress(userClan?.feedAddress || ""),
                         });
-
-                        console.log("Posted", result);
+                        // Reset state
+                        setMessage("");
+                        setImageFile(null);
+                        setImagePreview("");
+                        // Optionally: refresh posts
                       }
                     }}
                     className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
-                    disabled={!message.trim()}
+                    disabled={!message.trim() && !imageFile}
                   >
                     POST
                     <Send className="ml-2 h-4 w-4" />
