@@ -32,7 +32,8 @@ export function MainNav({ isLoaded }: MainNavProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { address } = useAccount();
-  const { setSessionClient, sessionClient, clearSession, profile } = useSession();
+  const { setSessionClient, sessionClient, clearSession, profile } =
+    useSession();
   const signer = useEthersSigner();
 
   useEffect(() => {
@@ -67,14 +68,16 @@ export function MainNav({ isLoaded }: MainNavProps) {
     { name: "WARS", href: "/wars" },
     { name: "LEADERBOARD", href: "/leaderboard" },
     { name: "PROFILE", href: "/profile" },
+    { name: "MARKETS", href: "/markets" },
   ];
 
   return (
     <header className="flex justify-between items-center bg-[#0B0B0F] py-4 px-10">
       <Link
         href="/"
-        className={`flex items-center transform transition-all duration-1000 ${isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
-          }`}
+        className={`flex items-center transform transition-all duration-1000 ${
+          isLoaded ? "translate-x-0 opacity-100" : "-translate-x-20 opacity-0"
+        }`}
       >
         <Image
           src="/logo.png"
@@ -162,8 +165,9 @@ export function MainNav({ isLoaded }: MainNavProps) {
 
       {/* Desktop navigation */}
       <nav
-        className={`hidden md:flex transform transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
-          }`}
+        className={`hidden md:flex transform transition-all duration-1000 ${
+          isLoaded ? "translate-y-0 opacity-100" : "-translate-y-20 opacity-0"
+        }`}
       >
         <ul className="flex items-center space-x-1">
           {navItems.map((item, index) => (
