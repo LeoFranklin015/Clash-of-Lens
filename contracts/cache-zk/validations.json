@@ -58,6 +58,325 @@
         "solcVersion": "0.8.28"
       },
       "contracts/ClashOfLensContract.sol:ClashOfLensContract": {
+        "src": "contracts/ClashOfLensContract.sol:7",
+        "version": {
+          "withMetadata": "0bc80b968e22e0666809d99b465a1b9ab8bee6eca896ce80ad48d0cbf5c278b4",
+          "withoutMetadata": "0bc80b968e22e0666809d99b465a1b9ab8bee6eca896ce80ad48d0cbf5c278b4",
+          "linkedWithoutMetadata": "0bc80b968e22e0666809d99b465a1b9ab8bee6eca896ce80ad48d0cbf5c278b4"
+        },
+        "inherit": [
+          "contracts/IPostAction.sol:IPostAction",
+          "@openzeppelin/contracts/access/Ownable.sol:Ownable",
+          "@openzeppelin/contracts/utils/Context.sol:Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "registerClan(address)",
+          "depositBalance(address)",
+          "setReady(address)",
+          "wageWar(address,address)",
+          "declareVictory(uint256,uint16)",
+          "execute(address,address,uint256,struct IPostAction.KeyValue[])",
+          "claimWin(uint256)",
+          "(address)",
+          "configure(address,address,uint256,struct IPostAction.KeyValue[])",
+          "setDisabled(address,address,uint256,bool,struct IPostAction.KeyValue[])"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "ClashOfLensContract",
+            "src": "contracts/ClashOfLensContract.sol:214"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "contract": "ClashOfLensContract",
+              "label": "clans",
+              "type": "t_mapping(t_address,t_struct(Clan)232_storage)",
+              "src": "contracts/ClashOfLensContract.sol:47"
+            },
+            {
+              "contract": "ClashOfLensContract",
+              "label": "wars",
+              "type": "t_array(t_struct(War)243_storage)dyn_storage",
+              "src": "contracts/ClashOfLensContract.sol:48"
+            },
+            {
+              "contract": "ClashOfLensContract",
+              "label": "warBets",
+              "type": "t_array(t_struct(WarBet)252_storage)dyn_storage",
+              "src": "contracts/ClashOfLensContract.sol:49"
+            },
+            {
+              "contract": "ClashOfLensContract",
+              "label": "clanBalances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "contracts/ClashOfLensContract.sol:51"
+            },
+            {
+              "contract": "ClashOfLensContract",
+              "label": "warCount",
+              "type": "t_uint256",
+              "src": "contracts/ClashOfLensContract.sol:52"
+            },
+            {
+              "contract": "ClashOfLensContract",
+              "label": "betCount",
+              "type": "t_uint256",
+              "src": "contracts/ClashOfLensContract.sol:53"
+            }
+          ],
+          "types": {
+            "t_mapping(t_address,t_struct(Clan)232_storage)": {
+              "label": "mapping(address => struct ClashOfLensContract.Clan)"
+            },
+            "t_address": {
+              "label": "address"
+            },
+            "t_struct(Clan)232_storage": {
+              "label": "struct ClashOfLensContract.Clan",
+              "members": [
+                {
+                  "label": "clanAddress",
+                  "type": "t_address"
+                },
+                {
+                  "label": "owner",
+                  "type": "t_address"
+                },
+                {
+                  "label": "status",
+                  "type": "t_uint16"
+                }
+              ]
+            },
+            "t_uint16": {
+              "label": "uint16"
+            },
+            "t_array(t_struct(War)243_storage)dyn_storage": {
+              "label": "struct ClashOfLensContract.War[]"
+            },
+            "t_struct(War)243_storage": {
+              "label": "struct ClashOfLensContract.War",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "clan1",
+                  "type": "t_address"
+                },
+                {
+                  "label": "clan2",
+                  "type": "t_address"
+                },
+                {
+                  "label": "timestamp",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "result",
+                  "type": "t_uint16"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            },
+            "t_array(t_struct(WarBet)252_storage)dyn_storage": {
+              "label": "struct ClashOfLensContract.WarBet[]"
+            },
+            "t_struct(WarBet)252_storage": {
+              "label": "struct ClashOfLensContract.WarBet",
+              "members": [
+                {
+                  "label": "id",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "warId",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "bettor",
+                  "type": "t_address"
+                },
+                {
+                  "label": "outcome",
+                  "type": "t_uint16"
+                }
+              ]
+            },
+            "t_mapping(t_address,t_uint256)": {
+              "label": "mapping(address => uint256)"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      },
+      "contracts/IPostAction.sol:IPostAction": {
+        "src": "contracts/IPostAction.sol:1",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "configure(address,address,uint256,struct IPostAction.KeyValue[])",
+          "execute(address,address,uint256,struct IPostAction.KeyValue[])",
+          "setDisabled(address,address,uint256,bool,struct IPostAction.KeyValue[])"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      },
+      "contracts/test.sol:IPostAction": {
+        "src": "contracts/test.sol:6",
+        "inherit": [],
+        "libraries": [],
+        "methods": [
+          "configure(address,address,uint256,struct IPostAction.KeyValue[])",
+          "execute(address,address,uint256,struct IPostAction.KeyValue[])",
+          "setDisabled(address,address,uint256,bool,struct IPostAction.KeyValue[])"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      },
+      "contracts/test.sol:Test": {
+        "src": "contracts/test.sol:29",
+        "version": {
+          "withMetadata": "f9352b79d3c1f5195674e41533b72aa5250340baa923f6e210c33312c27656d4",
+          "withoutMetadata": "f9352b79d3c1f5195674e41533b72aa5250340baa923f6e210c33312c27656d4",
+          "linkedWithoutMetadata": "f9352b79d3c1f5195674e41533b72aa5250340baa923f6e210c33312c27656d4"
+        },
+        "inherit": [
+          "contracts/test.sol:IPostAction"
+        ],
+        "libraries": [],
+        "methods": [
+          "configure(address,address,uint256,struct IPostAction.KeyValue[])",
+          "execute(address,address,uint256,struct IPostAction.KeyValue[])",
+          "setDisabled(address,address,uint256,bool,struct IPostAction.KeyValue[])",
+          "getAllLogs()"
+        ],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [
+            {
+              "contract": "Test",
+              "label": "logs",
+              "type": "t_array(t_struct(WarLog)1039_storage)dyn_storage",
+              "src": "contracts/test.sol:35"
+            }
+          ],
+          "types": {
+            "t_array(t_struct(WarLog)1039_storage)dyn_storage": {
+              "label": "struct Test.WarLog[]"
+            },
+            "t_struct(WarLog)1039_storage": {
+              "label": "struct Test.WarLog",
+              "members": [
+                {
+                  "label": "warId",
+                  "type": "t_uint256"
+                },
+                {
+                  "label": "outcome",
+                  "type": "t_uint16"
+                }
+              ]
+            },
+            "t_uint256": {
+              "label": "uint256"
+            },
+            "t_uint16": {
+              "label": "uint16"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      }
+    },
+    {
+      "@openzeppelin/contracts/access/Ownable.sol:Ownable": {
+        "src": "@openzeppelin/contracts/access/Ownable.sol:20",
+        "inherit": [
+          "@openzeppelin/contracts/utils/Context.sol:Context"
+        ],
+        "libraries": [],
+        "methods": [
+          "owner()",
+          "renounceOwnership()",
+          "transferOwnership(address)"
+        ],
+        "linkReferences": [],
+        "errors": [
+          {
+            "kind": "constructor",
+            "contract": "Ownable",
+            "src": "@openzeppelin/contracts/access/Ownable.sol:38"
+          }
+        ],
+        "layout": {
+          "storage": [
+            {
+              "contract": "Ownable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts/access/Ownable.sol:21"
+            }
+          ],
+          "types": {
+            "t_address": {
+              "label": "address"
+            }
+          },
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      },
+      "@openzeppelin/contracts/utils/Context.sol:Context": {
+        "src": "@openzeppelin/contracts/utils/Context.sol:16",
+        "inherit": [],
+        "libraries": [],
+        "methods": [],
+        "linkReferences": [],
+        "errors": [],
+        "layout": {
+          "storage": [],
+          "types": {},
+          "layoutVersion": "1.2",
+          "flat": false,
+          "namespaces": {}
+        },
+        "solcVersion": "0.8.28"
+      },
+      "contracts/ClashOfLensContract.sol:ClashOfLensContract": {
         "src": "contracts/ClashOfLensContract.sol:6",
         "version": {
           "withMetadata": "8fb9507a6f26e4085aaa36e934820a68651860bcb10de4ae0792cb77d7262c3e",

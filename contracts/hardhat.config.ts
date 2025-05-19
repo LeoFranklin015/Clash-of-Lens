@@ -15,6 +15,7 @@ const config: HardhatUserConfig = {
   networks: {
     lensMainnet: {
       url: "https://rpc.lens.xyz",
+      ethNetwork: "mainnet",
       chainId: 232,
       accounts: [PRIVATE_KEY],
       verifyURL:
