@@ -14,9 +14,14 @@ import { fetchGroup } from "@lens-protocol/client/actions";
 import { client } from "@/lib/client";
 import { storageClient } from "@/lib/storage-client";
 import { useSession } from "./SessionContext";
-import { textOnly, image as imageMetadata, MediaImageMimeType, MetadataLicenseType } from "@lens-protocol/metadata";
-import { evmAddress, } from "@lens-protocol/client";
-import { post, fetchPosts, } from "@lens-protocol/client/actions";
+import {
+  textOnly,
+  image as imageMetadata,
+  MediaImageMimeType,
+  MetadataLicenseType,
+} from "@lens-protocol/metadata";
+import { evmAddress } from "@lens-protocol/client";
+import { post, fetchPosts } from "@lens-protocol/client/actions";
 import { Post } from "@/lib/types";
 
 // Mock data for contribution feed
@@ -94,52 +99,6 @@ const contributionFeed = [
     time: "7 hours ago",
   },
 ];
-
-// // Mock data for posts
-// const posts = [
-//   {
-//     id: "post-1",
-//     user: {
-//       name: "0xCyb3r",
-//       avatar: "/placeholder.svg?height=50&width=50",
-//       clan: "clan1",
-//     },
-//     content:
-//       "Just dropped our new clan NFT collection! Collect them to support us in the war against NEON KNIGHTS. Every collection counts towards our victory!",
-//     image: "/placeholder.svg?height=300&width=500",
-//     likes: 24,
-//     comments: 8,
-//     time: "5 hours ago",
-//   },
-//   {
-//     id: "post-2",
-//     user: {
-//       name: "WolfByte",
-//       avatar: "/placeholder.svg?height=50&width=50",
-//       clan: "clan1",
-//     },
-//     content:
-//       "Strategy update: Focus on tipping and collecting today. We're leading in posts but falling behind in followers. Let's coordinate our efforts!",
-//     image: "",
-//     likes: 18,
-//     comments: 12,
-//     time: "8 hours ago",
-//   },
-//   {
-//     id: "post-3",
-//     user: {
-//       name: "CryptoHowler",
-//       avatar: "/placeholder.svg?height=50&width=50",
-//       clan: "clan1",
-//     },
-//     content:
-//       "Just created a new post about blockchain gaming. Check it out and give it some love to help us win this war!",
-//     image: "/placeholder.svg?height=300&width=500",
-//     likes: 32,
-//     comments: 5,
-//     time: "12 hours ago",
-//   },
-// ];
 
 interface WarDetailProps {
   warId: string;
@@ -237,19 +196,19 @@ export default function WarDetail({ warId }: WarDetailProps) {
   // Calculate total scores
   const clan1Score = warStats
     ? warStats.clan1.tips +
-    warStats.clan1.collects +
-    warStats.clan1.comments +
-    warStats.clan1.quotes +
-    warStats.clan1.upvotes +
-    warStats.clan1.bookmarks
+      warStats.clan1.collects +
+      warStats.clan1.comments +
+      warStats.clan1.quotes +
+      warStats.clan1.upvotes +
+      warStats.clan1.bookmarks
     : 0;
   const clan2Score = warStats
     ? warStats.clan2.tips +
-    warStats.clan2.collects +
-    warStats.clan2.comments +
-    warStats.clan2.quotes +
-    warStats.clan2.upvotes +
-    warStats.clan2.bookmarks
+      warStats.clan2.collects +
+      warStats.clan2.comments +
+      warStats.clan2.quotes +
+      warStats.clan2.upvotes +
+      warStats.clan2.bookmarks
     : 0;
 
   // Get clan details
@@ -318,8 +277,6 @@ export default function WarDetail({ warId }: WarDetailProps) {
     ],
   };
 
-
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Left Column - Scoreboard */}
@@ -337,10 +294,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan1.name}
                   width={80}
                   height={80}
-                  className={`rounded-full w-20 h-20 object-cover bg-white border-4 ${clan1Score >= clan2Score
-                    ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
-                    : "border-gray-700"
-                    }`}
+                  className={`rounded-full w-20 h-20 object-cover bg-white border-4 ${
+                    clan1Score >= clan2Score
+                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                      : "border-gray-700"
+                  }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan1.name}</h3>
@@ -374,10 +332,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   alt={war.clan2.name}
                   width={80}
                   height={80}
-                  className={`rounded-full border-4 ${clan2Score >= clan1Score
-                    ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
-                    : "border-gray-700"
-                    }`}
+                  className={`rounded-full border-4 ${
+                    clan2Score >= clan1Score
+                      ? "border-[#a3ff12] shadow-[0_0_10px_#a3ff12]"
+                      : "border-gray-700"
+                  }`}
                 />
               </Link>
               <h3 className="text-white font-bold mt-2">{war.clan2.name}</h3>
@@ -437,10 +396,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
             {contributionFeed.map((contribution) => (
               <div
                 key={contribution.id}
-                className={`border ${contribution.user.clan === "clan1"
-                  ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
-                  : "border-gray-700 bg-gray-800 bg-opacity-20"
-                  } rounded-lg p-3 flex items-start`}
+                className={`border ${
+                  contribution.user.clan === "clan1"
+                    ? "border-[#a3ff12] bg-[#a3ff12] bg-opacity-5"
+                    : "border-gray-700 bg-gray-800 bg-opacity-20"
+                } rounded-lg p-3 flex items-start`}
               >
                 <Image
                   src={contribution.user.avatar || "/placeholder.svg"}
@@ -452,10 +412,11 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 <div className="ml-3">
                   <div className="flex items-center">
                     <span
-                      className={`font-bold ${contribution.user.clan === "clan1"
-                        ? "text-[#a3ff12]"
-                        : "text-white"
-                        }`}
+                      className={`font-bold ${
+                        contribution.user.clan === "clan1"
+                          ? "text-[#a3ff12]"
+                          : "text-white"
+                      }`}
                     >
                       {contribution.user.name}
                     </span>
@@ -481,9 +442,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
       {/* Right Column - Action Panel & Posts */}
       <div className="lg:col-span-2">
         <div className="border border-[#a3ff12] bg-black bg-opacity-50 rounded-lg p-6">
-          <h2 className="text-white font-bold text-xl mb-4">
-            ACTION PANEL
-          </h2>
+          <h2 className="text-white font-bold text-xl mb-4">ACTION PANEL</h2>
 
           <Tabs defaultValue="post" className="w-full">
             <TabsList className="bg-black border border-[#a3ff12] p-1 w-full grid grid-cols-3">
@@ -552,7 +511,13 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   </label>
                   {imagePreview && (
                     <div className="ml-2">
-                      <Image src={imagePreview} alt="Preview" width={60} height={60} className="rounded" />
+                      <Image
+                        src={imagePreview}
+                        alt="Preview"
+                        width={60}
+                        height={60}
+                        className="rounded"
+                      />
                     </div>
                   )}
                   {imageFile && (
@@ -595,27 +560,30 @@ export default function WarDetail({ warId }: WarDetailProps) {
                         if (imageFile) {
                           // Upload image to Pinata via API route
                           const formData = new FormData();
-                          formData.append('file', imageFile);
-                          const res = await fetch('/api/pinata-upload', {
-                            method: 'POST',
+                          formData.append("file", imageFile);
+                          const res = await fetch("/api/pinata-upload", {
+                            method: "POST",
                             body: formData,
                           });
                           const data = await res.json();
                           if (!res.ok) {
-                            alert(data.error || 'Image upload failed');
+                            alert(data.error || "Image upload failed");
                             return;
                           }
                           // Detect mime type
                           let mimeType = MediaImageMimeType.PNG;
-                          if (imageFile.type === 'image/jpeg') mimeType = MediaImageMimeType.JPEG;
-                          else if (imageFile.type === 'image/gif') mimeType = MediaImageMimeType.GIF;
-                          else if (imageFile.type === 'image/webp') mimeType = MediaImageMimeType.WEBP;
+                          if (imageFile.type === "image/jpeg")
+                            mimeType = MediaImageMimeType.JPEG;
+                          else if (imageFile.type === "image/gif")
+                            mimeType = MediaImageMimeType.GIF;
+                          else if (imageFile.type === "image/webp")
+                            mimeType = MediaImageMimeType.WEBP;
                           metadata = imageMetadata({
-                            title: message || 'Image post',
+                            title: message || "Image post",
                             image: {
                               item: data.url,
                               type: mimeType,
-                              altTag: 'User uploaded image',
+                              altTag: "User uploaded image",
                               license: MetadataLicenseType.CCO,
                             },
                           });
@@ -624,7 +592,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
                             content: message,
                           });
                         }
-                        const { uri } = await storageClient.uploadAsJson(metadata);
+                        const { uri } = await storageClient.uploadAsJson(
+                          metadata
+                        );
                         await post(sessionClient, {
                           contentUri: uri,
                           feed: evmAddress(userClan?.feedAddress || ""),
@@ -821,7 +791,9 @@ export default function WarDetail({ warId }: WarDetailProps) {
                       <div className="text-white font-bold">
                         {post.author.username.value}
                       </div>
-                      <div className="text-gray-400 text-xs">{post.timestamp}</div>
+                      <div className="text-gray-400 text-xs">
+                        {post.timestamp}
+                      </div>
                     </div>
                   </div>
 
@@ -859,6 +831,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
                         variant="outline"
                         size="sm"
                         className="bg-black cursor-pointer hover:text-white border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10"
+                        disabled={!post.actions || post.actions.length === 0}
                       >
                         <Coins className="h-4 w-4 mr-1" />
                         TIP
@@ -866,6 +839,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
                       <Button
                         size="sm"
                         className="bg-[#a3ff12] cursor-pointer text-black font-bold hover:bg-opacity-90"
+                        disabled={!post.actions || post.actions.length === 0}
                       >
                         COLLECT NFT
                       </Button>
