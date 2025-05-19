@@ -161,6 +161,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
+  const [clanAddress, setClanAddress] = useState<string[]>([]);
 
   // Auto scroll to bottom of contribution feed
   useEffect(() => {
@@ -171,7 +172,10 @@ export default function WarDetail({ warId }: WarDetailProps) {
   }, []);
 
   useEffect(() => {
-    const handleFetchPosts = async () => {
+    const handleFetchPosts = async (
+      clan1Address: string,
+      clan2Address: string
+    ) => {
       const result = await fetchPosts(client, {
         filter: {
           feeds: [
@@ -180,12 +184,13 @@ export default function WarDetail({ warId }: WarDetailProps) {
             // },
             // filter by a specific feed address
             {
-              feed: evmAddress(userClan?.feedAddress || ""),
+              feed: evmAddress(clan1Address),
             },
           ],
         },
       });
 
+      console.log("Result", result);
       if (result.isErr()) {
         return console.error(result.error);
       }
@@ -196,21 +201,24 @@ export default function WarDetail({ warId }: WarDetailProps) {
       setPosts(items as unknown as Post[]);
     };
 
-    if (userClan?.feedAddress) {
-      handleFetchPosts();
+    if (clanAddress.length > 1) {
+      handleFetchPosts(clanAddress[0], clanAddress[1]);
     }
-  }, [userClan?.feedAddress]);
+  }, [clanAddress]);
 
   const fetchClanDetails = async (clanAddress: string) => {
     try {
       const result = await fetchGroup(client, {
         group: evmAddress(clanAddress),
       });
+      console.log("Clan details", result);
       if (result.isOk()) {
         setClanDetails((prev) => ({
           ...prev,
           [clanAddress.toLowerCase()]: result.value,
         }));
+
+        setClanAddress((prev) => [...prev, result.value?.feed?.address]);
       }
     } catch (e) {
       console.error("Error fetching clan details:", e);
@@ -259,6 +267,7 @@ export default function WarDetail({ warId }: WarDetailProps) {
   const clan1Details = warData?.clan1?.id
     ? clanDetails[warData.clan1.id.toLowerCase()]
     : null;
+
   const clan2Details = warData?.clan2?.id
     ? clanDetails[warData.clan2.id.toLowerCase()]
     : null;
