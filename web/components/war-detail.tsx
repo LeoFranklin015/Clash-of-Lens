@@ -5,8 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { Coins, Heart, MessageSquare, Share2, Send } from "lucide-react";
 import { fetchWarStats } from "@/lib/subgraphHandlers/fetchWarStats";
 import { fetchWarClans } from "@/lib/subgraphHandlers/fetchWarClans";
@@ -145,6 +147,7 @@ interface Post {
 
 export default function WarDetail({ warId }: WarDetailProps) {
   const [message, setMessage] = useState("");
+  const [postType, setPostType] = useState<"collect" | "tip" | null>(null);
   const { userClan, sessionClient } = useSession();
   const { address } = useAccount();
   const contributionFeedRef = useRef<HTMLDivElement>(null);
@@ -334,6 +337,68 @@ export default function WarDetail({ warId }: WarDetailProps) {
     }
   };
 
+  const handlePost = async () => {
+    if (sessionClient) {
+      try {
+        let postMetadata;
+        if (imageFile) {
+          console.log("Processing image file:", imageFile.name);
+          // Upload image and get URL
+          const imageUrl = await handleImageUpload(imageFile);
+          console.log("Image URL received:", imageUrl);
+
+          // Detect mime type
+          let mimeType = MediaImageMimeType.PNG;
+          if (imageFile.type === "image/jpeg")
+            mimeType = MediaImageMimeType.JPEG;
+          else if (imageFile.type === "image/gif")
+            mimeType = MediaImageMimeType.GIF;
+          else if (imageFile.type === "image/webp")
+            mimeType = MediaImageMimeType.WEBP;
+
+          console.log("Creating image metadata with mime type:", mimeType);
+          // Create image metadata
+          postMetadata = imageMetadata({
+            title: message || "Image post",
+            image: {
+              item: imageUrl,
+              type: mimeType,
+              altTag: "User uploaded image",
+              license: MetadataLicenseType.CCO,
+            },
+          });
+        } else {
+          console.log("Creating text-only metadata");
+          // Create text-only metadata if no image
+          postMetadata = textOnly({
+            content: message,
+          });
+        }
+
+        console.log("Uploading metadata to storage");
+        // Upload metadata and create post
+        const { uri: contentUri } = await storageClient.uploadAsJson(
+          postMetadata
+        );
+        console.log("Metadata uploaded, creating post with URI:", contentUri);
+
+        await post(sessionClient, {
+          contentUri,
+          feed: evmAddress(userClan?.feedAddress || ""),
+        });
+        console.log("Post created successfully");
+
+        // Reset state
+        setMessage("");
+        setImageFile(null);
+        setImagePreview("");
+      } catch (error) {
+        console.error("Error creating post:", error);
+        alert("Failed to create post. Please try again.");
+      }
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Left Column - Scoreboard */}
@@ -519,173 +584,122 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
-                {/* Image upload and preview, label wraps both input and button for accessibility */}
-                <div className="flex items-center space-x-2">
-                  <label className="relative cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="sr-only"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                          console.log(
-                            "File selected:",
-                            file.name,
-                            file.type,
-                            file.size
-                          );
-                          setImageFile(file);
-                          setImagePreview(URL.createObjectURL(file));
-                        }
-                      }}
-                    />
-                    <div className="flex items-center space-x-2 px-4 py-2 border border-gray-700 rounded-md hover:bg-gray-800 transition-colors">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5 text-gray-400"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M1 8a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 018.07 3h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0016.07 6H17a2 2 0 012 2v7a2 2 0 01-2 2H3a2 2 0 01-2-2V8zm13.5 3a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM10 14a3 3 0 100-6 3 3 0 000 6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-sm text-gray-400">
-                        Upload Image
-                      </span>
-                    </div>
-                  </label>
-                  {imagePreview && (
-                    <div className="relative">
-                      <Image
-                        src={imagePreview}
-                        alt="Preview"
-                        width={60}
-                        height={60}
-                        className="rounded-md object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImageFile(null);
-                          setImagePreview("");
+                <div className="flex items-center justify-between space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <label className="relative cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="sr-only"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            console.log(
+                              "File selected:",
+                              file.name,
+                              file.type,
+                              file.size
+                            );
+                            setImageFile(file);
+                            setImagePreview(URL.createObjectURL(file));
+                          }
                         }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
+                      />
+                      <div className="flex items-center space-x-2 px-4 py-2 border border-gray-700 rounded-md hover:bg-gray-800 transition-colors">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 20 20"
                           fill="currentColor"
-                          className="w-4 h-4"
+                          className="w-5 h-5 text-gray-400"
                         >
                           <path
                             fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                            d="M1 8a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 018.07 3h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0016.07 6H17a2 2 0 012 2v7a2 2 0 01-2 2H3a2 2 0 01-2-2V8zm13.5 3a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM10 14a3 3 0 100-6 3 3 0 000 6z"
                             clipRule="evenodd"
                           />
                         </svg>
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-gray-700 text-gray-400"
+                        <span className="text-sm text-gray-400">
+                          Upload Image
+                        </span>
+                      </div>
+                    </label>
+                    {imagePreview && (
+                      <div className="relative">
+                        <Image
+                          src={imagePreview}
+                          alt="Preview"
+                          width={40}
+                          height={40}
+                          className="rounded-md object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setImageFile(null);
+                            setImagePreview("");
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            className="w-4 h-4"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <RadioGroup
+                      value={postType || ""}
+                      onValueChange={(value) =>
+                        setPostType(value as "collect" | "tip" | null)
+                      }
+                      className="flex items-center space-x-4"
                     >
-                      <span className="sr-only">Add NFT</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path d="M11 5a3 3 0 11-6 0 3 3 0 016 0zm-9 8c0 1 1 1 1 1h5.256A4.493 4.493 0 018 12.5a4.49 4.49 0 011.544-3.393C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4z" />
-                        <path d="M16 12.5a3.5 3.5 0 11-7 0 3.5 3.5 0 017 0zm-3.5-2a.5.5 0 00-.5.5v1h-1a.5.5 0 000 1h1v1a.5.5 0 001 0v-1h1a.5.5 0 000-1h-1v-1a.5.5 0 00-.5-.5z" />
-                      </svg>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="collect"
+                          id="collect"
+                          className="border-[#a3ff12] text-[#a3ff12] focus:ring-[#a3ff12]"
+                        />
+                        <Label
+                          htmlFor="collect"
+                          className="text-sm text-gray-400 cursor-pointer"
+                        >
+                          CollectNFT
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem
+                          value="tip"
+                          id="tip"
+                          className="border-[#a3ff12] text-[#a3ff12] focus:ring-[#a3ff12]"
+                        />
+                        <Label
+                          htmlFor="tip"
+                          className="text-sm text-gray-400 cursor-pointer"
+                        >
+                          Tip
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    <Button
+                      onClick={handlePost}
+                      className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
+                      disabled={!message.trim() && !imageFile}
+                    >
+                      POST
+                      <Send className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                  <Button
-                    onClick={async () => {
-                      if (sessionClient) {
-                        try {
-                          let postMetadata;
-                          if (imageFile) {
-                            console.log(
-                              "Processing image file:",
-                              imageFile.name
-                            );
-                            // Upload image and get URL
-                            const imageUrl = await handleImageUpload(imageFile);
-                            console.log("Image URL received:", imageUrl);
-
-                            // Detect mime type
-                            let mimeType = MediaImageMimeType.PNG;
-                            if (imageFile.type === "image/jpeg")
-                              mimeType = MediaImageMimeType.JPEG;
-                            else if (imageFile.type === "image/gif")
-                              mimeType = MediaImageMimeType.GIF;
-                            else if (imageFile.type === "image/webp")
-                              mimeType = MediaImageMimeType.WEBP;
-
-                            console.log(
-                              "Creating image metadata with mime type:",
-                              mimeType
-                            );
-                            // Create image metadata
-                            postMetadata = imageMetadata({
-                              title: message || "Image post",
-                              image: {
-                                item: imageUrl,
-                                type: mimeType,
-                                altTag: "User uploaded image",
-                                license: MetadataLicenseType.CCO,
-                              },
-                            });
-                          } else {
-                            console.log("Creating text-only metadata");
-                            // Create text-only metadata if no image
-                            postMetadata = textOnly({
-                              content: message,
-                            });
-                          }
-
-                          console.log("Uploading metadata to storage");
-                          // Upload metadata and create post
-                          const { uri: contentUri } =
-                            await storageClient.uploadAsJson(postMetadata);
-                          console.log(
-                            "Metadata uploaded, creating post with URI:",
-                            contentUri
-                          );
-
-                          await post(sessionClient, {
-                            contentUri,
-                            feed: evmAddress(userClan?.feedAddress || ""),
-                          });
-                          console.log("Post created successfully");
-
-                          // Reset state
-                          setMessage("");
-                          setImageFile(null);
-                          setImagePreview("");
-                        } catch (error) {
-                          console.error("Error creating post:", error);
-                          alert("Failed to create post. Please try again.");
-                        }
-                      }
-                    }}
-                    className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
-                    disabled={!message.trim() && !imageFile}
-                  >
-                    POST
-                    <Send className="ml-2 h-4 w-4" />
-                  </Button>
                 </div>
               </div>
             </TabsContent>
