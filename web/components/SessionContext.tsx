@@ -89,7 +89,7 @@ export const SessionProvider = ({
 
   // Load session from localStorage on mount
   useEffect(() => {
-    if (sessionClient) return;
+    if (!sessionClient) return;
     try {
       const resume = async () => {
         const resumed = await client.resumeSession();
