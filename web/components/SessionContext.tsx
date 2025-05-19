@@ -89,7 +89,6 @@ export const SessionProvider = ({
 
   // Load session from localStorage on mount
   useEffect(() => {
-    if (!sessionClient) return;
     try {
       const resume = async () => {
         const resumed = await client.resumeSession();
@@ -192,9 +191,13 @@ export const SessionProvider = ({
   }, [profile, chainId]);
 
   useEffect(() => {
-    if (profile?.address && signer && sessionClient === null) {
-      lensAuth(profile.address, signer);
-    }
+    const initSession = async () => {
+      if (profile?.address && signer && sessionClient === null) {
+        const session = await lensAuth(profile.address, signer);
+        setSessionClientState(session!);
+      }
+    };
+    initSession();
   }, [profile, signer, sessionClient]);
 
   // Expose a method to get the current session details
