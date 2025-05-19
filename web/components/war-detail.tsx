@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Coins, Heart, MessageSquare, Share2, Send } from "lucide-react";
 import { fetchWarStats } from "@/lib/subgraphHandlers/fetchWarStats";
@@ -22,7 +22,8 @@ import {
 } from "@lens-protocol/metadata";
 import { evmAddress } from "@lens-protocol/client";
 import { post, fetchPosts } from "@lens-protocol/client/actions";
-import { Post } from "@/lib/types";
+import { uploadImage } from "@/lib/uploadImage";
+import { useAccount } from "wagmi";
 
 // Mock data for contribution feed
 const contributionFeed = [
@@ -104,9 +105,48 @@ interface WarDetailProps {
   warId: string;
 }
 
+interface ImageMetadata {
+  mainContentFocus: "IMAGE";
+  title?: string;
+  content?: string;
+  image: {
+    item: string;
+    altTag?: string;
+    width?: number;
+    height?: number;
+  };
+}
+
+interface TextOnlyMetadata {
+  mainContentFocus: "TEXT_ONLY";
+  content: string;
+}
+
+type PostMetadata = ImageMetadata | TextOnlyMetadata;
+
+interface Post {
+  id: string;
+  author: {
+    username: {
+      value: string;
+    };
+    metadata: {
+      picture: string | null;
+    };
+  };
+  timestamp: string;
+  metadata: PostMetadata;
+  stats: {
+    upvotes: number;
+    comments: number;
+  };
+  actions: any[];
+}
+
 export default function WarDetail({ warId }: WarDetailProps) {
   const [message, setMessage] = useState("");
   const { userClan, sessionClient } = useSession();
+  const { address } = useAccount();
   const contributionFeedRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [warStats, setWarStats] = useState<any>(null);
@@ -275,6 +315,23 @@ export default function WarDetail({ warId }: WarDetailProps) {
         clan2: warStats?.clan2.bookmarks || 0,
       },
     ],
+  };
+
+  // Update the handleImageUpload function with more logging
+  const handleImageUpload = async (file: File) => {
+    try {
+      if (!address) {
+        console.error("No user address available");
+        throw new Error("No user address available");
+      }
+      console.log("Starting image upload with address:", address);
+      const imageUrl = await uploadImage(file, address);
+      console.log("Image uploaded successfully:", imageUrl);
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      throw error;
+    }
   };
 
   return (
@@ -452,18 +509,6 @@ export default function WarDetail({ warId }: WarDetailProps) {
               >
                 CREATE POST
               </TabsTrigger>
-              <TabsTrigger
-                value="tip"
-                className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
-              >
-                TIP POST
-              </TabsTrigger>
-              <TabsTrigger
-                value="collect"
-                className="data-[state=active]:bg-[#a3ff12] data-[state=active]:text-black"
-              >
-                COLLECT NFT
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="post" className="mt-4">
@@ -476,30 +521,31 @@ export default function WarDetail({ warId }: WarDetailProps) {
                 />
                 {/* Image upload and preview, label wraps both input and button for accessibility */}
                 <div className="flex items-center space-x-2">
-                  <label style={{ cursor: "pointer" }}>
+                  <label className="relative cursor-pointer">
                     <input
                       type="file"
                       accept="image/*"
-                      style={{ display: "none" }}
+                      className="sr-only"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
                         if (file) {
+                          console.log(
+                            "File selected:",
+                            file.name,
+                            file.type,
+                            file.size
+                          );
                           setImageFile(file);
                           setImagePreview(URL.createObjectURL(file));
-                          console.log("File selected:", file);
                         }
                       }}
                     />
-                    <button
-                      type="button"
-                      className="border border-gray-700 text-gray-400 rounded-md px-3 py-1.5 text-sm font-medium bg-transparent hover:bg-gray-100"
-                    >
-                      <span className="sr-only">Upload image</span>
+                    <div className="flex items-center space-x-2 px-4 py-2 border border-gray-700 rounded-md hover:bg-gray-800 transition-colors">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 20 20"
                         fill="currentColor"
-                        className="w-5 h-5"
+                        className="w-5 h-5 text-gray-400"
                       >
                         <path
                           fillRule="evenodd"
@@ -507,31 +553,42 @@ export default function WarDetail({ warId }: WarDetailProps) {
                           clipRule="evenodd"
                         />
                       </svg>
-                    </button>
+                      <span className="text-sm text-gray-400">
+                        Upload Image
+                      </span>
+                    </div>
                   </label>
                   {imagePreview && (
-                    <div className="ml-2">
+                    <div className="relative">
                       <Image
                         src={imagePreview}
                         alt="Preview"
                         width={60}
                         height={60}
-                        className="rounded"
+                        className="rounded-md object-cover"
                       />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview("");
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-4 h-4"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
                     </div>
-                  )}
-                  {imageFile && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-400"
-                      onClick={() => {
-                        setImageFile(null);
-                        setImagePreview("");
-                      }}
-                    >
-                      Remove
-                    </Button>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
@@ -556,54 +613,71 @@ export default function WarDetail({ warId }: WarDetailProps) {
                   <Button
                     onClick={async () => {
                       if (sessionClient) {
-                        let metadata;
-                        if (imageFile) {
-                          // Upload image to Pinata via API route
-                          const formData = new FormData();
-                          formData.append("file", imageFile);
-                          const res = await fetch("/api/pinata-upload", {
-                            method: "POST",
-                            body: formData,
-                          });
-                          const data = await res.json();
-                          if (!res.ok) {
-                            alert(data.error || "Image upload failed");
-                            return;
+                        try {
+                          let postMetadata;
+                          if (imageFile) {
+                            console.log(
+                              "Processing image file:",
+                              imageFile.name
+                            );
+                            // Upload image and get URL
+                            const imageUrl = await handleImageUpload(imageFile);
+                            console.log("Image URL received:", imageUrl);
+
+                            // Detect mime type
+                            let mimeType = MediaImageMimeType.PNG;
+                            if (imageFile.type === "image/jpeg")
+                              mimeType = MediaImageMimeType.JPEG;
+                            else if (imageFile.type === "image/gif")
+                              mimeType = MediaImageMimeType.GIF;
+                            else if (imageFile.type === "image/webp")
+                              mimeType = MediaImageMimeType.WEBP;
+
+                            console.log(
+                              "Creating image metadata with mime type:",
+                              mimeType
+                            );
+                            // Create image metadata
+                            postMetadata = imageMetadata({
+                              title: message || "Image post",
+                              image: {
+                                item: imageUrl,
+                                type: mimeType,
+                                altTag: "User uploaded image",
+                                license: MetadataLicenseType.CCO,
+                              },
+                            });
+                          } else {
+                            console.log("Creating text-only metadata");
+                            // Create text-only metadata if no image
+                            postMetadata = textOnly({
+                              content: message,
+                            });
                           }
-                          // Detect mime type
-                          let mimeType = MediaImageMimeType.PNG;
-                          if (imageFile.type === "image/jpeg")
-                            mimeType = MediaImageMimeType.JPEG;
-                          else if (imageFile.type === "image/gif")
-                            mimeType = MediaImageMimeType.GIF;
-                          else if (imageFile.type === "image/webp")
-                            mimeType = MediaImageMimeType.WEBP;
-                          metadata = imageMetadata({
-                            title: message || "Image post",
-                            image: {
-                              item: data.url,
-                              type: mimeType,
-                              altTag: "User uploaded image",
-                              license: MetadataLicenseType.CCO,
-                            },
+
+                          console.log("Uploading metadata to storage");
+                          // Upload metadata and create post
+                          const { uri: contentUri } =
+                            await storageClient.uploadAsJson(postMetadata);
+                          console.log(
+                            "Metadata uploaded, creating post with URI:",
+                            contentUri
+                          );
+
+                          await post(sessionClient, {
+                            contentUri,
+                            feed: evmAddress(userClan?.feedAddress || ""),
                           });
-                        } else {
-                          metadata = textOnly({
-                            content: message,
-                          });
+                          console.log("Post created successfully");
+
+                          // Reset state
+                          setMessage("");
+                          setImageFile(null);
+                          setImagePreview("");
+                        } catch (error) {
+                          console.error("Error creating post:", error);
+                          alert("Failed to create post. Please try again.");
                         }
-                        const { uri } = await storageClient.uploadAsJson(
-                          metadata
-                        );
-                        await post(sessionClient, {
-                          contentUri: uri,
-                          feed: evmAddress(userClan?.feedAddress || ""),
-                        });
-                        // Reset state
-                        setMessage("");
-                        setImageFile(null);
-                        setImagePreview("");
-                        // Optionally: refresh posts
                       }
                     }}
                     className="cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90"
@@ -613,156 +687,6 @@ export default function WarDetail({ warId }: WarDetailProps) {
                     <Send className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="tip" className="mt-4">
-              <div className="space-y-4">
-                <div className="border border-gray-700 rounded-lg p-4">
-                  <h3 className="text-white font-bold mb-2">
-                    Select Post to Tip
-                  </h3>
-                  <div className="space-y-2">
-                    {/* {posts.map((post: any, index: number) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between border border-gray-800 rounded-lg p-3 hover:border-[#a3ff12] cursor-pointer"
-                      >
-                        <div className="flex items-center">
-                          <Image
-                            src={"/placeholder.svg"}
-                            alt={post.user.name}
-                            width={36}
-                            height={36}
-                            className="rounded-full"
-                          />
-                          <div className="ml-3">
-                            <div className="text-white font-bold">
-                              {post.user.name}
-                            </div>
-                            <div className="text-gray-400 text-xs">
-                              {post.time}
-                            </div>
-                          </div>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="border-[#a3ff12] text-[#a3ff12] hover:bg-[#a3ff12] hover:bg-opacity-10"
-                        >
-                          Select
-                        </Button>
-                      </div>
-                    ))} */}
-                  </div>
-                </div>
-
-                <div className="border border-gray-700 rounded-lg p-4">
-                  <h3 className="text-white font-bold mb-2">Tip Amount</h3>
-                  <div className="flex space-x-2 mb-4">
-                    {["0.01", "0.05", "0.1", "0.5", "1"].map((amount) => (
-                      <Button
-                        key={amount}
-                        variant="outline"
-                        size="sm"
-                        className="border-gray-700 text-gray-300 hover:border-[#a3ff12] hover:text-[#a3ff12]"
-                      >
-                        {amount} ETH
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Input
-                      type="number"
-                      placeholder="Custom amount"
-                      className="bg-black border-gray-700 focus:border-[#a3ff12]"
-                    />
-                    <span className="text-gray-400">ETH</span>
-                  </div>
-                </div>
-
-                <Button className="w-full bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
-                  SEND TIP
-                  <Coins className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="collect" className="mt-4">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <div className="border border-gray-700 rounded-lg p-4 hover:border-[#a3ff12] cursor-pointer transition-all">
-                    <div className="relative aspect-square mb-2">
-                      <Image
-                        src="/placeholder.svg?height=300&width=300"
-                        alt="NFT"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-                    <h3 className="text-white font-bold">Cyber Wolf #042</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">By 0xCyb3r</span>
-                      <span className="text-[#a3ff12] font-bold">0.1 ETH</span>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-700 rounded-lg p-4 hover:border-[#a3ff12] cursor-pointer transition-all">
-                    <div className="relative aspect-square mb-2">
-                      <Image
-                        src="/placeholder.svg?height=300&width=300"
-                        alt="NFT"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-                    <h3 className="text-white font-bold">Digital Howl #018</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">By WolfByte</span>
-                      <span className="text-[#a3ff12] font-bold">0.08 ETH</span>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-700 rounded-lg p-4 hover:border-[#a3ff12] cursor-pointer transition-all">
-                    <div className="relative aspect-square mb-2">
-                      <Image
-                        src="/placeholder.svg?height=300&width=300"
-                        alt="NFT"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-                    <h3 className="text-white font-bold">Alpha Pack #007</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">
-                        By CryptoHowler
-                      </span>
-                      <span className="text-[#a3ff12] font-bold">0.15 ETH</span>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-700 rounded-lg p-4 hover:border-[#a3ff12] cursor-pointer transition-all">
-                    <div className="relative aspect-square mb-2">
-                      <Image
-                        src="/placeholder.svg?height=300&width=300"
-                        alt="NFT"
-                        fill
-                        className="object-cover rounded-lg"
-                      />
-                    </div>
-                    <h3 className="text-white font-bold">Night Hunter #029</h3>
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="text-gray-400 text-sm">
-                        By AlphaWolf
-                      </span>
-                      <span className="text-[#a3ff12] font-bold">0.12 ETH</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Button className="w-full bg-[#a3ff12] text-black font-bold hover:bg-opacity-90">
-                  COLLECT SELECTED NFT
-                </Button>
               </div>
             </TabsContent>
           </Tabs>
@@ -792,24 +716,39 @@ export default function WarDetail({ warId }: WarDetailProps) {
                         {post.author.username.value}
                       </div>
                       <div className="text-gray-400 text-xs">
-                        {post.timestamp}
+                        {new Date(post.timestamp).toLocaleString()}
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-gray-300 mt-3">{post.metadata.content}</p>
-
-                  {post.metadata.mainContentFocus !== "TEXT_ONLY" && (
-                    <div className="mt-3 rounded-lg overflow-hidden">
-                      <Image
-                        src={"/placeholder.svg"}
-                        alt="Post image"
-                        width={500}
-                        height={300}
-                        className="w-full object-cover"
-                      />
+                  {post.metadata.mainContentFocus === "TEXT_ONLY" ? (
+                    <p className="text-gray-300 mt-3">
+                      {post.metadata.content}
+                    </p>
+                  ) : post.metadata.mainContentFocus === "IMAGE" &&
+                    post.metadata.image ? (
+                    <div className="mt-3">
+                      {post.metadata.title && (
+                        <h3 className="text-white font-semibold mb-2">
+                          {post.metadata.title}
+                        </h3>
+                      )}
+                      <div className="rounded-lg overflow-hidden">
+                        <Image
+                          src={post.metadata.image.item}
+                          alt={post.metadata.image.altTag || "Post image"}
+                          width={post.metadata.image.width || 500}
+                          height={post.metadata.image.height || 300}
+                          className="w-full object-cover"
+                        />
+                      </div>
+                      {post.metadata.content && (
+                        <p className="text-gray-300 mt-2">
+                          {post.metadata.content}
+                        </p>
+                      )}
                     </div>
-                  )}
+                  ) : null}
 
                   <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center space-x-4">
