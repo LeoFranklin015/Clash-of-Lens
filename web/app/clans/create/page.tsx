@@ -56,7 +56,12 @@ export default function CreateClan() {
   const { sessionClient } = useSession();
   const signer = useEthersSigner();
   const chainId = useChainId();
-  const { writeContract, isPending: isRegistering, isError: isRegisterError, error: registerError } = useWriteContract();
+  const {
+    writeContract,
+    isPending: isRegistering,
+    isError: isRegisterError,
+    error: registerError,
+  } = useWriteContract();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -115,13 +120,17 @@ export default function CreateClan() {
           .andThen((txHash) => fetchGroup(sessionClient, { txHash }));
 
         if (createGroupResult.isErr()) {
-          throw new Error(createGroupResult.error.message || "Failed to create group");
+          throw new Error(
+            createGroupResult.error.message || "Failed to create group"
+          );
         }
 
         const result = createGroupResult.value;
 
         if (!result || !result.address) {
-          throw new Error("Group creation result is invalid or missing address");
+          throw new Error(
+            "Group creation result is invalid or missing address"
+          );
         }
 
         console.log("Group created:", result);
@@ -130,8 +139,13 @@ export default function CreateClan() {
 
         // Step 3: Register clan using wagmi useWriteContract
         await writeContract({
-          address: contractsConfig[chainId as keyof typeof contractsConfig]?.contractAddress as `0x${string}` || contractsConfig[37111].contractAddress,
-          abi: contractsConfig[chainId as keyof typeof contractsConfig]?.contractABI || contractsConfig[37111].contractABI,
+          address:
+            (contractsConfig[chainId as keyof typeof contractsConfig]
+              ?.contractAddress as `0x${string}`) ||
+            contractsConfig[37111].contractAddress,
+          abi:
+            contractsConfig[chainId as keyof typeof contractsConfig]
+              ?.contractABI || contractsConfig[37111].contractABI,
           functionName: "registerClan",
           args: [result.address],
         });
@@ -305,7 +319,9 @@ export default function CreateClan() {
               </Button>
               {currentStep === steps.length - 1 ? (
                 <Button
-                  disabled={(!clanData.name || !clanData.description || !imageFile) && storageClient}
+                  disabled={
+                    !clanData.name || !clanData.description || !imageFile
+                  }
                   onClick={handleCreateClan}
                   className="min-w-[120px] cursor-pointer bg-[#a3ff12] text-black font-bold hover:bg-opacity-90 disabled:opacity-50"
                   variant="default"
@@ -333,12 +349,15 @@ export default function CreateClan() {
             {processStep === 2 && isRegistering && (
               <div className="mt-8 flex flex-col items-center">
                 <div className="w-6 h-6 border-4 border-[#a3ff12] border-t-transparent rounded-full animate-spin mb-2" />
-                <span className="text-[#a3ff12] font-bold">Registering clan on-chain...</span>
+                <span className="text-[#a3ff12] font-bold">
+                  Registering clan on-chain...
+                </span>
               </div>
             )}
             {processStep === 2 && isRegisterError && (
               <div className="mt-8 text-red-500 font-bold">
-                Error registering clan: {registerError?.message || 'Unknown error'}
+                Error registering clan:{" "}
+                {registerError?.message || "Unknown error"}
               </div>
             )}
             {completedSteps.length === processSteps.length && (
