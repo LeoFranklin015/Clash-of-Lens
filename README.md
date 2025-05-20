@@ -9,7 +9,7 @@ Clash of Lens transforms the Lens Protocol into a real-time battleground where *
 ## 🚀 Live Demo
 
 [➡️ View the App](https://clashoflens.xyz)  
-[📺 Watch Demo Video](#) *(Add YouTube link if available)*
+[📺 Watch Demo Video](#) (https://youtu.be/5zoGXNTbTg4)
 
 ---
 
