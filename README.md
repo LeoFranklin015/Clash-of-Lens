@@ -4,6 +4,9 @@
 
 Clash of Lens transforms the Lens Protocol into a real-time battleground where **Lens Groups become Clans**, and **onchain social activity becomes strategy**. It’s the first-ever PvP game on Lens where tipping, followers, posts, and NFT collects determine victory — not chance.
 
+
+![image](https://github.com/user-attachments/assets/f87d6de0-34c7-4cdc-99cf-66a6936c7bbd)
+
 ---
 
 ## 🚀 Live Demo
