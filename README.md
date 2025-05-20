@@ -2,6 +2,10 @@
 
 **A SocialFi Clan War Game Built on Lens Protocol**
 
+
+![image](https://github.com/user-attachments/assets/8865ed99-2b1f-46c2-aae1-2e8902f888d1)
+
+
 Clash of Lens transforms the Lens Protocol into a real-time battleground where **Lens Groups become Clans**, and **onchain social activity becomes strategy**. It’s the first-ever PvP game on Lens where tipping, followers, posts, and NFT collects determine victory — not chance.
 
 
