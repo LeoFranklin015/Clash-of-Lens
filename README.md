@@ -51,7 +51,8 @@ Clash of Lens transforms the Lens Protocol into a real-time battleground where *
 | **Next.js + Tailwind** | Frontend DApp UI                        |
 | **GHO**             | Tipping + War stake currency              |
 | **NFT.Storage**     | Storing war badges and metadata           |
-| **RainbowKit / wagmi** | Wallet + Lens Profile connection      |
+| **FamilyConnect / wagmi** | Wallet + Lens Profile connection      |
+| **Alchemy**            | RPC URLS                              | 
 
 ---
 
