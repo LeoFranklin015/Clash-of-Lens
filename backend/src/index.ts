@@ -46,9 +46,9 @@ app.get("/", async (req: Request, res: Response) => {
   //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
   // );
   // await postWarDetails(
-  //   "2",
-  //   "0x5ce25d46036029879581bab2f09b70d713211089",
-  //   "0x587bdcdb5ccf375b04c077a1af1d523122913b9d"
+  //   "1",
+  //   "0x92a23d5600E1aB4489b16De50a30047EA9b6249B",
+  //   "0x22eF1cA9eA0f5c49c2eD41c95169181a3d91309A"
   // );
 
   // await storeSnapShot(

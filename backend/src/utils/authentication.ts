@@ -20,7 +20,7 @@ export const authenticate = async () => {
 
   const authenticated = await client.login({
     accountOwner: {
-      account: `0x446e9e88Dc725f236527535a44Ae1fdEfbC47B55`,
+      account: `0x83C3A17E22d2fDa97006c0Bc56107C56B234d802`,
       app: "0x7208e865B25c4A4A8f4F0235bb331Fdb1eb0bA80",
       owner: signer.address,
     },
