@@ -1,39 +1,67 @@
+# ⚔️ Clash of Lens
 
-# ClashOfLens
- A SocialFi Clan War Game Built on Lens Protocol
+**A SocialFi Clan War Game Built on Lens Protocol**
 
----
-
-### **Description:**
-
-**Clash of Lens** transforms the Lens Protocol into a real-time battleground where Lens Groups (Clans) compete for social dominance and onchain rewards.
-
-Players join or create clans and declare war against rival groups. Battles are decided not by speculation or luck, but by **real onchain social activity** — including GHO tipping, NFT collects, follower growth, and post creation.
-
-Each war lasts for a defined period (e.g., 7 days), during which every qualifying interaction is tracked via a custom **subgraph**. Our smart contract stores pre- and post-war snapshots, resolves outcomes using PostActions like `startWar()` and `declareWinner()`, and automatically distributes rewards.
-
-Winning clans receive GHO bonus pools, **Victory Emblem NFTs**, and **Graph Aura Badges** across their posts. The MVP earns a **Gold Medal NFT** minted onchain.
-
-Built natively on the Lens ecosystem, Clash of Lens is a modular, extensible SocialFi experience that incentivizes engagement, content creation, and community coordination — while making it fun, gamified, and rewarding.
+Clash of Lens transforms the Lens Protocol into a real-time battleground where **Lens Groups become Clans**, and **onchain social activity becomes strategy**. It’s the first-ever PvP game on Lens where tipping, followers, posts, and NFT collects determine victory — not chance.
 
 ---
 
-### **Built With:**
+## 🚀 Live Demo
 
-* **Lens Protocol** – Groups, Profiles, PostActions
-* **Solidity** – Custom Clan & War smart contracts
-* **The Graph** – Real-time war metric aggregation
-* **Next.js** + **Tailwind** – Frontend DApp
-* **GHO (Aave stablecoin)** – In-game tipping + war stakes
-* **NFT.Storage** – Metadata for badges and rewards
-* **RainbowKit / wagmi** – Wallet integration with Lens support
+[➡️ View the App](https://clashoflens.xyz)  
+[📺 Watch Demo Video](#) *(Add YouTube link if available)*
 
 ---
 
-### **What Makes It Special:**
+## 🧠 How It Works
 
-* First-ever **PvP clan war game** using Lens Groups as players
-* Unique use of **PostActions** to declare and resolve battles
-* Real-time war score tracking via onchain activity
-* Builds habit loops for **organic engagement**, not farming
-* Ready to expand into Seasons, Frames, and other ecosystems
+1. **Create or Join a Clan**  
+   Clans are Lens Groups. Users form teams and represent their collective identity.
+
+2. **Declare War**  
+   Clan leaders trigger a `startWar()` PostAction. Wars run for a fixed time (e.g., 7 days).
+
+3. **Compete in Real Metrics**  
+   All war activity is tracked via a custom subgraph:
+   - 💰 GHO tips
+   - 🖼 NFT collects
+   - 👥 Follower growth
+   - 📝 Post activity
+
+4. **Predictions Markets are posted**
+ Fans can engage with the market and bet on their fav clan. ( Custom Post Action ) 
+
+5. **Declare the Winner**  
+   At the end of the war, `declareWinner()` is called via PostAction. Metrics are resolved, and rewards are distributed onchain.
+
+6. **Earn Rewards**  
+   - 🏆 Winning Clan: GHO Pool, Victory Emblem NFTs  
+   - ✨ MVP Player: Gold Medal NFT  
+   - 🌈 Members: Graph Aura profile badge
+
+---
+
+## 🛠 Built With
+
+| Stack               | Purpose                                  |
+|---------------------|-------------------------------------------|
+| **Lens Protocol**   | Groups (Clans), Profiles, PostActions     |
+| **Solidity**        | Clan & War contracts + reward logic       |
+| **The Graph**       | Subgraph for metric tracking during wars  |
+| **Next.js + Tailwind** | Frontend DApp UI                        |
+| **GHO**             | Tipping + War stake currency              |
+| **NFT.Storage**     | Storing war badges and metadata           |
+| **RainbowKit / wagmi** | Wallet + Lens Profile connection      |
+
+---
+
+## 🎮 Features
+
+- 🛡 **Clan-Based PvP Wars** using real Lens activity  
+- ⚔️ **PostActions** to start wars and declare winners  
+- 📈 **Subgraph-powered scoreboards**  
+- 🧑‍🤝‍🧑 **Community-first gameplay** – no bots or speculation  
+- 🪙 **Earn GHO + NFTs** through organic engagement  
+- 🧩 **Modular**: Easily extend to Seasons, Quests, Frames, and more
+
+---
