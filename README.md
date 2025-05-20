@@ -1,6 +1,6 @@
 
-
-**Clash of Lens** – A SocialFi Clan War Game Built on Lens Protocol
+# ClashOfLens
+ A SocialFi Clan War Game Built on Lens Protocol
 
 ---
 
