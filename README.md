@@ -1,4 +1,4 @@
-# ⚔️ Clash of Lens
+![image](https://github.com/user-attachments/assets/ead98022-1f26-4961-a0c5-95bb306e4463)# ⚔️ Clash of Lens
 
 **A SocialFi Clan War Game Built on Lens Protocol**
 
@@ -71,5 +71,16 @@ Clash of Lens transforms the Lens Protocol into a real-time battleground where *
 - 🧑‍🤝‍🧑 **Community-first gameplay** – no bots or speculation  
 - 🪙 **Earn GHO + NFTs** through organic engagement  
 - 🧩 **Modular**: Easily extend to Seasons, Quests, Frames, and more
+
+![image](https://github.com/user-attachments/assets/d0881d42-45c0-43ea-ba9b-1e8da3404cd2)
+
+![image](https://github.com/user-attachments/assets/de928954-0f4b-4d28-a314-b4db21567067)
+
+![image](https://github.com/user-attachments/assets/91cb577a-e4e7-4ef9-9744-f277f7f38be6)
+
+![image](https://github.com/user-attachments/assets/3f84efe9-4ec3-4eaf-82ea-d4d74b6eb4cf)
+
+![image](https://github.com/user-attachments/assets/85725032-7e0e-4fc2-8b5f-403f319c3276)
+
 
 ---
