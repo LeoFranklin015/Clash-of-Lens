@@ -45,11 +45,11 @@ app.get("/", async (req: Request, res: Response) => {
   // const members = await getGroupMembers(
   //   "0x00F5b8244C1aDE1E11ec7a214773c3a41125516d"
   // );
-  await postWarDetails(
-    "1",
-    "0x92a23d5600E1aB4489b16De50a30047EA9b6249B",
-    "0x22eF1cA9eA0f5c49c2eD41c95169181a3d91309A"
-  );
+  // await postWarDetails(
+  //   "1",
+  //   "0x92a23d5600E1aB4489b16De50a30047EA9b6249B",
+  //   "0x22eF1cA9eA0f5c49c2eD41c95169181a3d91309A"
+  // );
 
   // await storeSnapShot(
   //   "2",
