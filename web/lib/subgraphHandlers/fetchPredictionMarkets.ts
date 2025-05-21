@@ -22,7 +22,7 @@ const POSTS_QUERY = `
 const variables = {
   request: {
     filter: {
-      authors: ["0x446e9e88Dc725f236527535a44Ae1fdEfbC47B55"],
+      authors: ["0x83C3A17E22d2fDa97006c0Bc56107C56B234d802"],
     },
   },
 };
